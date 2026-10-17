@@ -143,6 +143,14 @@ class SourceAndClosingTests(unittest.TestCase):
         alerts = [r['escopo'] for r in result.tables['pendencias'] if r['tipo']=='ALERTA_ANTECIPACAO']
         self.assertEqual(alerts,['1076801732'])
 
+    def test_advance_alert_uses_advances_open_on_the_date(self):
+        # HIPOTESES.md D3: a later reversal does not erase the alert; a reversal counts from its own date.
+        result = close_month(self.bundle,self.policy,'2026-09')
+        alert = next(r for r in result.tables['pendencias'] if r['tipo']=='ALERTA_ANTECIPACAO')
+        self.assertEqual(alert['valor_brl'],Decimal('179592.82'))
+        self.assertEqual(alert['ref_origem'].split(';'),['AN88445637','AN88445646','AN88445703','AN88445766'])
+        self.assertIn('179592.82',alert['motivo'])
+
     def test_bridge_uses_different_contracts_at_the_date_boundary(self):
         row = deepcopy(next(r for r in self.bundle.checkout if r['cod_estabelecimento']=='1075624862'))
         row['date'] = row['date'].replace(day=14)

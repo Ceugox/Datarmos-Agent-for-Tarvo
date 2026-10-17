@@ -48,13 +48,14 @@ As regras de negócio vieram das respostas da Helena (financeiro da Tarvo) no ca
 | Devolução de PIX da Mundo Aberto (R$ 12.400) | Conta 2.1.01.001 (repasses a lojistas a pagar), com pendência do motivo. | O repasse volta a ser devido; é a mesma conta do pagamento original. A Helena aceitou as duas contas, desde que o critério seja mantido (17/10 9h48). |
 | PIX sem identificação (R$ 7.350) | Conta 1.1.09.002 (créditos não identificados), com pendência. | "Não é receita até alguém identificar." |
 | Transferência de R$ 300.000 | Conta 1.1.09.001 (transferências entre contas próprias), pendência para conferir o crédito no extrato de outubro. | Está em trânsito no fechamento. |
-| Alerta de antecipação | Só para lojista sem atividade anterior no pacote (primeiro movimento depois do dia 1º e nenhum estorno de mês anterior) cuja antecipação acumulada supere as vendas acumuladas. | Sem a agenda de recebíveis, para lojistas antigos não se sabe o que já foi vendido antes do mês. Em setembro só a Atlas dispara. |
+| Alerta de antecipação | Só para lojista sem atividade anterior no pacote (primeiro movimento depois do dia 1º e nenhum estorno de mês anterior). A cada antecipação, compara as antecipações em aberto naquela data com as vendas acumuladas até ela; a reversão só conta a partir da data dela. O alerta mostra o momento de maior diferença: valor e operações são as antecipações em aberto nesse momento, e o motivo cita as reversões posteriores. Em setembro: Atlas, R$ 179.592,82 em aberto em 15/09 (AN88445637, AN88445646, AN88445703, AN88445766) contra R$ 55.357,50 em vendas; a AN88445637 foi revertida em 17/09. | Sem a agenda de recebíveis, para lojistas antigos não se sabe o que já foi vendido antes do mês. Sobre as reversões, a Helena deixou o critério com o time (resposta ao Datarmos, 17/10): a antecipação foi feita acima do vendido, e a reversão posterior não apaga que o risco existiu, então ela entra pelo que estava em aberto na data. A versão anterior somava as antecipações que dispararam o alerta em datas diferentes (R$ 183.581,24, incluindo a AN88446517, revertida em 26/09), o que não correspondia a nenhum saldo real e não batia com o texto. O alerta não muda nenhum número do fechamento. |
 | CNPJ de remessa fora da planilha | Participação calculada mesmo assim, pendência de cadastro para o comercial; spread padrão na comparação. | Proposta aceita como premissa (17/10 9h45). Não ocorreu em setembro. |
 
 ## Limitações conhecidas
 
 - Atlas: as 57 linhas de setembro (R$ 262.138,61 brutos) estão em pendência. O motor fatura só lançamentos com data de movimento no período; faturar em outubro as linhas de setembro exige uma evolução (ler a pendência anterior ou aceitar um período de vigência retroativo). Hoje isso fica manual, com o valor e as linhas na pendência.
 - Linhas repetidas de remessa são listadas para correção mesmo quando a operação sai da comissão por outro motivo (competência ou spread negativo).
+- A provisão de folha e impostos de setembro fica fora do fechamento: é feita pela contabilidade com a Helena, com a folha e as guias, que não estão no pacote (resposta ao Datarmos, 17/10). O motor classifica só o que passou nos extratos.
 - A conciliação da Orbe contra o banco parcela por parcela não foi feita, a pedido do financeiro: depende da agenda de recebíveis.
 - Notas, contestações e lançamentos são entregues para revisão. O motor não emite nota, não envia e-mail e não lança no ERP.
 - Confiança da classificação bancária é um escore de regra, não uma probabilidade calibrada.
@@ -86,3 +87,24 @@ As perguntas foram feitas no canal compartilhado por vários times; as respostas
 | 19 | Casa do Estudante: só pendência ou também em divergências, marcada? | "Do jeito que vocês propuseram serve: uma pendência com o total e o detalhe por transação marcado. Só não pode entrar na cobrança da Orbe." |
 | 20 | Pendência por transação ou por lojista? Quem decide cadastro? Mais de 12x? 1.418,85 ou 1.418,88? | Por contraparte e lojista, com detalhe anexo; cadastro é do comercial; acima de 12x é pendência; três centavos, escolher e escrever o critério. |
 | 21 | Repasse à Atlas continua sem faturamento? | Continua; só o faturamento da taxa fica suspenso. |
+
+## Perguntas enviadas pelo time Datarmos
+
+As perguntas da tabela acima vieram de vários times; as três abaixo foram enviadas pelo Datarmos no canal em 17/10/2026. Saíram da revisão do fechamento contra o que já estava respondido no canal. Texto da mensagem, como enviado:
+
+> [financeiro] [Datarmos]: três perguntas para fechar setembro.
+>
+> 1. Casa do Estudante: lista de divergências
+> Na resposta para a Fox AI (17/10 10h58), a senhora aceitou as 118 transações também em divergencias_taxa.csv, marcadas como "isenção não informada à Orbe" e fora da cobrança da Orbe. Antes, tinha pedido para deixar separado das divergências de contrato. Hoje deixamos o total (R$ 15.396,77) só na pendência, com o detalhe por transação no rastro. A senhora precisa das 118 linhas em divergencias_taxa.csv, ou basta a pendência com o detalhe anexado?
+>
+> 2. Provisão de folha e impostos de setembro
+> A senhora disse que todo mês a folha e os impostos do mês ficam provisionados no fechamento. O pacote só traz os pagamentos de agosto feitos em setembro, sem os valores de folha e impostos de setembro. O fechamento precisa gerar o lançamento de provisão de setembro? Se precisar, de onde vêm os valores? Ou isso fica com a senhora fora do fechamento automático?
+>
+> 3. Alerta de antecipação da Atlas: reversões contam?
+> A Atlas antecipou R$ 179.592,82 até 15/09, com R$ 55.357,50 em vendas até essa data. Duas antecipações foram revertidas depois: AN88445637 (15/09, revertida em 17/09) e AN88446517 (24/09, revertida em 26/09). Para o alerta "antecipação acima das vendas", consideramos o que foi antecipado, mesmo que revertido depois, ou só o que ficou valendo depois das reversões?
+
+| # | Tema | Por que perguntamos | Resposta da Helena |
+|---|---|---|---|
+| D1 | Casa do Estudante em `divergencias_taxa` | A aceitação da proposta da Fox AI (17/10 10h58) e o pedido anterior de separar das divergências de contrato apontam para lados diferentes; o arquivo é corrigido contra gabarito. | "Basta a pendência com o total e o detalhe por transação. Se quiserem pôr as linhas também em divergências, marcadas como isenção, tudo bem, mas não precisa. O que importa é ficar separado das divergências de contrato e fora da cobrança da Orbe." Mantido como está: total na pendência, detalhe no `rastro.csv`, fora de `divergencias_taxa`. |
+| D2 | Provisão de folha e impostos de setembro | A regra diz que todo mês a folha e os impostos ficam provisionados, mas o pacote não traz os valores de setembro e o motor só classifica movimentos bancários. | "Fica fora do fechamento de vocês. A provisão de setembro quem faz é a contabilidade, comigo, com a folha e as guias, e isso não está no pacote. O fechamento de vocês classifica o que passou nos extratos." Registrado em Limitações conhecidas. |
+| D3 | Reversões no alerta de antecipação da Atlas | Duas antecipações da Atlas foram revertidas; o critério define o valor, o texto e as operações do alerta. | "Esse critério é de vocês. O alerta é para mim e para o comercial e não muda nenhum número. Registrem a escolha no `HIPOTESES.md`." Critério escolhido em Decisões do time (Alerta de antecipação). |

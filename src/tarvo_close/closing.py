@@ -167,21 +167,29 @@ def advance_alerts(rows, period, result):
         earlier = any(r['data_venda_original'] and datetime.strptime(r['data_venda_original'],'%d/%m/%Y').date() < month_start for r in events)
         if earlier or min(r['date'] for r in events) == month_start:
             continue
-        sales = advances = ZERO
+        # Criterion (Datarmos, HIPOTESES.md D3): compare cumulative sales with the advances still open at each
+        # advance; a reversal only counts from its own date, so a later reversal does not erase the alert.
+        sales = ZERO
+        open_advances = {}
         flagged = []
         for row in sorted(events, key=lambda r: (r['date'], r['tipo_lancamento'] != 'VENDA', r['id_transacao'])):
             if row['tipo_lancamento'] in {'VENDA','ESTORNO'}:
                 sales += row['valor_bruto']
             elif row['tipo_lancamento'] == 'REVERSAO ANTECIPACAO':
-                advances += row['valor_bruto']
+                open_advances.pop(row['id_referencia'], None)
             elif row['tipo_lancamento'] == 'ANTECIPACAO':
-                advances += row['valor_bruto']
+                open_advances[row['id_transacao']] = row
+                advances = sum((r['valor_bruto'] for r in open_advances.values()), ZERO)
                 if advances > sales:
-                    flagged.append((row, advances, sales))
+                    flagged.append((row, advances, sales, list(open_advances.values())))
         if flagged:
-            row, advances, sales = max(flagged, key=lambda item: item[1]-item[2])
+            row, advances, sales, outstanding = max(flagged, key=lambda item: item[1]-item[2])
             first = min(r['date'] for r in events).isoformat()
-            result.pending(f'advance-alert:{ec}', 'ALERTA_ANTECIPACAO', f'{row["nome_estabelecimento"]} começou a transacionar em {first} e antecipou {advances} até {row["date"].isoformat()}, com {sales} em vendas até essa data. A antecipação é sobre o que já foi vendido e não há trava. Avisar financeiro e comercial.', 'Helena (financeiro) / Comercial', [source(r,r['valor_bruto'],'antecipação acima das vendas acumuladas') for r, _, _ in flagged], ec)
+            ids = {r['id_transacao'] for r in outstanding}
+            later = sorted(f"{r['id_referencia']} em {r['date'].isoformat()}" for r in events
+                           if r['tipo_lancamento'] == 'REVERSAO ANTECIPACAO' and r['id_referencia'] in ids)
+            note = f' Revertidas depois: {", ".join(later)}; o alerta vale pelo que estava em aberto na data.' if later else ''
+            result.pending(f'advance-alert:{ec}', 'ALERTA_ANTECIPACAO', f'{row["nome_estabelecimento"]} começou a transacionar em {first} e tinha {advances} em antecipações em aberto em {row["date"].isoformat()}, com {sales} em vendas até essa data. A antecipação é sobre o que já foi vendido e não há trava.{note} Não muda nenhum número do fechamento. Avisar financeiro e comercial.', 'Helena (financeiro) / Comercial', [source(r,r['valor_bruto'],'antecipação em aberto acima das vendas acumuladas') for r in outstanding], ec)
 
 
 def close_checkout(bundle, policy, period, result):
