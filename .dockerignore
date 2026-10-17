@@ -1,0 +1,11 @@
+.venv
+saida*
+Tarvo_Data_Pack_set2026
+PROMPTS
+analysis
+tests
+.git
+.cache
+*.pdf
+__pycache__
+*.pyc

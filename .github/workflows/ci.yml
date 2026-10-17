@@ -17,3 +17,31 @@ jobs:
         run: |
           python run_engine.py --input Tarvo_Data_Pack_set2026 --period 2026-09 --output /tmp/saida-ci
           diff -r -x index.html -x manifest.json saida /tmp/saida-ci
+      - name: Formato fixo dos CSVs (; . AAAA-MM-DD CNPJ 14 dígitos)
+        run: python tests/output_format.py saida /tmp/saida-ci
+  api:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16.4
+        env:
+          POSTGRES_PASSWORD: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+      - name: Dockerfile uses the Python version of .python-version
+        run: grep -q "^FROM python:$(cat .python-version)-slim" Dockerfile
+      - run: pip install -r requirements-api.txt
+      - name: API tests (Postgres service container, no key, no external network)
+        env:
+          TEST_DATABASE_URL: postgresql://postgres:test@localhost:5432/postgres
+        run: python -m unittest discover -s tests -p "test_api_*.py" -v

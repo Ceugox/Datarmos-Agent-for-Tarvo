@@ -126,6 +126,10 @@ def run_inference(bundle, result, closing_policy, inference_policy, resolver, au
 def load_decisions(path, result):
     with open(path,encoding='utf-8') as handle:
         decisions = json.load(handle)
+    return validate_decisions(decisions,result)
+
+
+def validate_decisions(decisions, result):
     if not isinstance(decisions,list):
         raise ValueError('Decisions file must be a JSON list')
     known = {item.excecao_id for item in result.exceptions}

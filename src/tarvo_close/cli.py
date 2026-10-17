@@ -5,14 +5,9 @@ import os
 from pathlib import Path
 import sys
 
-from .audit import AuditLog
-from .closing import close_month
-from .inference import load_decisions, run_inference, run_revision
 from .inference_policy import load_inference_policy
 from .llm_cache import ResponseCache
-from .readers import read_inputs
-from .reporting import publish_result
-from .resolver import AnthropicResolver, CachedResolver, TokenBudget
+from .runner import run_closing, run_revision_closing
 
 
 def main(argv=None, resolver=None):
@@ -31,28 +26,24 @@ def main(argv=None, resolver=None):
     if revising and not (args.decisoes and args.revisao_de):
         print('Closing failed: --decisoes and --revisao-de must be used together',file=sys.stderr)
         return 1
-    # a revision never calls the resolver: it works without a key and with --no-llm
-    layer = revising or not args.no_llm
-    if layer and not revising and resolver is None and not os.environ.get('ANTHROPIC_API_KEY'):
-        print('ANTHROPIC_API_KEY not set: inference layer off, same as --no-llm',file=sys.stderr)
-        layer = False
     audit = revision = None
+    events = []
     try:
         policy = json.loads(args.policy.read_text(encoding='utf-8'))
-        bundle = read_inputs(args.input)
-        result = close_month(bundle,policy,args.period)
-        if layer:
-            inference_policy = load_inference_policy(args.inference_policy)
-            audit = AuditLog()
-            if revising:
-                revision = run_revision(bundle,result,policy,inference_policy,args.revisao_de,load_decisions(args.decisoes,result),audit)
-            else:
-                inner = resolver or AnthropicResolver(prompt_version=inference_policy['prompt_version'])
-                budget = TokenBudget(int(os.environ.get('LLM_BUDGET_TOKENS',200000)))
-                events = run_inference(bundle,result,policy,inference_policy,CachedResolver(inner,ResponseCache(args.cache_dir)),audit,budget)
-        manifest = publish_result(bundle,result,policy,args.period,args.output,revision=revision)
-        if audit:
-            audit.write(args.output/'auditoria.jsonl')
+        if revising:
+            # a revision never calls the resolver: it works without a key and with --no-llm
+            with open(args.decisoes,encoding='utf-8') as handle:
+                decisions = json.load(handle)
+            done = run_revision_closing(args.input,policy,load_inference_policy(args.inference_policy),args.period,args.output,args.revisao_de,decisions)
+            revision = done['revision']
+        else:
+            layer = not args.no_llm and (resolver is not None or bool(os.environ.get('ANTHROPIC_API_KEY')))
+            inference_policy = load_inference_policy(args.inference_policy) if layer else None
+            done = run_closing(args.input,policy,inference_policy,args.period,args.output,resolver=resolver,cache=ResponseCache(args.cache_dir),use_llm=not args.no_llm)
+            events = done['events']
+            if done['aviso']:
+                print(done['aviso'],file=sys.stderr)
+        result, manifest, audit = done['result'], done['manifest'], done['audit']
     except (OSError,ValueError,KeyError,TypeError,ImportError) as error:
         print(f'Closing failed: {error}',file=sys.stderr)
         return 1
