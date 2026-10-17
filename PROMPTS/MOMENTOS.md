@@ -1,6 +1,6 @@
 # Momentos da preparação e construção
 
-Resumo dos momentos da conversa com a IA (Claude Code e Orca). Não substitui o histórico integral exportado do aplicativo.
+Resumo dos momentos da conversa com a IA. O histórico integral da sessão Claude Code de 17/10 está em `sessao-claude-code-2026-10-17.md`; a sessão anterior (16/10, no Orca) não foi exportada.
 
 1. **Investigar antes de construir.** A IA leu o enunciado, extraiu o anexo do e-mail e separou volume, taxas, comissão e caixa, deixando as regras financeiras como perguntas.
 2. **Corrigir um critério que criaria falsos alarmes.** A comparação inicial produzia diferenças de um centavo; a conferência das vendas mostrou que a Orbe trunca. Depois o financeiro confirmou: a Orbe trunca, a Tarvo arredonda, e centavo de truncamento não é divergência.
