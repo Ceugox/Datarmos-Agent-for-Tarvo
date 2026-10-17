@@ -1,0 +1,18 @@
+RASCUNHO - revisar antes de enviar. Nada foi enviado pelo motor.
+
+Para: Ponte Câmbio
+Assunto: Contestação - competência 09/2026 - Tarvo
+
+Prezados,
+
+No fechamento de 09/2026 identificamos operações em que o spread aplicado difere do contratado, spreads negativos com trava vencida (não aceitos pela Tarvo) e linhas repetidas que precisam ser corrigidas no relatório.
+
+- OPERACAO_REPETIDA: 1 operações, R$ 821,88
+- SPREAD_ACIMA_DO_CONTRATO: 23 operações, R$ 1.418,88
+- SPREAD_NEGATIVO: 4 operações, R$ -1.834,05
+
+A lista com cada operação segue no anexo operacoes_ponte.csv.
+Pedimos a análise e a correção ou a devolução dos valores aos lojistas, conforme o caso.
+
+Atenciosamente,
+Helena - Financeiro Tarvo

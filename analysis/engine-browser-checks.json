@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "browser": "Microsoft Edge",
+  "checks": [
+    "embedded output counts",
+    "filters",
+    "pagination",
+    "trace selection",
+    "empty search",
+    "desktop/mobile overflow",
+    "all local downloads and source links",
+    "print render"
+  ],
+  "consoleErrors": [],
+  "externalRequests": []
+}

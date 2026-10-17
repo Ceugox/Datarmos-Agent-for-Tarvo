@@ -1,0 +1,58 @@
+{
+  "engine_sha256": "7b7172a3a3ef1e1b13d31172d0cb3c7d8a7b63b0434501e1cfba4fb2a21ba88b",
+  "engine_version": "0.2.0",
+  "output_sha256": {
+    "anexos/PonteCambio_Relatorio_TARVO_092026.xlsx": "c7d4e137fe7ee00ae5838cc229bfed87b34aca3e3495518921f6bc19c607fc26",
+    "checks.json": "38d6bf5eee7ba0858e09a0e475332ea70d347209c996d867dcdbeab3160ed101",
+    "cobertura.csv": "2b83f1c6476c5a06af725dffc9b055bd301c166730cf05b2a741749de03826b0",
+    "comissoes_por_lojista.csv": "795d9382d3869b45cdc2ec78215d02b79455129f91961feffbc98ea5127f0f21",
+    "contestacoes/operacoes_orbe.csv": "728c8d168a8a2a39f89898d546ff57c26a99102225f580688b022bed8c4dbc70",
+    "contestacoes/operacoes_ponte.csv": "00066d68a587d4aabea47ceca3325fcfeda9a0308213e14d4da7bdc6077c180d",
+    "contestacoes/rascunho_orbe.txt": "fd04a0cb551c8a790760624f32fc58fdfcaea380d1b5c1d171ff502eeadc91f7",
+    "contestacoes/rascunho_ponte.txt": "86f1c9c7f6e8eb68ab582a421c7d2f5529f4f390bae034441bc8715a5a894d0e",
+    "divergencias_taxa.csv": "9881a8129cee6ed90a32dd660f7966408212540987f61208fa888d11d156fe18",
+    "index.html": "ef20678657f2c0b8846678da2f1b3ee5041aa515e1ca30f729cd10b0e2168d16",
+    "lancamentos_classificados.csv": "cffc110f1bd9e347eaf830f5518364fbf60d07f217d1793aa88b689a6505d05b",
+    "metrics.json": "129a6ab09ee14d13b409bef8c17b899ba3bd4ca16734b09f74417ebebd3a3926",
+    "notas_a_emitir.csv": "c69b4eeb25e65387ab08e79ad72dd1cb0d409b29f313f0270529fc873054a0e7",
+    "pendencias.csv": "5a7461dd8fc7798a11f5c68aa2f4b36721b2c7be97b374ce78127759666a99c2",
+    "policy.json": "fb9bd0383a9e34c87902a03bda74a709adb5bcdbca0ccd15080a53978e1ebecf",
+    "rastro.csv": "da642e2de38b765e247c51d4ed1da7d791208a70f35f8d9910d75225feece76b"
+  },
+  "period": "2026-09",
+  "rules": "REGRAS_DO_FINANCEIRO",
+  "run_id": "2026-09-3a82fadc2dc20539",
+  "slack_read": true,
+  "sources": {
+    "01_orbe_relatorio_comissoes_set2026.csv": {
+      "kind": "checkout",
+      "sha256": "1d9891971da84f11fb1f25e0d30b0b8633865653bb93545dacab5904c43522ef"
+    },
+    "02_tabela_taxas_contratadas.xlsx": {
+      "kind": "contracts",
+      "sha256": "d0c7d2b13ac41c2a036a40362eb26c341666feef74d7199284742c255885dfc4"
+    },
+    "03_email_ponte_cambio_relatorio_set2026.eml": {
+      "kind": "email",
+      "sha256": "e36808cab907df4b598d0022ae92af99c9b7c281a5d619d91e64d163f42e6f8f"
+    },
+    "04_plano_de_contas_fenix_erp.csv": {
+      "kind": "accounts",
+      "sha256": "8f7c8c0abe1599ba434a7e99fb2997447f4a11142fee7c131babd79820175e43"
+    },
+    "05a_extrato_banco_aurora_cc4471_set2026.csv": {
+      "kind": "aurora",
+      "sha256": "7303b72fa76d227a863279a36726411605d93fb63237f0cae638c111a70d2d92"
+    },
+    "05b_extrato_banco_meridiano_cc90233_set2026.ofx": {
+      "kind": "meridiano",
+      "sha256": "771a9297c0fa802a677af061fa88a5d30ea5fbe39226a122f87cebdb69f17e9f"
+    },
+    "PonteCambio_Relatorio_TARVO_092026.xlsx": {
+      "kind": "attachment",
+      "parent": "03_email_ponte_cambio_relatorio_set2026.eml",
+      "sha256": "c7d4e137fe7ee00ae5838cc229bfed87b34aca3e3495518921f6bc19c607fc26"
+    }
+  },
+  "status": "CALCULADO"
+}

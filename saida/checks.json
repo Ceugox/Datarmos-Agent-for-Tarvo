@@ -1,0 +1,21 @@
+[
+  {
+    "check": "monetary_trace_reconciliation",
+    "outputs": 368,
+    "status": "PASS"
+  },
+  {
+    "check": "source_row_coverage",
+    "rows": 2360,
+    "status": "PASS"
+  },
+  {
+    "check": "unique_output_ids_and_cnpjs",
+    "status": "PASS"
+  },
+  {
+    "check": "finance_rules_applied",
+    "reason": "Regras respondidas pela Helena no Slack aplicadas; premissas residuais em HIPOTESES.md.",
+    "status": "PASS"
+  }
+]

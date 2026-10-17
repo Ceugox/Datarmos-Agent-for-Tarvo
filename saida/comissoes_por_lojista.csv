@@ -1,0 +1,36 @@
+id_saida;cnpj;lojista;linha_negocio;comissao_brl;base_calculo;status
+COM-109b0701131f8c4d7b;20987545000140;Vela;CHECKOUT;9315.31;"valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original";CALCULADO
+COM-1982a56b3e1f6f730e;23109187000161;Oxford Prep Cursos Ltda;CHECKOUT;16077.90;"valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original";CALCULADO
+COM-22735901943ce6e397;68567965000102;DUBLIN HUB INTERCÂMB;REMESSA;1772.61;"50% do spread realizado por operação; competência pela contratação; spreads negativos excluídos";CALCULADO
+COM-22a7740ed09573a966;17217888000111;MUNDO ABERTO INTERCÂ;REMESSA;3547.69;"50% do spread realizado por operação; competência pela contratação; spreads negativos excluídos";CALCULADO
+COM-2c5c21387a9a8c6988;95927868000148;ROTA GLOBAL INTERCÂM;REMESSA;4918.34;"50% do spread realizado por operação; competência pela contratação; spreads negativos excluídos";CALCULADO
+COM-2db5cfc2fbeb656ab8;34671260000100;MAPLE STUDY ASSESSOR;REMESSA;4295.03;"50% do spread realizado por operação; competência pela contratação; spreads negativos excluídos";CALCULADO
+COM-3a3040fb7ceb1ff215;16181276000153;EDU ABROAD CONSULTOR;REMESSA;2520.25;"50% do spread realizado por operação; competência pela contratação; spreads negativos excluídos";CALCULADO
+COM-452ebcbf89fc320b03;95739378000118;PONTE AÉREA ESTUDANT;REMESSA;3007.30;"50% do spread realizado por operação; competência pela contratação; spreads negativos excluídos";CALCULADO
+COM-454bdba89bc901e9d5;08780784000120;Campus Global Ltda;CHECKOUT;9336.06;"valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original";CALCULADO
+COM-508eca9ebf16a93917;34671260000100;Maple Study Assessoria Educacional Ltda;CHECKOUT;15010.78;"valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original";CALCULADO
+COM-53110e03dafaffb0c2;16181276000153;EduAbroad;CHECKOUT;12070.17;"valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original";CALCULADO
+COM-712e85948047c04b61;95927868000148;Rota Global Intercâmbio Ltda;CHECKOUT;15621.27;"valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original";CALCULADO
+COM-77b19cce95634122f0;66564512000199;Novo Horizonte Intercambio;CHECKOUT;7767.78;"valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original";CALCULADO
+COM-7dcc879cfa92cd218b;66564512000199;NOVO HORIZONTE INTER;REMESSA;2207.48;"50% do spread realizado por operação; competência pela contratação; spreads negativos excluídos";CALCULADO
+COM-8452a0a639a149600f;17217888000111;Mundo Aberto;CHECKOUT;18522.09;"valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original";CALCULADO
+COM-84f37fc0b99e9d4997;00520815000100;Casa do Estudante Viagens Ltda;CHECKOUT;-5.50;"valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original";CALCULADO
+COM-8b0fd69e610a6785cf;50900987000179;BAGAGEM LIVRE TURISM;REMESSA;1292.67;"50% do spread realizado por operação; competência pela contratação; spreads negativos excluídos";CALCULADO
+COM-9753037c1db01c0e49;61720397000180;LISBOA CURSOS E VIAG;REMESSA;3196.36;"50% do spread realizado por operação; competência pela contratação; spreads negativos excluídos";CALCULADO
+COM-9fdd1994423851eb35;00520815000100;CASA DO ESTUDANTE VI;REMESSA;3075.91;"50% do spread realizado por operação; competência pela contratação; spreads negativos excluídos";CALCULADO
+COM-a62c617e9dd2c25e45;68567965000102;Dublin Hub Intercâmbio Ltda;CHECKOUT;11906.08;"valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original";CALCULADO
+COM-a6666b3eee60ca19ff;89779285000114;Sol Nascente Viagens Ltda;CHECKOUT;5898.02;"valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original";CALCULADO
+COM-aab110cf1ad6848c6a;78576234000179;Horizonte Viagens;CHECKOUT;9014.42;"valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original";CALCULADO
+COM-afe3eb11c51765225f;14760206000124;NÓRDICA EDUCAÇÃO INT;REMESSA;2914.18;"50% do spread realizado por operação; competência pela contratação; spreads negativos excluídos";CALCULADO
+COM-b0f13c753fbd89d2f0;85694108000184;Andes Expedições Ltda;CHECKOUT;3819.35;"valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original";CALCULADO
+COM-b3df4e0a16bf5351e3;53857560000123;Canguru;CHECKOUT;11679.43;"valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original";CALCULADO
+COM-c7bbd29cda0d892ca3;67869675000142;Bem-Vindo Exchange Ltda;CHECKOUT;9259.74;"valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original";CALCULADO
+COM-d246198b051c7fc726;21394880000106;Trilha Jovem Turismo Ltda;CHECKOUT;5628.57;"valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original";CALCULADO
+COM-d4fe20a946581a60cc;50900987000179;Bagagem Livre Turismo Ltda;CHECKOUT;7703.98;"valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original";CALCULADO
+COM-daf225a94589899c7d;61720397000180;Lisboa Cursos e Viagens Ltda;CHECKOUT;8470.78;"valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original";CALCULADO
+COM-de5cc4ddad1016bf72;07752116000126;KIWI EXPERIENCE TURI;REMESSA;2668.36;"50% do spread realizado por operação; competência pela contratação; spreads negativos excluídos";CALCULADO
+COM-e1d774670b7cd0a025;03229837000103;Fluente Idiomas Online Ltda;CHECKOUT;7316.07;"valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original";CALCULADO
+COM-e1de4703ca97b6d805;07752116000126;Kiwi Experience;CHECKOUT;10711.41;"valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original";CALCULADO
+COM-e6b9ff9605f6ba3660;67869675000142;BEM-VINDO EXCHANGE L;REMESSA;363.22;"50% do spread realizado por operação; competência pela contratação; spreads negativos excluídos";CALCULADO
+COM-f5e81ed9d97cbe23e0;22224579000109;Escola Bridge de Idiomas Ltda;CHECKOUT;11916.02;"valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original";CALCULADO
+COM-fe6345bce45f13fee1;53857560000123;CANGURU INTERCÂMBIOS;REMESSA;3764.05;"50% do spread realizado por operação; competência pela contratação; spreads negativos excluídos";CALCULADO

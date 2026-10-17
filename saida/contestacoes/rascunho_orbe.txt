@@ -1,0 +1,16 @@
+RASCUNHO - revisar antes de enviar. Nada foi enviado pelo motor.
+
+Para: Orbe Adquirência
+Assunto: Contestação - competência 09/2026 - Tarvo
+
+Prezados,
+
+No fechamento de 09/2026 identificamos cobranças de taxa diferentes do contrato vigente da Tarvo com cada lojista. O valor é valor bruto x (taxa aplicada - taxa contratada), linha a linha; vendas e estornos da mesma operação se anulam.
+
+- TAXA_DIFERENTE_DO_CONTRATO: 92 operações, R$ 1.576,23
+
+A lista com cada operação segue no anexo operacoes_orbe.csv.
+Pedimos a análise e a correção ou a devolução dos valores aos lojistas, conforme o caso.
+
+Atenciosamente,
+Helena - Financeiro Tarvo

@@ -1,0 +1,19 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+      - run: pip install -r requirements.txt
+      - run: python -m unittest discover -s tests -v
+      - name: Rerun closing and compare with delivered saida
+        run: |
+          python run_engine.py --input Tarvo_Data_Pack_set2026 --period 2026-09 --output /tmp/saida-ci
+          diff -r -x index.html -x manifest.json saida /tmp/saida-ci

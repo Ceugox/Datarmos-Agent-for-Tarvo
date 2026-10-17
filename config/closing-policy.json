@@ -1,0 +1,82 @@
+{
+  "schema_version": 2,
+  "status": "REGRAS_DO_FINANCEIRO",
+  "checkout": {
+    "commission_basis": "contracted_rate",
+    "rounding": "half_up",
+    "vigency_event": "original_sale",
+    "evidence": "Helena (financeiro), #duvidas-hackathon-ai, 16/10 20h05, 20h06, 20h47 e 21h13: bruto x taxa contratada linha a linha, arredondamento comum; estorno abate no mês do estorno pela taxa da data da venda original; antecipação na mesma nota e reversão anula a taxa revertida."
+  },
+  "remittance": {
+    "share": "0.50",
+    "competence_event": "contracted",
+    "negative_spread": "exclude_and_contest",
+    "rounding": "per_operation",
+    "default_spread": "0.015",
+    "divergence_tolerance_pp": "0.01",
+    "evidence": "Helena, 16/10 20h48 e 21h13: 50% do Spread R$ realizado por operação, arredondamento comum; competência pela data de contratação; spread negativo fora da comissão e da nota, para contestação; número de operação é único; ressalva de compliance não altera nada; célula em branco ou padrão = 1,5%. Tolerância de 0,01 p.p. é decisão do time (Helena, 20h58: o critério é de vocês, desde que escrito com o motivo)."
+  },
+  "ec_overrides": {
+    "1043300981": {"cnpj": "66564512000199", "evidence": "Helena, 16/10 20h24: HORIZONTE INTERCAMBIO é a linha Novo Horizonte Intercambio da aba vigente."},
+    "1043396662": {"cnpj": "78576234000179", "evidence": "Helena, 16/10 20h24: HORIZONTE VIAGENS TURISMO é a linha Horizonte Viagens; são duas empresas diferentes."},
+    "1038867654": {"cnpj": "07752116000126", "evidence": "Helena, 16/10 20h24: KIWI EXPERIENCE TURISMO é a linha Kiwi Experience."}
+  },
+  "commercial_conditions": [
+    {
+      "id": "casa-estudante-isencao-2026",
+      "cnpj": "00520815000100",
+      "start": "2026-09-01",
+      "end": "2026-12-31",
+      "rates": {"debit": "0", "credit": "0", "installment_short": "0", "installment_long": "0", "pix": "0", "advance": "0"},
+      "evidence": "Helena, 16/10 20h49: tarifa zerada no checkout de setembro a dezembro, MDR e antecipação; a Orbe não foi avisada e cobrou. O cobrado é devolução ao lojista, separada das divergências de contrato (17/10 9h44)."
+    }
+  ],
+  "unbilled_merchants": [
+    {
+      "ec": "1076801732",
+      "reason": "Atlas Idiomas sem contrato assinado na aba vigente. Não faturar até o comercial confirmar a taxa; quando confirmada, a taxa vale desde 10/09 e o fechamento seguinte puxa as linhas de setembro.",
+      "evidence": "Helena, 16/10 20h24 e 17/10 9h47."
+    }
+  ],
+  "decisions": [
+    {"id": "checkout-basis", "rule": "Comissão de checkout = soma, linha a linha, de valor_bruto x taxa contratada arredondado ao centavo (meio centavo para cima, simétrico no negativo). Sem custo Orbe.", "approved_by": "Helena (financeiro)", "when": "2026-10-16T20:05"},
+    {"id": "checkout-reversal", "rule": "Estorno abate a comissão do mês do estorno, pela taxa vigente na data da venda original, inclusive vendas de agosto.", "approved_by": "Helena (financeiro)", "when": "2026-10-16T20:06"},
+    {"id": "checkout-advance", "rule": "Antecipação entra na nota do lojista; a reversão anula a taxa da antecipação que reverte.", "approved_by": "Helena (financeiro)", "when": "2026-10-16T20:47"},
+    {"id": "checkout-divergence", "rule": "Divergência = taxa aplicada diferente da contratada; valor = valor_bruto x (aplicada - contratada). Centavo de truncamento da Orbe não é divergência. Venda e estorno se anulam.", "approved_by": "Helena (financeiro)", "when": "2026-10-16T21:13"},
+    {"id": "invoice-checkout", "rule": "Uma nota por lojista por mês. Saldo zero ou negativo não emite e vira pendência; não é carregado automaticamente.", "approved_by": "Helena (financeiro)", "when": "2026-10-16T20:47"},
+    {"id": "invoice-remittance", "rule": "Uma nota por mês, tomadora Ponte Câmbio, pelo total da participação. Excesso da Mundo Aberto entra pelo realizado; ajuste no mês em que ocorrer.", "approved_by": "Helena (financeiro)", "when": "2026-10-16T21:45"},
+    {"id": "remittance-divergence", "rule": "Divergência de remessa = lojista pagou spread diferente do contratado; valor cheio. Spread negativo é pendência de contestação, de outra natureza.", "approved_by": "Helena (financeiro)", "when": "2026-10-17T09:44"},
+    {"id": "contest", "rule": "Nada foi contestado; o fechamento entrega pendências de contestação com valor e operações e um rascunho por contraparte. A duplicada entra na lista para a Ponte corrigir o relatório.", "approved_by": "Helena (financeiro)", "when": "2026-10-16T22:34"},
+    {"id": "bank-counterpart", "rule": "conta_codigo é a contrapartida do movimento. Folha e tributos de agosto e o repasse da Ponte de 04/09 baixam provisão ou recebível. Demais despesas entram no mês.", "approved_by": "Helena (financeiro)", "when": "2026-10-16T21:14"}
+  ],
+  "open_questions": [
+    {"id": "ponte-ted", "reason": "Conferir o TED da Ponte quando cair em outubro. Não assumir desconto da contestação no repasse.", "owner": "Helena (financeiro)"}
+  ],
+  "bank_rules": [
+    {"id":"unknown-credit","bank":"ANY","pattern":"SEM IDENTIFICACAO","account":"1.1.09.002","confidence":"0.80","scope":"unknown_credit"},
+    {"id":"returned-payment","bank":"ANY","pattern":"DEVOLUCAO PIX","account":"2.1.01.001","confidence":"0.70","scope":"returned_payment"},
+    {"id":"own-transfer-out","bank":"AURORA","pattern":"^TRANSF ENTRE CONTAS","account":"1.1.09.001","confidence":"0.95","scope":"own_transfer"},
+    {"id":"own-transfer-in","bank":"MERIDIANO","pattern":"MESMA TITULARIDADE","account":"1.1.09.001","confidence":"0.95","scope":"own_transfer"},
+    {"id":"acquirer-settlement","bank":"AURORA","pattern":"ORBE ADQUIRENCIA","account":"1.1.03.001","confidence":"0.90","scope":"receivable"},
+    {"id":"fx-prior-commission","bank":"MERIDIANO","pattern":"REPASSE COMISSAO","account":"1.1.03.002","confidence":"0.95","scope":"receivable"},
+    {"id":"fx-settlement","bank":"MERIDIANO","pattern":"LIQ OPERACOES","account":"2.1.02.001","confidence":"0.85","scope":"customer_funds"},
+    {"id":"investment-interest","bank":"ANY","pattern":"^RENDIMENTO APLIC","account":"3.2.01","confidence":"0.95","scope":"income"},
+    {"id":"investment-principal","bank":"ANY","pattern":"^(APLICACAO|RESGATE) AUTOMATICO?A? CDB","account":"1.1.02.001","confidence":"0.95","scope":"investment"},
+    {"id":"accounting-supplier","bank":"ANY","pattern":"CONTABILIDADE EXATA","account":"4.2.06","confidence":"0.85","scope":"expense"},
+    {"id":"cloud-expense","bank":"ANY","pattern":"AMAZON WEB SERVICES","account":"4.2.03","confidence":"0.90","scope":"expense"},
+    {"id":"software-expense","bank":"ANY","pattern":"GOOGLE WORKSPACE","account":"4.2.04","confidence":"0.90","scope":"expense"},
+    {"id":"rent-expense","bank":"ANY","pattern":"CONDOMINIO","account":"4.2.02","confidence":"0.85","scope":"expense"},
+    {"id":"insurance-expense","bank":"ANY","pattern":"SEGURO EMPRESARIAL","account":"4.2.05","confidence":"0.85","scope":"expense"},
+    {"id":"payroll-payable","bank":"ANY","pattern":"PAGTO SALARIOS","account":"2.1.04.001","confidence":"0.95","scope":"payable"},
+    {"id":"inss-payable","bank":"ANY","pattern":"GPS INSS","account":"2.1.04.002","confidence":"0.95","scope":"payable"},
+    {"id":"fgts-payable","bank":"ANY","pattern":"GRF FGTS","account":"2.1.04.003","confidence":"0.95","scope":"payable"},
+    {"id":"iss-payable","bank":"ANY","pattern":"PAGTO ISS","account":"2.1.03.003","confidence":"0.95","scope":"payable"},
+    {"id":"irrf-payable","bank":"ANY","pattern":"DARF 0561 IRRF","account":"2.1.03.004","confidence":"0.95","scope":"payable"},
+    {"id":"pis-payable","bank":"ANY","pattern":"DARF 8109 PIS","account":"2.1.03.001","confidence":"0.95","scope":"payable"},
+    {"id":"cofins-payable","bank":"ANY","pattern":"DARF 2172 COFINS","account":"2.1.03.002","confidence":"0.95","scope":"payable"},
+    {"id":"iof-expense","bank":"ANY","pattern":"^IOF ","account":"4.3.01","confidence":"0.85","scope":"expense"},
+    {"id":"bank-fees","bank":"ANY","pattern":"^(TAR |TARIFA )","account":"4.2.01","confidence":"0.90","scope":"expense"},
+    {"id":"merchant-payment","bank":"AURORA","pattern":"^PIX ENVIADO ","account":"2.1.01.001","confidence":"0.80","scope":"merchant_payment"},
+    {"id":"remittance-funding","bank":"MERIDIANO","pattern":"^PIX RECEB ","account":"2.1.02.001","confidence":"0.80","scope":"customer_funds"}
+  ]
+}

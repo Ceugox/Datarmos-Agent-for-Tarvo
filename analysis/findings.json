@@ -1,0 +1,571 @@
+{
+  "checkout": {
+    "count": 1943,
+    "unique_ids": 1943,
+    "ecs": 22,
+    "types": {
+      "ANTECIPACAO": {
+        "count": 38,
+        "gross": "1451981.71",
+        "fee": "30491.41",
+        "net": "1421490.30"
+      },
+      "ESTORNO": {
+        "count": 59,
+        "gross": "-216346.03",
+        "fee": "-7108.69",
+        "net": "-209237.34"
+      },
+      "REVERSAO ANTECIPACAO": {
+        "count": 6,
+        "gross": "-288606.34",
+        "fee": "-6060.69",
+        "net": "-282545.65"
+      },
+      "VENDA": {
+        "count": 1840,
+        "gross": "6549199.22",
+        "fee": "214558.33",
+        "net": "6334640.89"
+      }
+    },
+    "modalities": {
+      "CREDITO A VISTA": 591,
+      "CREDITO PARCELADO": 951,
+      "PIX": 183,
+      "DEBITO": 174,
+      "": 44
+    },
+    "gross": "7496228.56",
+    "fee": "231880.36",
+    "net": "7264348.20",
+    "arithmetic_failures": [],
+    "unmapped": {
+      "1038867654": {
+        "count": 85,
+        "name": "KIWI EXPERIENCE TURISMO",
+        "gross": "328428.75",
+        "fee": "10711.06"
+      },
+      "1043300981": {
+        "count": 73,
+        "name": "HORIZONTE INTERCAMBIO",
+        "gross": "246356.75",
+        "fee": "7767.49"
+      },
+      "1043396662": {
+        "count": 75,
+        "name": "HORIZONTE VIAGENS TURISMO",
+        "gross": "263535.90",
+        "fee": "9014.07"
+      },
+      "1076801732": {
+        "count": 57,
+        "name": "ATLAS IDIOMAS",
+        "gross": "262138.61",
+        "fee": "7876.05"
+      }
+    },
+    "compared_count": 1574,
+    "rate_mismatch_count": 88,
+    "positive_difference": "1674.67",
+    "negative_difference": "0"
+  },
+  "contracts": {
+    "rows": 25,
+    "cnpjs": 24,
+    "missing_ec": [
+      {
+        "name": "Horizonte Viagens",
+        "cnpj": "78576234000179",
+        "ec": null,
+        "debit": "0.0149",
+        "credit": "0.0269",
+        "installment_short": "0.0319",
+        "installment_long": "0.0379",
+        "pix": "0.0089",
+        "advance": "0.021",
+        "spread": null,
+        "validity": "01/01/2026",
+        "notes": null,
+        "source_row": 8
+      },
+      {
+        "name": "Kiwi Experience",
+        "cnpj": "07752116000126",
+        "ec": null,
+        "debit": "0.0149",
+        "credit": "0.0259",
+        "installment_short": "0.0319",
+        "installment_long": "0.0379",
+        "pix": "0.0089",
+        "advance": "0.021",
+        "spread": null,
+        "validity": "01/01/2026",
+        "notes": "EC pendente",
+        "source_row": 9
+      },
+      {
+        "name": "Ponte Aérea Estudantil Ltda",
+        "cnpj": "95739378000118",
+        "ec": null,
+        "debit": null,
+        "credit": null,
+        "installment_short": null,
+        "installment_long": null,
+        "pix": null,
+        "advance": null,
+        "spread": null,
+        "validity": "01/01/2026",
+        "notes": "só remessa",
+        "source_row": 16
+      },
+      {
+        "name": "Nórdica Educação Internacional Ltda",
+        "cnpj": "14760206000124",
+        "ec": null,
+        "debit": null,
+        "credit": null,
+        "installment_short": null,
+        "installment_long": null,
+        "pix": null,
+        "advance": null,
+        "spread": "0.0125",
+        "validity": "01/01/2026",
+        "notes": "só remessa",
+        "source_row": 23
+      },
+      {
+        "name": "Novo Horizonte Intercambio",
+        "cnpj": "66564512000199",
+        "ec": null,
+        "debit": "0.0149",
+        "credit": "0.0239",
+        "installment_short": "0.0289",
+        "installment_long": "0.0379",
+        "pix": "0.0089",
+        "advance": "0.021",
+        "spread": "0.014",
+        "validity": "01/06/2026",
+        "notes": null,
+        "source_row": 28
+      }
+    ]
+  },
+  "fx": {
+    "rows": 233,
+    "unique": 232,
+    "cnpjs": 14,
+    "duplicates": {
+      "PC-0926-0162": [
+        {
+          "operation": "PC-0926-0162",
+          "contracted": "2026-09-22 00:00:00",
+          "settled": "2026-09-23 00:00:00",
+          "cnpj": "50900987000179",
+          "name": "BAGAGEM LIVRE TURISM",
+          "currency": "USD",
+          "foreign_amount": "10429.99",
+          "client_rate": "5.3308",
+          "reference_rate": "5.252",
+          "brl": "55600.19",
+          "spread": "821.88",
+          "spread_pct": "0.015004",
+          "estimated_spread": "931.75",
+          "iof": "211.28",
+          "status": "APROVADO",
+          "notes": null,
+          "source_row": 76
+        },
+        {
+          "operation": "PC-0926-0162",
+          "contracted": "2026-09-22 00:00:00",
+          "settled": "2026-09-23 00:00:00",
+          "cnpj": "50900987000179",
+          "name": "BAGAGEM LIVRE TURISM",
+          "currency": "USD",
+          "foreign_amount": "10429.99",
+          "client_rate": "5.3308",
+          "reference_rate": "5.252",
+          "brl": "55600.19",
+          "spread": "821.88",
+          "spread_pct": "0.015004",
+          "estimated_spread": "931.75",
+          "iof": "211.28",
+          "status": "APROVADO",
+          "notes": "reprocessada",
+          "source_row": 77
+        }
+      ]
+    },
+    "status": {
+      "APROVADO": {
+        "count": 216,
+        "brl": "5255005.79",
+        "spread": "72422.34"
+      },
+      "APROVADO C/ RESSALVA": {
+        "count": 16,
+        "brl": "335198.54",
+        "spread": "4829.37"
+      }
+    },
+    "raw_spread": "78073.59",
+    "unique_spread": "77251.71",
+    "raw_brl": "5645804.52",
+    "unique_brl": "5590204.33",
+    "eligible_count": 226,
+    "eligible_brl": "5449544.21",
+    "eligible_spread": "75173.00",
+    "eligible_half_rounded_each": "37587.05",
+    "negative": [
+      {
+        "operation": "PC-0926-0210",
+        "contracted": "2026-09-15 00:00:00",
+        "settled": "2026-09-16 00:00:00",
+        "cnpj": "95739378000118",
+        "name": "PONTE AÉREA ESTUDANT",
+        "currency": "EUR",
+        "foreign_amount": "7087.81",
+        "client_rate": "6.1518",
+        "reference_rate": "6.2488",
+        "brl": "43602.79",
+        "spread": "-687.52",
+        "spread_pct": "-0.015523",
+        "estimated_spread": "587.97",
+        "iof": "165.69",
+        "status": "APROVADO",
+        "notes": "Taxa travada no pedido (D-1)",
+        "source_row": 96
+      },
+      {
+        "operation": "PC-0926-0326",
+        "contracted": "2026-09-03 00:00:00",
+        "settled": "2026-09-04 00:00:00",
+        "cnpj": "53857560000123",
+        "name": "CANGURU INTERCÂMBIOS",
+        "currency": "CAD",
+        "foreign_amount": "8213.3",
+        "client_rate": "3.9321",
+        "reference_rate": "3.9941",
+        "brl": "32295.52",
+        "spread": "-509.22",
+        "spread_pct": "-0.015523",
+        "estimated_spread": "473.84",
+        "iof": "122.72",
+        "status": "APROVADO",
+        "notes": "Taxa travada no pedido (D-1)",
+        "source_row": 141
+      },
+      {
+        "operation": "PC-0926-0491",
+        "contracted": "2026-09-23 00:00:00",
+        "settled": "2026-09-24 00:00:00",
+        "cnpj": "68567965000102",
+        "name": "DUBLIN HUB INTERCÂMB",
+        "currency": "NZD",
+        "foreign_amount": "5904.65",
+        "client_rate": "3.1415",
+        "reference_rate": "3.191",
+        "brl": "18549.46",
+        "spread": "-292.28",
+        "spread_pct": "-0.015512",
+        "estimated_spread": "331.48",
+        "iof": "70.49",
+        "status": "APROVADO",
+        "notes": "Taxa travada no pedido (D-1)",
+        "source_row": 205
+      },
+      {
+        "operation": "PC-0926-0545",
+        "contracted": "2026-09-14 00:00:00",
+        "settled": "2026-09-15 00:00:00",
+        "cnpj": "66564512000199",
+        "name": "NOVO HORIZONTE INTER",
+        "currency": "AUD",
+        "foreign_amount": "5918.24",
+        "client_rate": "3.4765",
+        "reference_rate": "3.5348",
+        "brl": "20574.76",
+        "spread": "-345.03",
+        "spread_pct": "-0.016493",
+        "estimated_spread": "229.61",
+        "iof": "78.18",
+        "status": "APROVADO",
+        "notes": "Taxa travada no pedido (D-1)",
+        "source_row": 228
+      }
+    ],
+    "not_settled_september": [
+      {
+        "operation": "PC-0926-0002",
+        "contracted": "2026-09-30 00:00:00",
+        "settled": "2026-10-01 00:00:00",
+        "cnpj": "34671260000100",
+        "name": "MAPLE STUDY ASSESSOR",
+        "currency": "NZD",
+        "foreign_amount": "5402.22",
+        "client_rate": "3.2796",
+        "reference_rate": "3.2311",
+        "brl": "17717.12",
+        "spread": "262.01",
+        "spread_pct": "0.01501",
+        "estimated_spread": "279.09",
+        "iof": "67.33",
+        "status": "APROVADO",
+        "notes": null,
+        "source_row": 6
+      },
+      {
+        "operation": "PC-0926-0110",
+        "contracted": "2026-09-30 00:00:00",
+        "settled": "2026-10-01 00:00:00",
+        "cnpj": "34671260000100",
+        "name": "MAPLE STUDY ASSESSOR",
+        "currency": "EUR",
+        "foreign_amount": "4555.7",
+        "client_rate": "6.2348",
+        "reference_rate": "6.1427",
+        "brl": "28403.88",
+        "spread": "419.58",
+        "spread_pct": "0.014993",
+        "estimated_spread": "528.44",
+        "iof": "107.93",
+        "status": "APROVADO",
+        "notes": null,
+        "source_row": 55
+      },
+      {
+        "operation": "PC-0926-0249",
+        "contracted": "2026-09-30 00:00:00",
+        "settled": "2026-10-01 00:00:00",
+        "cnpj": "95927868000148",
+        "name": "ROTA GLOBAL INTERCÂM",
+        "currency": "CAD",
+        "foreign_amount": "5491.97",
+        "client_rate": "3.9377",
+        "reference_rate": "3.8795",
+        "brl": "21625.73",
+        "spread": "319.63",
+        "spread_pct": "0.015002",
+        "estimated_spread": "301.84",
+        "iof": "82.18",
+        "status": "APROVADO",
+        "notes": null,
+        "source_row": 111
+      },
+      {
+        "operation": "PC-0926-0384",
+        "contracted": "2026-09-30 00:00:00",
+        "settled": "2026-10-01 00:00:00",
+        "cnpj": "95739378000118",
+        "name": "PONTE AÉREA ESTUDANT",
+        "currency": "USD",
+        "foreign_amount": "5064.02",
+        "client_rate": "5.5408",
+        "reference_rate": "5.4589",
+        "brl": "28058.72",
+        "spread": "414.74",
+        "spread_pct": "0.015003",
+        "estimated_spread": "394.03",
+        "iof": "106.62",
+        "status": "APROVADO",
+        "notes": null,
+        "source_row": 165
+      },
+      {
+        "operation": "PC-0926-0549",
+        "contracted": "2026-09-30 00:00:00",
+        "settled": "2026-10-01 00:00:00",
+        "cnpj": "95927868000148",
+        "name": "ROTA GLOBAL INTERCÂM",
+        "currency": "AUD",
+        "foreign_amount": "5285.5",
+        "client_rate": "3.5747",
+        "reference_rate": "3.5219",
+        "brl": "18894.08",
+        "spread": "279.07",
+        "spread_pct": "0.014992",
+        "estimated_spread": "352.09",
+        "iof": "71.8",
+        "status": "APROVADO",
+        "notes": null,
+        "source_row": 229
+      },
+      {
+        "operation": "PC-0926-0566",
+        "contracted": "2026-09-30 00:00:00",
+        "settled": "2026-10-01 00:00:00",
+        "cnpj": "17217888000111",
+        "name": "MUNDO ABERTO INTERCÂ",
+        "currency": "AUD",
+        "foreign_amount": "7118.34",
+        "client_rate": "3.647",
+        "reference_rate": "3.5931",
+        "brl": "25960.59",
+        "spread": "383.68",
+        "spread_pct": "0.015001",
+        "estimated_spread": "274.13",
+        "iof": "98.65",
+        "status": "APROVADO",
+        "notes": null,
+        "source_row": 236
+      }
+    ],
+    "summary_rows": [
+      [
+        "Moeda",
+        "Qtd",
+        "Volume ME",
+        "Spread R$"
+      ],
+      [
+        "USD",
+        37,
+        176345.36,
+        14007.38
+      ],
+      [
+        "EUR",
+        33,
+        187134.41,
+        16074.48
+      ],
+      [
+        "GBP",
+        36,
+        169456.27,
+        17739.02
+      ],
+      [
+        "CAD",
+        42,
+        202407.79,
+        10705.21
+      ],
+      [
+        "AUD",
+        48,
+        234433.14,
+        11329.45
+      ],
+      [
+        "NZD",
+        37,
+        185680.2,
+        8218.05
+      ]
+    ]
+  },
+  "banks": {
+    "aurora_count": 84,
+    "aurora_opening": "612334.81",
+    "aurora_movement": "-2532423.41",
+    "aurora_closing": "-1920088.60",
+    "meridiano_count": 100,
+    "meridiano_movement": "1116335.23",
+    "meridiano_closing": "1320453.26",
+    "meridiano_by_description": {
+      "APLICACAO AUTOMATICA CDB DI": {
+        "count": 3,
+        "amount": "-588124.00"
+      },
+      "IOF S/ OPERACAO CREDITO": {
+        "count": 1,
+        "amount": "-48.21"
+      },
+      "PIX RECEB BAGAGEM LIVRE TURISMO LT": {
+        "count": 5,
+        "amount": "175575.09"
+      },
+      "PIX RECEB BEM-VINDO EXCHANGE LTDA": {
+        "count": 2,
+        "amount": "49337.89"
+      },
+      "PIX RECEB CANGURU INTERCÂMBIOS LTD": {
+        "count": 5,
+        "amount": "543693.33"
+      },
+      "PIX RECEB CASA DO ESTUDANTE VIAGEN": {
+        "count": 4,
+        "amount": "417843.39"
+      },
+      "PIX RECEB DUBLIN HUB INTERCÂMBIO L": {
+        "count": 4,
+        "amount": "259416.44"
+      },
+      "PIX RECEB EDU ABROAD CONSULTORIA L": {
+        "count": 5,
+        "amount": "394222.69"
+      },
+      "PIX RECEB KIWI EXPERIENCE TURISMO ": {
+        "count": 5,
+        "amount": "362552.48"
+      },
+      "PIX RECEB LISBOA CURSOS E VIAGENS ": {
+        "count": 5,
+        "amount": "407463.55"
+      },
+      "PIX RECEB MAPLE STUDY ASSESSORIA E": {
+        "count": 5,
+        "amount": "583530.13"
+      },
+      "PIX RECEB MUNDO ABERTO INTERCÂMBIO": {
+        "count": 5,
+        "amount": "481950.02"
+      },
+      "PIX RECEB NORDICA EDUCACAO INTERNA": {
+        "count": 5,
+        "amount": "473909.27"
+      },
+      "PIX RECEB NOVO HORIZONTE INTERCÂMB": {
+        "count": 3,
+        "amount": "341643.86"
+      },
+      "PIX RECEB PONTE AEREA ESTUDANTIL L": {
+        "count": 1,
+        "amount": "18240.00"
+      },
+      "PIX RECEB PONTE AÉREA ESTUDANTIL L": {
+        "count": 5,
+        "amount": "452249.03"
+      },
+      "PIX RECEB ROTA GLOBAL INTERCÂMBIO ": {
+        "count": 5,
+        "amount": "668059.95"
+      },
+      "RENDIMENTO APLIC AUTOMATICA": {
+        "count": 1,
+        "amount": "3912.66"
+      },
+      "RESGATE AUTOMATICO CDB DI": {
+        "count": 3,
+        "amount": "472881.00"
+      },
+      "SEGURO EMPRESARIAL PARC 09/12": {
+        "count": 1,
+        "amount": "-1830.44"
+      },
+      "TARIFA MANUTENCAO CONTA PJ": {
+        "count": 1,
+        "amount": "-129.90"
+      },
+      "TARIFA PACOTE CAMBIO": {
+        "count": 1,
+        "amount": "-450.00"
+      },
+      "TED ENVIADA PONTE CAMBIO SA LIQ OPERACOES": {
+        "count": 21,
+        "amount": "-5611447.12"
+      },
+      "TED RECEB PONTE CAMBIO SA REPASSE COMISSAO 08/2026": {
+        "count": 1,
+        "amount": "61884.12"
+      },
+      "TED RECEBIDA TARVO PAGAMENTOS LTDA - MESMA TITULARIDADE": {
+        "count": 3,
+        "amount": "1150000.00"
+      }
+    }
+  }
+}

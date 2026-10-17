@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+.closing-stage-*/
+saida-*/
+!saida/
+sources/
+analysis/engine-runs/
+orca-computer-use-guide.json
+Export-OrcaComputerUseGuide.ps1
+01_instrucoes_participantes.docx.pdf
