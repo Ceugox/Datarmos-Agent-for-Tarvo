@@ -8535,12 +8535,12 @@ A varredura achou ocorrências que preciso entender antes de publicar qualquer c
 1 site/deploy.sh || 2277:+railway up "$STAGE" --path-as-root --project [id do Railway] --environment production --service site --detach
       1 scripts/bateria_producao.py || 1370:+                               ('chave inválida', {'Authorization': 'Bearer [chave de cliente removida]'})]:
       1 PROMPTS/sessao-codex-2026-10-17-auditoria-e-publicacao.tools.jsonl || 462:+{"timestamp": "2026-10-17T21:15:09.877Z", "payload": {"type": "custom_tool_call", "id": "ctc_07c05eb6cd9c78e2016ad3e55bc754819188c95e453ac732ce", "status":
-      1 PROMPTS/sessao-codex-2026-10-17-auditoria-e-publicacao.tools.jsonl || 461:+{"timestamp": "2026-10-17T21:14:45.319Z", "payload": {"type": "custom_tool_call_output", "id": "ctco_01a14bb7-96c7-7c03-881b-22d830e15fae", "call_id": "cal
+      1 PROMPTS/sessao-codex-2026-10-17-auditoria-e-publicacao.tools.jsonl || 461:+{"timestamp": "2026-10-17T21:14:45.319Z", "payload": {"type": "custom_tool_call_output", "id": "ctco_[id]", "call_id": "cal
       1 PROMPTS/sessao-codex-2026-10-17-auditoria-e-publicacao.tools.jsonl || 460:+{"timestamp": "2026-10-17T21:14:30.810Z", "payload": {"type": "custom_tool_call", "id": "ctc_07c05eb6cd9c78e2016ad3e52a5f288191adeb1bcb50d4b65d", "status":
-      1 PROMPTS/sessao-codex-2026-10-17-auditoria-e-publicacao.tools.jsonl || 425:+{"timestamp": "2026-10-17T21:04:19.140Z", "payload": {"type": "custom_tool_call_output", "id": "ctco_01a14bae-08c4-77f2-b8ec-6fdfedb229da", "call_id": "cal
+      1 PROMPTS/sessao-codex-2026-10-17-auditoria-e-publicacao.tools.jsonl || 425:+{"timestamp": "2026-10-17T21:04:19.140Z", "payload": {"type": "custom_tool_call_output", "id": "ctco_[id]", "call_id": "cal
       1 PROMPTS/sessao-codex-2026-10-17-auditoria-e-publicacao.tools.jsonl || 424:+{"timestamp": "2026-10-17T21:04:16.669Z", "payload": {"type": "custom_tool_call", "id": "ctc_07c05eb6cd9c78e2016ad3e2cf740c8191ace6559f5653796c", "status":
       1 PROMPTS/sessao-codex-2026-10-17-auditoria-e-publicacao.tools.jsonl || 420:+{"timestamp": "2026-10-17T21:03:45.997Z", "payload": {"type": "custom_tool_call", "id": "ctc_07c05eb6cd9c78e2016ad3e2af5670819193778cb415fcf5db", "status":
-      1 PROMPTS/sessao-codex-2026-10-17-auditoria-e-publicacao.tools.jsonl || 419:+{"timestamp": "2026-10-17T21:03:36.874Z", "payload": {"type": "custom_tool_call_output", "id": "ctco_01a14bad-63a9-7791-84b5-48f5210735c8", "call_id": "cal
+      1 PROMPTS/sessao-codex-2026-10-17-auditoria-e-publicacao.tools.jsonl || 419:+{"timestamp": "2026-10-17T21:03:36.874Z", "payload": {"type": "custom_tool_call_output", "id": "ctco_[id]", "call_id": "cal
       1 PROMPTS/sessao-codex-2026-10-
 … [truncado: 1396 caracteres]
 ```
