@@ -164,7 +164,36 @@ class SourceAndClosingTests(unittest.TestCase):
         self.assertEqual(parts['AN88445637'],Decimal('42361.86'))
         self.assertEqual(parts['AN88446517'],Decimal('200000.00'))
         self.assertEqual(alert['valor_brl'],sum(parts.values()))
-        self.assertTrue(any(r['tipo']=='REVERSAO_SEM_ANTECIPACAO' and 'AN00000000' in r['motivo'] for r in result.tables['pendencias']))
+        self.assertNotIn('Revertidas depois: AN88445637',alert['motivo'])
+        orphan = next(r for r in result.tables['pendencias'] if r['tipo']=='REVERSAO_SEM_ANTECIPACAO')
+        self.assertIn('AN00000000',orphan['motivo'])
+        self.assertEqual(orphan['valor_brl'],rows['AN88446660']['valor_bruto'])
+
+    def test_irregular_reversals_become_pending_items(self):
+        bundle = deepcopy(self.bundle)
+        rows = {r['id_transacao']:r for r in bundle.checkout if r['cod_estabelecimento']=='1076801732'}
+        rows['AN88446030']['valor_bruto'] = Decimal('-60000.00')
+        rows['AN88446660']['valor_bruto'] = Decimal('56350.28')
+        result = close_month(bundle,self.policy,'2026-09')
+        irregular = {r['ref_origem'] for r in result.tables['pendencias'] if r['tipo']=='REVERSAO_IRREGULAR'}
+        self.assertEqual(irregular,{'AN88446030','AN88446660'})
+
+    def test_partial_reversal_after_the_peak_is_described_as_partial(self):
+        bundle = deepcopy(self.bundle)
+        rows = {r['id_transacao']:r for r in bundle.checkout if r['cod_estabelecimento']=='1076801732'}
+        rows['AN88446030']['valor_bruto'] = Decimal('-10000.00')
+        result = close_month(bundle,self.policy,'2026-09')
+        alert = next(r for r in result.tables['pendencias'] if r['tipo']=='ALERTA_ANTECIPACAO')
+        self.assertIn('AN88445637 em 2026-09-17 (parcial, -10000.00)',alert['motivo'])
+
+    def test_report_source_links_stay_inside_the_project(self):
+        import re
+        html = (ROOT/'saida/index.html').read_text(encoding='utf-8')
+        links = re.findall(r'<li><a href="([^"]+)">',html)
+        self.assertTrue(links)
+        for href in links:
+            target = (ROOT/'saida'/href.replace('%20',' ')).resolve()
+            self.assertTrue(target.is_file(),href)
 
     def test_bridge_uses_different_contracts_at_the_date_boundary(self):
         row = deepcopy(next(r for r in self.bundle.checkout if r['cod_estabelecimento']=='1075624862'))
