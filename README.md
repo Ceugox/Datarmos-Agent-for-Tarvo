@@ -209,6 +209,8 @@ Local: no Windows, troque `python` por `.\.venv\Scripts\python.exe`. Sem `TEST_D
 
 Os testes cobrem os números de setembro, as regras do financeiro (estorno de agosto, isenção da Casa, spreads negativos, duplicata, nota única da Ponte, alerta de antecipação), a reconciliação dos CSVs com o rastro, ZIP de entrada, reexecução sem sobrescrita, reordenação, conflito de versões, período seguinte simulado, rejeição de dados corrompidos, `--no-llm` byte a byte, validadores, revisões, backtest e a API (autenticação, isolamento entre clientes, limites e a mesma saída pela CLI e pela API).
 
+Contra o serviço publicado há uma bateria à parte, fora do CI porque precisa da API no ar e de duas chaves de cliente: `scripts/bateria_producao.py`. O que ela cobre, como rodar, o último resultado (78/78 em 17/10/2026) e os defeitos que só apareceram em produção estão em `docs/testes-producao.md`.
+
 ## Estrutura
 
 - `run_engine.py`, `src/tarvo_close/`: leitura das fontes, cálculo, validação e publicação; camada de inferência (`inference.py`, `resolver.py`, `validators.py`, `backtest.py`).
