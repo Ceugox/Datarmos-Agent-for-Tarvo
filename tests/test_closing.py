@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'src'))
 
 from tarvo_close.closing import close_month, select_contract
-from tarvo_close.domain import allocate_shares, cnpj, decimal, parse_rate
+from tarvo_close.domain import allocate_shares, cnpj, decimal, parse_rate, quantize
 from tarvo_close.readers import read_checkout, read_inputs, read_aurora
 from tarvo_close.reporting import publish_result
 
@@ -96,7 +96,22 @@ class SourceAndClosingTests(unittest.TestCase):
         self.assertFalse(any(r['cnpj']==casa for r in result.tables['divergencias_taxa']))
         refund = next(r for r in result.tables['pendencias'] if r['tipo']=='DEVOLUCAO_CONDICAO_COMERCIAL')
         self.assertEqual(refund['valor_brl'],Decimal('15396.77'))
-        self.assertIn('= 15397.42 (+0.65 por truncamento da Orbe em 67 de 118 lançamentos)',refund['motivo'])
+        self.assertIn('= 15397.42 (+0.65 em 67 de 118 lançamentos',refund['motivo'])
+        self.assertIn('devolveria 0.65 a mais do que o lojista pagou',refund['motivo'])
+
+    def test_refund_reason_follows_the_sign_of_the_recomputed_gap(self):
+        bundle = deepcopy(self.bundle)
+        for row in bundle.checkout:
+            if row['cod_estabelecimento']=='1018325654' and row['valor_taxa']:
+                row['valor_taxa'] = quantize(row['valor_bruto']*row['taxa_aplicada_pct']/100,'half_up')
+        refund = next(r for r in close_month(bundle,self.policy,'2026-09').tables['pendencias'] if r['tipo']=='DEVOLUCAO_CONDICAO_COMERCIAL')
+        self.assertIn('igual ao valor cobrado',refund['motivo'])
+        self.assertNotIn('descartada',refund['motivo'])
+        for row in bundle.checkout:
+            if row['cod_estabelecimento']=='1018325654' and row['tipo_lancamento']=='VENDA':
+                row['valor_taxa'] += Decimal('0.01')
+        refund = next(r for r in close_month(bundle,self.policy,'2026-09').tables['pendencias'] if r['tipo']=='DEVOLUCAO_CONDICAO_COMERCIAL')
+        self.assertIn('a menos do que o lojista pagou',refund['motivo'])
 
     def test_august_reversal_reduces_september_at_the_original_sale_rate(self):
         result = close_month(self.bundle,self.policy,'2026-09')
@@ -179,7 +194,7 @@ class SourceAndClosingTests(unittest.TestCase):
         row['nome_estabelecimento'] = 'Escola Bridge de Idiomas Ltda'
         identity = row['id_transacao']
         result = close_month(bundle,self.policy,'2026-09')
-        self.assertTrue(any(p['tipo']=='CADASTRO_OU_CONTRATO_AUSENTE' and p['escopo']=='9999999999' for p in result.tables['pendencias']))
+        self.assertTrue(any(p['tipo']=='CADASTRO_OU_CONTRATO_AUSENTE' and p['escopo']=='9999999999' and p['quem_decide']=='Comercial' for p in result.tables['pendencias']))
         commission_ids = {r['id_saida'] for r in result.tables['comissoes_por_lojista']}
         self.assertFalse(any(t['id_saida'] in commission_ids and t['ref_origem']==identity for t in result.traces))
 
