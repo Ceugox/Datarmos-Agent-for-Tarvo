@@ -56,7 +56,7 @@ Nenhuma. O motor não chama APIs nem modelos de IA, e não há `.env` para confi
 ## Limitações conhecidas
 
 - Notas, contestações e lançamentos são propostas para revisão: o motor não emite nota, não envia e-mail e não lança no ERP.
-- Atlas Idiomas fica sem faturamento até o comercial confirmar a taxa; o motor ainda não carrega automaticamente as linhas pendentes de um mês para o seguinte.
+- Atlas Idiomas fica sem faturamento até o comercial confirmar a taxa; o motor ainda não fatura num mês as linhas de meses anteriores (fica manual, com valor e linhas na pendência).
 - Sem conciliação da Orbe contra o banco parcela por parcela (depende da agenda de recebíveis, fora do pacote).
 - O alerta de antecipação só avalia lojistas sem histórico anterior no pacote.
 - A confiança da classificação bancária é um escore de regra, não probabilidade calibrada.

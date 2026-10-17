@@ -172,6 +172,8 @@ def advance_alerts(rows, period, result):
         for row in sorted(events, key=lambda r: (r['date'], r['tipo_lancamento'] != 'VENDA', r['id_transacao'])):
             if row['tipo_lancamento'] in {'VENDA','ESTORNO'}:
                 sales += row['valor_bruto']
+            elif row['tipo_lancamento'] == 'REVERSAO ANTECIPACAO':
+                advances += row['valor_bruto']
             elif row['tipo_lancamento'] == 'ANTECIPACAO':
                 advances += row['valor_bruto']
                 if advances > sales:
@@ -217,7 +219,7 @@ def close_checkout(bundle, policy, period, result):
             continue
         contract = contracts[0]
         cnpj_value = contract['cnpj']
-        identities[cnpj_value] = contract['name']
+        identities[cnpj_value] = min((c for c in bundle.contracts if c['cnpj'] == cnpj_value), key=lambda c: (c['start'], c['_source']['linha_origem']))['name']
         rate_key = rate_key_for(row)
         if not rate_key or contract[rate_key] is None:
             result.cover('CHECKOUT',row,'TAXA_NAO_RESOLVIDA','Modalidade ou taxa contratada sem regra')
@@ -321,6 +323,9 @@ def close_remittances(bundle,policy,period,result):
             contracted = contracts[0]['spread'] if contracts[0]['spread'] is not None else default_spread
             contract_ref = contracts[0]['_source']['ref_origem']
         base = row['foreign_amount']*row['reference_rate']
+        if base <= 0:
+            result.pending(f'fx-base:{row["operation"]}','BASE_REMESSA_INVALIDA','Valor em moeda ou PTAX zerado: spread aplicado não calculável; comparação com o contrato não feita.','Helena (financeiro)',[source(row,row['spread'],'spread realizado')],row['operation'])
+            continue
         applied = row['spread']/base
         if abs(applied-contracted) > tolerance:
             difference = quantize(row['spread']-base*contracted)
@@ -330,11 +335,11 @@ def close_remittances(bundle,policy,period,result):
                 'lojista':row['name'],'tipo_lancamento':'REMESSA','data_movimento':row['contracted'],'data_vigencia':row['contracted'],
                 'valor_bruto_brl':base,'ref_contrato':contract_ref,'contraparte':'PONTE',
             },[source(row,difference,f'quantize({row["spread"]}-{row["foreign_amount"]}*{row["reference_rate"]}*{contracted}); valor cheio pago a mais pelo lojista')])
-            result.contests['PONTE'].append({'motivo':'SPREAD_ACIMA_DO_CONTRATO','ref_origem':row['operation'],'lojista':row['name'],'valor_brl':difference,'detalhe':f'Spread aplicado {quantize(applied*HUNDRED*HUNDRED)/HUNDRED}% x contratado {contracted*HUNDRED}%','id_saida':divergence['id_saida']})
+            result.contests['PONTE'].append({'motivo':'SPREAD_ACIMA_DO_CONTRATO' if difference > 0 else 'SPREAD_ABAIXO_DO_CONTRATO','ref_origem':row['operation'],'lojista':row['name'],'valor_brl':difference,'detalhe':f'Spread aplicado {quantize(applied*HUNDRED*HUNDRED)/HUNDRED}% x contratado {contracted*HUNDRED}%','id_saida':divergence['id_saida']})
     excess = [r for r in result.tables['divergencias_taxa'] if r['linha_negocio'] == 'REMESSA']
     if excess:
         parts = [part for part in result.traces if part['id_saida'] in {r['id_saida'] for r in excess}]
-        result.pending('fx:excess','DIVERGENCIA_A_CONTESTAR_PONTE','Spread acima do contratado, valor cheio pago a mais pelos lojistas. A nota de setembro sai pelo realizado; se a Ponte devolver, a participação é ajustada no mês do ajuste.','Helena (financeiro)',[{k:v for k,v in p.items() if k != 'id_saida'} for p in parts],'REMESSA')
+        result.pending('fx:excess','DIVERGENCIA_A_CONTESTAR_PONTE','Spread diferente do contratado, valor cheio (positivo: lojista pagou a mais). A nota de setembro sai pelo realizado; se a Ponte devolver, a participação é ajustada no mês do ajuste.','Helena (financeiro)',[{k:v for k,v in p.items() if k != 'id_saida'} for p in parts],'REMESSA')
     if contested:
         result.pending('fx:negative','SPREAD_NEGATIVO_CONTESTAR','Spread negativo com trava vencida: fora da comissão e da nota; contestar com a Ponte. Não presumir desconto no repasse.','Helena (financeiro)',[source(r,r['spread'],'spread negativo realizado') for r in contested],'REMESSA')
     for cnpj_value, rows in sorted(unregistered.items()):
@@ -389,7 +394,7 @@ def classify_banks(bundle,policy,period,result):
         pairs = [r for r in own_transfers if r['bank'] != entry['bank'] and r['date'] == entry['date'] and r['amount'] == -entry['amount']]
         reverse_count = len([r for r in own_transfers if r['bank'] == entry['bank'] and r['date'] == entry['date'] and r['amount'] == entry['amount']])
         if len(pairs) != 1 or reverse_count != 1:
-            result.pending(f'transfer:{entry["bank"]}:{entry["_source"]["ref_origem"]}','TRANSFERENCIA_EM_TRANSITO','Transferência própria sem crédito correspondente no mês. Segundo o financeiro, a saída do Aurora em 30/09 cai no Meridiano em 01/10: fica em transferências entre contas próprias até conferir o extrato seguinte.','Tesouraria',[source(entry,entry['amount'],'transferência em trânsito')])
+            result.pending(f'transfer:{entry["bank"]}:{entry["_source"]["ref_origem"]}','TRANSFERENCIA_EM_TRANSITO','Transferência própria sem contrapartida na outra conta no mesmo dia. Fica em transferências entre contas próprias até conferir o extrato da outra conta (em 09/2026, o financeiro informou que a saída de 30/09 cai no Meridiano em 01/10).','Tesouraria',[source(entry,entry['amount'],'transferência em trânsito')])
     result.metrics.update({'movimentos_bancarios_lidos':len(bundle.bank_entries),'movimentos_bancarios_exportados':len(entries),'saldos_bancarios':bundle.bank_balances})
 
 
@@ -403,7 +408,8 @@ def propose_invoices(bundle,period,result):
         elif fx_partner:
             recipient = fx_partner
         else:
-            result.pending('invoice:partner','TOMADOR_NAO_IDENTIFICADO','Não foi possível obter o parceiro no e-mail. Nota de remessa não proposta.','Fiscal / Helena (financeiro)')
+            if not any(r['tipo'] == 'TOMADOR_NAO_IDENTIFICADO' for r in result.tables['pendencias']):
+                result.pending('invoice:partner','TOMADOR_NAO_IDENTIFICADO','Não foi possível obter o parceiro no e-mail. Nota de remessa não proposta.','Fiscal / Helena (financeiro)')
             continue
         groups[(recipient[0],recipient[1],commission['linha_negocio'])].append(commission)
     commission_traces = defaultdict(list)

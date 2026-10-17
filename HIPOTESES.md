@@ -48,7 +48,8 @@ As regras de negócio vieram das respostas da Helena (financeiro da Tarvo) no ca
 
 ## Limitações conhecidas
 
-- Atlas: as 57 linhas de setembro (R$ 262.138,61 brutos) estão em pendência. O motor ainda não lê automaticamente pendências do mês anterior; em outubro, a taxa confirmada deve ser registrada no contrato e as linhas de setembro fornecidas junto.
+- Atlas: as 57 linhas de setembro (R$ 262.138,61 brutos) estão em pendência. O motor fatura só lançamentos com data de movimento no período; faturar em outubro as linhas de setembro exige uma evolução (ler a pendência anterior ou aceitar um período de vigência retroativo). Hoje isso fica manual, com o valor e as linhas na pendência.
+- Linhas repetidas de remessa são listadas para correção mesmo quando a operação sai da comissão por outro motivo (competência ou spread negativo).
 - A conciliação da Orbe contra o banco parcela por parcela não foi feita, a pedido do financeiro: depende da agenda de recebíveis.
 - Notas, contestações e lançamentos são entregues para revisão. O motor não emite nota, não envia e-mail e não lança no ERP.
 - Confiança da classificação bancária é um escore de regra, não uma probabilidade calibrada.

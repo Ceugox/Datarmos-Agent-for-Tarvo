@@ -113,6 +113,13 @@ class SourceAndClosingTests(unittest.TestCase):
         self.assertIn(('OPERACAO_REPETIDA','PC-0926-0162'),ponte)
         self.assertIn('PC-0926-0002',contributions)
 
+    def test_missing_partner_signature_yields_a_single_pending_item(self):
+        bundle = deepcopy(self.bundle)
+        bundle.email_body = bundle.email_body.replace('Backoffice Parceiros','Equipe')
+        result = close_month(bundle,self.policy,'2026-09')
+        self.assertEqual(sum(r['tipo']=='TOMADOR_NAO_IDENTIFICADO' for r in result.tables['pendencias']),1)
+        self.assertFalse(any(r['linha_negocio']=='REMESSA' for r in result.tables['notas_a_emitir']))
+
     def test_only_the_new_merchant_without_history_raises_an_advance_alert(self):
         result = close_month(self.bundle,self.policy,'2026-09')
         alerts = [r['escopo'] for r in result.tables['pendencias'] if r['tipo']=='ALERTA_ANTECIPACAO']
