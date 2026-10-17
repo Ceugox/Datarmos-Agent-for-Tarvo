@@ -28,8 +28,9 @@ def main(argv=None):
     print(f'Run: {manifest["run_id"]}')
     print(f'Checkout commission: BRL {metrics["comissao_checkout"]}')
     print(f'Remittance participation: BRL {metrics["participacao_remessas"]}')
-    print(f'Invoices to issue after review: {metrics["notas"]}; BRL {metrics["valor_notas"]}')
-    print(f'Rate divergences: {metrics["divergencias"]}; Orbe BRL {metrics["diferenca_checkout_brl"]}; Ponte BRL {metrics["diferenca_remessa_brl"]}')
+    partial = ' (PARTIAL: blocked '+', '.join(metrics['totais_parciais'])+')' if metrics.get('totais_parciais') else ''
+    print(f'Invoices to issue after review: {metrics["notas"]}; BRL {metrics["valor_notas"]}{partial}')
+    print(f'Rate divergences: {metrics["divergencias"]}; Orbe BRL {metrics["diferenca_checkout_brl"]}; Ponte BRL {metrics["diferenca_remessa_brl"]}{partial}')
     print(f'Pending items: {metrics["pendencias"]}. Open {args.output / "index.html"} to review.')
     if metrics['status'] == 'PROVISORIO':
         for block in metrics['fontes_bloqueadas'].values():

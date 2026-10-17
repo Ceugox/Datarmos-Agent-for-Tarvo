@@ -128,6 +128,27 @@ class SourceAndClosingTests(unittest.TestCase):
         self.assertTrue(transfers)
         self.assertTrue(all('bloqueado' in p['motivo'] for p in transfers))
 
+    def test_blocked_counts_are_unknown_and_cross_stage_totals_are_partial(self):
+        with TemporaryDirectory() as directory:
+            result = close_month(read_inputs(self.pack_without(directory,'02_*.xlsx')),self.policy,'2026-09')
+        for key in ['checkout_nao_faturado','checkout_sem_contrato','divergencias_checkout','remessas_elegiveis','remessas_contestadas']:
+            self.assertIsNone(result.metrics[key],key)
+        self.assertEqual(result.metrics['movimentos_bancarios_exportados'],184)
+        self.assertEqual(result.metrics['totais_parciais'],['checkout','remessa'])
+
+    def test_provisional_report_and_command_render_blocked_values(self):
+        with TemporaryDirectory() as directory:
+            pack = self.pack_without(directory,'01_*.csv')
+            completed = subprocess.run([sys.executable,str(ROOT/'run_engine.py'),'--input',str(pack),'--policy',str(ROOT/'config/closing-policy.json'),'--period','2026-09','--output',str(Path(directory)/'out')],cwd=ROOT,capture_output=True,text=True)
+            page = (Path(directory)/'out'/'index.html').read_text(encoding='utf-8')
+        self.assertEqual(completed.returncode,3,completed.stderr)
+        self.assertIn('Checkout commission: BRL BLOCKED',completed.stdout)
+        self.assertIn('(PARTIAL: blocked checkout)',completed.stdout)
+        summary = page.split('<h2>Verificações</h2>')[0]
+        self.assertIn('<strong>bloqueado</strong>',summary)
+        self.assertIn('parcial: sem as etapas bloqueadas checkout',summary)
+        self.assertNotIn('None',summary)
+
     def test_a_folder_without_sources_fails_instead_of_closing_empty(self):
         with TemporaryDirectory() as directory:
             with self.assertRaisesRegex(ValueError,'No source files'):

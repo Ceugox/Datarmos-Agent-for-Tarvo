@@ -591,11 +591,17 @@ def close_month(bundle,policy,period):
         'pendencias':len(result.tables['pendencias']),
     })
     # A stage that did not run has unknown amounts, never zero.
-    unknown = {'checkout':['comissao_checkout','diferenca_checkout_brl','devolucao_condicao_comercial','checkout_bruto_nao_faturado'],
-               'remessa':['participacao_remessas','diferenca_remessa_brl','spread_elegivel']}
+    unknown = {'checkout':['comissao_checkout','diferenca_checkout_brl','devolucao_condicao_comercial','checkout_bruto_nao_faturado',
+                           'checkout_comparados','checkout_nao_faturado','checkout_sem_contrato','divergencias_checkout'],
+               'remessa':['participacao_remessas','diferenca_remessa_brl','spread_elegivel',
+                          'remessas_distintas_sem_conflito','remessas_elegiveis','remessas_contestadas'],
+               'bancos':['movimentos_bancarios_exportados']}
     for stage, keys in unknown.items():
         if stage in blocked_stages:
             result.metrics.update({key:None for key in keys})
+    # Totals that add several stages stay numeric but are labelled partial when a stage is missing.
+    if blocked_stages:
+        result.metrics['totais_parciais'] = blocked_stages
     for rows in result.tables.values():
         rows.sort(key=lambda row:row['id_saida'])
     for items in result.contests.values():
