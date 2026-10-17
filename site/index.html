@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Datarmos · Agente de fechamento</title>
+<meta name="description" content="Datarmos: o agente que fecha o mês financeiro da Tarvo a partir dos arquivos como chegam, com cada número apontando para a linha de origem.">
+<meta property="og:title" content="Datarmos · Seis arquivos entram, o mês sai fechado">
+<meta property="og:description" content="Setembro/2026 da Tarvo processado em 0,5 s, com R$ 20.225,93 corrigidos antes de o lojista reclamar.">
+<link rel="icon" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="bg" aria-hidden="true"></div>
+<div class="progress" aria-hidden="true"><i id="progress"></i></div>
+
+<header class="nav" id="top">
+  <a class="logo" href="#top" aria-label="Datarmos, início">DATARM<b>O</b>S</a>
+  <nav aria-label="Seções">
+    <a href="#problema">Problema</a>
+    <a href="#solucao">Solução</a>
+    <a href="#controle">Controle</a>
+    <a href="#video">Vídeo</a>
+    <a href="#pitch">Pitch</a>
+    <a href="#resultados">Resultados</a>
+  </nav>
+  <a class="btn sm" href="pitch/">Abrir o pitch <span aria-hidden="true">↗</span></a>
+</header>
+
+<main>
+<!-- HERO -->
+<section class="hero" aria-labelledby="h-hero">
+  <div class="hero-copy">
+    <p class="tag"><i class="dot"></i>Agente de fechamento · Hackathon Barte AI Services</p>
+    <h1 id="h-hero">Seis arquivos entram.<br><span class="ok">O mês sai fechado.</span></h1>
+    <p class="lead">A Datarmos transformou as regras do financeiro da Tarvo num agente: setembro é processado em <b class="n">0,5 s</b>, conciliado linha por linha, e os <b class="n">R$ 20.225,93</b> cobrados errado aparecem antes de o lojista reclamar.</p>
+    <div class="cta">
+      <a class="btn" href="pitch/">Abrir o pitch <span aria-hidden="true">→</span></a>
+      <a class="btn ghost" href="#resultados">Ver os resultados</a>
+    </div>
+    <ul class="hero-kpis">
+      <li><b class="n" data-count="8" data-suffix=" dias">8 dias</b><span>úteis hoje</span></li>
+      <li><b class="n ok" data-count="0.5" data-dec="1" data-suffix=" s">0,5 s</b><span>com o agente</span></li>
+      <li><b class="n" data-count="13">13</b><span>decisões para a Helena</span></li>
+    </ul>
+  </div>
+
+  <div class="stage" id="stage" aria-label="Animação: os seis arquivos do mês entram, o agente conecta e o mês sai fechado">
+    <svg class="wires" viewBox="0 0 640 460" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M200 40 C 260 40, 250 220, 300 225"/>
+      <path d="M200 112 C 260 112, 250 222, 300 227" style="--d:.1s"/>
+      <path d="M200 184 C 260 184, 260 226, 300 229" style="--d:.2s"/>
+      <path d="M200 256 C 260 256, 260 232, 300 231" style="--d:.3s"/>
+      <path d="M200 328 C 260 328, 250 236, 300 233" style="--d:.4s"/>
+      <path d="M200 400 C 260 400, 250 240, 300 235" style="--d:.5s"/>
+      <path class="out" d="M372 230 C 400 230, 400 230, 424 230" style="--d:.2s"/>
+    </svg>
+    <ul class="docs">
+      <li class="doc" style="--d:0s"><i class="ext">CSV</i><span>01 · Orbe<small>comissões de checkout</small></span></li>
+      <li class="doc" style="--d:.12s"><i class="ext x">XLSX</i><span>02 · Taxas<small>o que foi contratado</small></span></li>
+      <li class="doc" style="--d:.24s"><i class="ext e">EML</i><span>03 · Ponte Câmbio<small>spread de cada remessa</small></span></li>
+      <li class="doc" style="--d:.36s"><i class="ext">CSV</i><span>04 · ERP Fênix<small>plano de contas</small></span></li>
+      <li class="doc" style="--d:.48s"><i class="ext">CSV</i><span>05a · Aurora<small>extrato bancário</small></span></li>
+      <li class="doc" style="--d:.6s"><i class="ext o">OFX</i><span>05b · Meridiano<small>extrato bancário</small></span></li>
+    </ul>
+    <div class="orb"><b>Agente</b><small>Datarmos</small></div>
+    <p class="orb-st"><span class="run">conectando 2.374 linhas…</span><span class="done">conciliado</span></p>
+    <div class="out">
+      <p class="h">Setembro fechado</p>
+      <div class="kpi"><p class="kv s">0,5 s</p><p class="kd">de processamento, contra 8 dias úteis</p></div>
+      <div class="kpi"><p class="kv">R$ 20.225,93</p><p class="kd">corrigidos antes de o lojista reclamar</p></div>
+      <div class="mini" aria-hidden="true"><i style="--h:22%;--d:.1s"></i><i style="--h:38%;--d:.2s"></i><i style="--h:52%;--d:.3s"></i><i style="--h:70%;--d:.4s"></i><i style="--h:100%;--d:.5s"></i></div>
+      <p class="kd">21 notas · 115 divergências · 184 lançamentos</p>
+    </div>
+  </div>
+</section>
+
+<div class="marquee" aria-hidden="true"><div class="track">
+  <span>Orbe</span><span>Ponte Câmbio</span><span>Aurora</span><span>Meridiano</span><span>ERP Fênix</span><span>2.374 linhas de origem</span><span>46 testes automatizados</span><span>0 aproximação de nome</span><span>cálculo em decimal</span><span>rastro até a linha</span>
+  <span>Orbe</span><span>Ponte Câmbio</span><span>Aurora</span><span>Meridiano</span><span>ERP Fênix</span><span>2.374 linhas de origem</span><span>46 testes automatizados</span><span>0 aproximação de nome</span><span>cálculo em decimal</span><span>rastro até a linha</span>
+</div></div>
+
+<!-- PROBLEMA -->
+<section class="sec" id="problema" aria-labelledby="h-prob">
+  <p class="eyebrow reveal">01 · Hoje</p>
+  <h2 id="h-prob" class="reveal">Hoje o mês leva <span class="m">8 dias úteis</span> <span class="g">e só fecha se a Helena estiver lá.</span></h2>
+  <div class="split">
+    <figure class="card quote reveal">
+      <blockquote>“Se eu sair de férias, o mês não fecha.”</blockquote>
+      <figcaption class="mono">Time financeiro da Tarvo</figcaption>
+    </figure>
+    <ol class="rows">
+      <li class="reveal" style="--d:.05s"><b class="rv n">8 dias</b><div><h3>Fonte por fonte</h3><p>Cada fonte é um arquivo diferente, batido um contra o outro.</p></div></li>
+      <li class="reveal" style="--d:.1s"><b class="rv n">1 pessoa</b><div><h3>Regra que não está escrita</h3><p>“Tem regra que só eu sei.” Nas férias, ninguém fecha.</p></div></li>
+      <li class="reveal" style="--d:.15s"><b class="rv m">lojista</b><div><h3>Quem acha o erro é o lojista</h3><p>A taxa a mais só aparece quando o lojista reclama.</p></div></li>
+      <li class="reveal" style="--d:.2s"><b class="rv n">3×</b><div><h3>O volume triplicou, o time não</h3><p>Em um ano. O financeiro continua com três pessoas.</p></div></li>
+    </ol>
+  </div>
+</section>
+
+<!-- CAUSA RAIZ -->
+<section class="sec" aria-labelledby="h-causa">
+  <p class="eyebrow reveal">02 · Causa raiz</p>
+  <h2 id="h-causa" class="reveal"><span class="m n">R$ 16.845,60</span> dos erros de setembro começaram no comercial <span class="g">— a condição foi fechada e ninguém avisou a Orbe nem a Ponte.</span></h2>
+  <ol class="flow reveal">
+    <li><b>01</b>Comercial fecha a condição</li>
+    <li class="warn"><b>02</b>Ninguém avisa a Orbe ou a Ponte</li>
+    <li><b>03</b>Cobram o contrato antigo</li>
+    <li class="warn"><b>04</b>Só aparece se o lojista reclamar</li>
+  </ol>
+  <div class="split wide">
+    <div class="card table reveal">
+      <table>
+        <caption>Condições não avisadas · R$ · set/2026</caption>
+        <thead><tr><th>Lojista</th><th>O combinado</th><th>Quem soube</th><th class="r">R$</th></tr></thead>
+        <tbody>
+          <tr><td>Casa do Estudante</td><td>tarifa zerada de set. a dez.</td><td>Orbe nunca avisada</td><td class="r n">15.396,77</td></tr>
+          <tr><td>Mundo Aberto</td><td>spread de 1,20% desde julho</td><td>Ponte nunca avisada</td><td class="r n">1.418,88</td></tr>
+          <tr><td>Bridge Idiomas</td><td>nova taxa a partir de 15/09</td><td>Orbe avisada dias depois</td><td class="r n">29,95</td></tr>
+        </tbody>
+        <tfoot><tr><td colspan="3">Total</td><td class="r n m">16.845,60</td></tr></tfoot>
+      </table>
+    </div>
+    <figure class="card quote sm reveal" style="--d:.1s">
+      <blockquote>“Ninguém tem essa função hoje. O comercial fecha e, quando lembra, manda um e-mail.”</blockquote>
+      <figcaption class="mono">Helena · financeiro · 17/10</figcaption>
+    </figure>
+  </div>
+  <p class="src reveal">Fonte: saida/pendencias.csv e divergencias_taxa.csv · canal do financeiro</p>
+</section>
+
+<!-- SOLUÇÃO -->
+<section class="sec" id="solucao" aria-labelledby="h-sol">
+  <p class="eyebrow reveal">03 · O que o agente entrega</p>
+  <h2 id="h-sol" class="reveal">Em uma execução, o agente entrega o mês inteiro <span class="g">e deixa só</span> <span class="ok">13 decisões</span> <span class="g">para a Helena.</span></h2>
+  <div class="grid3">
+    <article class="card tile reveal"><p class="mono">Comissão de checkout</p><b class="big n" data-count="203735.34" data-money>R$ 203.735,34</b><p>bruto × taxa contratada, linha a linha</p></article>
+    <article class="card tile reveal" style="--d:.06s"><p class="mono">Participação em remessas</p><b class="big n" data-count="39543.45" data-money>R$ 39.543,45</b><p>50% do spread realizado, 228 operações</p></article>
+    <article class="card tile reveal" style="--d:.12s"><p class="mono">Notas a emitir</p><b class="big n"><span data-count="21">21</span> <small>· R$ 243.284,29</small></b><p>prontas para a Helena revisar e emitir</p></article>
+    <article class="card tile reveal" style="--d:.18s"><p class="mono">Divergências de taxa</p><b class="big n" data-count="115">115</b><p>transação por transação, com o valor em reais</p></article>
+    <article class="card tile reveal" style="--d:.24s"><p class="mono">Lançamentos bancários</p><b class="big n" data-count="184">184</b><p>Aurora e Meridiano, pela conta de contrapartida</p></article>
+    <article class="card tile accent reveal" style="--d:.3s"><p class="mono">Pendências</p><b class="big n ok" data-count="13">13</b><p>cada uma com motivo, valor e quem decide</p></article>
+  </div>
+</section>
+
+<!-- RASTRO -->
+<section class="sec" aria-labelledby="h-rastro">
+  <p class="eyebrow reveal">04 · Rastro</p>
+  <h2 id="h-rastro" class="reveal">Nenhum número é afirmado: <span class="m n">R$ 15.396,77</span> <span class="g">da Casa são a soma de</span> 118 linhas da Orbe.</h2>
+  <div class="split wide">
+    <div class="card trace reveal">
+      <p class="mono">saída · pendencias.csv · devolução por condição comercial</p>
+      <p class="trace-total n">15.396,77</p>
+      <ul class="tree">
+        <li class="reveal" style="--d:.1s"><span>├ TX88410932 <i>← 01_orbe, linha 2</i></span><b class="n">16,37</b></li>
+        <li class="reveal" style="--d:.2s"><span>├ TX88410975 <i>← 01_orbe, linha 3</i></span><b class="n">16,53</b></li>
+        <li class="reveal" style="--d:.3s"><span>├ TX88410128 <i>← 01_orbe, linha 5</i></span><b class="n">218,81</b></li>
+        <li class="reveal" style="--d:.4s"><span>├ … mais 115 linhas</span><b></b></li>
+        <li class="reveal ok" style="--d:.5s"><span>└ soma igual ao valor da saída</span><b class="n">confere ✓</b></li>
+      </ul>
+      <p class="raw mono">TX88410932;01/09/2026;1018325654;CASA DO ESTUDANTE VIAGENS;VENDA;CREDITO A VISTA;1;MASTERCARD;608,88;2,69;<mark>16,37</mark>;592,51</p>
+    </div>
+    <ul class="facts">
+      <li class="card reveal"><b class="n" data-count="2374">2.374</b><span>linhas de origem, todas com destino: numa conta, numa pendência ou fora com o motivo.</span></li>
+      <li class="card reveal" style="--d:.08s"><b class="n" data-count="46">46</b><span>testes automatizados conferem as regras. A cada envio, a CI refaz setembro e compara com a saída entregue.</span></li>
+      <li class="card reveal" style="--d:.16s"><b class="n">0</b><span>aproximação de nome no cadastro. Falha de leitura nunca vira zero.</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- CONTROLE -->
+<section class="sec" id="controle" aria-labelledby="h-ctrl">
+  <p class="eyebrow reveal">05 · A Helena no comando</p>
+  <h2 id="h-ctrl" class="reveal">Cada pendência chega com valor e dono. <span class="g">Emitir, pagar e contestar</span> <span class="m">nunca ficam automáticos.</span></h2>
+  <div class="split">
+    <div class="card queue reveal">
+      <div class="qh"><p class="mono">Fila da Helena · setembro</p><span class="pill">13 aguardando</span></div>
+      <ul>
+        <li><div><b>Casa do Estudante</b><small>devolver tarifa da isenção · 118 lanç.</small></div><span class="n">15.396,77</span><em>Helena + Comercial</em></li>
+        <li><div><b>Ponte Câmbio</b><small>contestar 4 spreads negativos</small></div><span class="n">1.834,05</span><em>Helena</em></li>
+        <li><div><b>Rota Global</b><small>cobrar a Orbe · 87 lançamentos</small></div><span class="n">1.546,28</span><em>Helena</em></li>
+        <li><div><b>Mundo Aberto</b><small>contestar spread com a Ponte · 23</small></div><span class="n">1.418,88</span><em>Helena</em></li>
+        <li><div><b>Atlas Idiomas</b><small>não faturar até o contrato · brutos</small></div><span class="n">262.138,61</span><em>Comercial</em></li>
+        <li><div><b>Aurora · linha 50</b><small>Pix sem pagador identificado</small></div><span class="n">7.350,00</span><em>Tesouraria</em></li>
+      </ul>
+      <p class="more mono">+ 7 pendências no relatório completo</p>
+    </div>
+    <ol class="ladder">
+      <li class="reveal"><b>0</b><div><h3>Hoje</h3><p>A Helena bate fonte por fonte, em 8 dias úteis.</p></div><span class="st">manual</span></li>
+      <li class="reveal done" style="--d:.08s"><b>1</b><div><h3>Entregue</h3><p>O agente calcula e propõe tudo. A Helena aprova cada saída.</p></div><span class="st">pronto</span></li>
+      <li class="reveal wip" style="--d:.16s"><b>2</b><div><h3>A seguir</h3><p>Agentes de IA analisam o que a regra não decide e propõem antes da Helena.</p></div><span class="st">em construção</span></li>
+      <li class="reveal" style="--d:.24s"><b>3</b><div><h3>Com histórico</h3><p>Regra aprovada age sozinha abaixo de um limite que a Helena define.</p></div><span class="st">próximo</span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- AO VIVO -->
+<section class="sec" aria-labelledby="h-live">
+  <p class="eyebrow reveal">06 · Ao vivo, no hackathon</p>
+  <h2 id="h-live" class="reveal">Às 13h15 chegaram 14 ajustes da Orbe e o mês se refez em uma execução: <span class="m n">−R$ 3.304,39</span> <span class="g">na comissão.</span></h2>
+  <ol class="timeline">
+    <li class="reveal"><span class="t mono">13h15 · recebido</span><p>A Orbe enviou <code>06_orbe_ajustes_tardios_set2026.csv</code> · 14 linhas</p></li>
+    <li class="reveal" style="--d:.08s"><span class="t mono">conectado</span><p>10 estornos, 3 reversões de antecipação e 1 venda nova</p></li>
+    <li class="reveal" style="--d:.16s"><span class="t mono">recalculado</span><p>Comissão de checkout <s class="n">207.039,73</s> → <b class="n ok">203.735,34</b></p></li>
+    <li class="reveal" style="--d:.24s"><span class="t mono">recalculado</span><p>Notas <s class="n">246.588,68</s> → <b class="n ok">243.284,29</b></p></li>
+    <li class="reveal" style="--d:.32s"><span class="t mono">conferido</span><p>Nenhuma divergência nova; valor batido por fora do motor</p></li>
+  </ol>
+</section>
+
+<!-- ONDE FALHA -->
+<section class="sec" aria-labelledby="h-fail">
+  <p class="eyebrow reveal">07 · Onde falha e onde a IA atua</p>
+  <h2 id="h-fail" class="reveal">Quando falta um arquivo ou uma regra, o agente para ali, diz o motivo <span class="g">e fecha o resto.</span></h2>
+  <div class="split wide">
+    <div class="card table reveal">
+      <table>
+        <caption>Situação → o que o agente faz → quem decide</caption>
+        <tbody>
+          <tr><td>Arquivo atrasado ou layout novo</td><td>fecha o resto, marca provisório e diz o que ficou bloqueado</td><td>Helena libera</td></tr>
+          <tr><td>Caso sem regra</td><td>tira do cálculo e abre pendência com o valor</td><td>Helena</td></tr>
+          <tr><td>Lojista sem contrato</td><td>não fatura e guarda as linhas (Atlas: 57)</td><td>Comercial</td></tr>
+          <tr><td>Orbe × banco, parcela a parcela</td><td>não faz: depende da agenda de recebíveis</td><td>fora do escopo</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="ai">
+      <div class="card reveal" style="--d:.06s"><p class="mono ok">Onde a IA atuou</p><p>Leu o case e os sete arquivos, propôs as perguntas à Helena, escreveu o motor e os 46 testes, revisou o código.</p></div>
+      <div class="card reveal" style="--d:.12s"><p class="mono m">Onde não atua</p><p>Não decide regra nem calcula o mês: nota fiscal precisa dar o mesmo valor toda vez. Nas pendências, a IA só propõe.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- VÍDEO -->
+<section class="sec" id="video" aria-labelledby="h-video">
+  <p class="eyebrow reveal">08 · Vídeo</p>
+  <h2 id="h-video" class="reveal">A apresentação em vídeo.</h2>
+  <div class="video reveal" id="video-box">
+    <div class="poster">
+      <div class="pulse" aria-hidden="true"><i></i></div>
+      <p class="mono">Vídeo em breve</p>
+      <p class="g">A apresentação gravada entra aqui assim que for publicada no YouTube.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PITCH -->
+<section class="sec" id="pitch" aria-labelledby="h-pitch">
+  <p class="eyebrow reveal">09 · Pitch</p>
+  <h2 id="h-pitch" class="reveal">O pitch completo, <span class="g">13 slides, navegável aqui mesmo.</span></h2>
+  <div class="deck reveal">
+    <iframe src="pitch/" title="Pitch Datarmos · 13 slides" loading="lazy"></iframe>
+  </div>
+  <div class="cta center reveal">
+    <a class="btn" href="pitch/">Abrir em tela cheia <span aria-hidden="true">↗</span></a>
+    <span class="hint mono">use ← → para navegar · F para tela cheia</span>
+  </div>
+</section>
+
+<!-- RESULTADOS -->
+<section class="sec" id="resultados" aria-labelledby="h-res">
+  <p class="eyebrow reveal">10 · Resultados do motor</p>
+  <h2 id="h-res" class="reveal">Setembro/2026 da Tarvo, <span class="g">direto da saída do motor.</span></h2>
+  <div class="kpis">
+    <div class="card kpi reveal"><p class="mono">Corrigido antes da reclamação</p><b class="n ok" data-count="20225.93" data-money>R$ 20.225,93</b></div>
+    <div class="card kpi reveal" style="--d:.05s"><p class="mono">Notas a emitir</p><b class="n" data-count="243284.29" data-money>R$ 243.284,29</b></div>
+    <div class="card kpi reveal" style="--d:.1s"><p class="mono">Vendas sem nota (Atlas)</p><b class="n m" data-count="262138.61" data-money>R$ 262.138,61</b></div>
+    <div class="card kpi reveal" style="--d:.15s"><p class="mono">Processamento médio</p><b class="n" data-count="0.47" data-dec="2" data-suffix=" s">0,47 s</b></div>
+  </div>
+  <div class="dash">
+    <figure class="card chart w2 reveal"><figcaption><b>Comissão por lojista</b><span>R$ · checkout + remessa · 10 maiores de 23 · set/2026</span></figcaption><div class="cbox tall"><canvas id="c-merchants" role="img" aria-label="Comissão por lojista"></canvas></div></figure>
+    <figure class="card chart reveal"><figcaption><b>Corrigido por natureza</b><span>R$ · soma 20.225,93 · set/2026</span></figcaption><div class="cbox"><canvas id="c-corrected" role="img" aria-label="Valor corrigido por natureza"></canvas></div></figure>
+    <figure class="card chart reveal"><figcaption><b>Destino das linhas de origem</b><span>contagem · n = 2.374 · set/2026</span></figcaption><div class="cbox"><canvas id="c-coverage" role="img" aria-label="Destino das linhas de origem"></canvas></div></figure>
+    <figure class="card chart reveal"><figcaption><b>Ajustes tardios da Orbe (13h15)</b><span>R$ · antes e depois do arquivo 06 · comissão −3.304,39</span></figcaption><div class="cbox"><canvas id="c-late" role="img" aria-label="Antes e depois dos ajustes tardios"></canvas></div></figure>
+    <figure class="card chart reveal"><figcaption><b>Divergências de taxa</b><span>R$ · contraparte e lojista · n = 115 · set/2026</span></figcaption><div class="cbox"><canvas id="c-div" role="img" aria-label="Divergências de taxa por contraparte"></canvas></div></figure>
+    <figure class="card chart reveal"><figcaption><b>Pendências por quem decide</b><span>contagem · n = 13 · set/2026</span></figcaption><div class="cbox"><canvas id="c-pend" role="img" aria-label="Pendências por responsável"></canvas></div></figure>
+    <figure class="card chart w3 reveal"><figcaption><b>Tempo de fechamento</b><span>processamento medido em 3 execuções · 17/10</span></figcaption><div class="cbox"><canvas id="c-time" role="img" aria-label="Tempo de processamento por execução"></canvas></div></figure>
+  </div>
+  <p class="src reveal">Fonte: saida/metrics.json, comissoes_por_lojista.csv, divergencias_taxa.csv, pendencias.csv, cobertura.csv · com os ajustes tardios da Orbe · <a href="relatorio/">abrir o relatório de revisão gerado pelo motor ↗</a></p>
+</section>
+
+<!-- PEDIDO -->
+<section class="sec ask" aria-labelledby="h-ask">
+  <p class="eyebrow reveal">11 · O pedido</p>
+  <h2 id="h-ask" class="reveal big">Outubro com o agente em paralelo <span class="ok">e a Helena aprovando cada pendência.</span></h2>
+  <ol class="grid3">
+    <li class="card reveal"><b class="mono m">01</b><h3>Outubro em paralelo</h3><p>O agente fecha junto com o processo atual; a Helena compara e aprova.</p></li>
+    <li class="card reveal" style="--d:.06s"><b class="mono m">02</b><h3>Um dono para o aviso</h3><p>O comercial registra cada condição e avisa a Orbe e a Ponte. Teria evitado R$ 16.845,60 em setembro.</p></li>
+    <li class="card reveal" style="--d:.12s"><b class="mono m">03</b><h3>Medir em outubro</h3><p>Dias até fechar · divergências achadas antes do lojista · pendências sem dono: 0.</p></li>
+  </ol>
+  <div class="cta center reveal">
+    <a class="btn" href="pitch/">Abrir o pitch</a>
+    <a class="btn ghost" id="repo-link" href="https://github.com/Ceugox/Datarmos-Agent-for-Tarvo">Código no GitHub ↗</a>
+    <a class="btn ghost" href="relatorio/">Relatório do motor ↗</a>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <span class="logo">DATARM<b>O</b>S</span>
+  <span class="mono">Time Datarmos · Hackathon Barte AI Services · dados reais de setembro/2026 da Tarvo</span>
+</footer>
+
+<script src="config.js"></script>
+<script src="data/results.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+<script src="app.js" defer></script>
+</body>
+</html>
