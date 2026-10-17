@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pitch · Datarmos</title>
+<link rel="icon" href="../favicon.svg">
+
+<style data-canvas-theme>
+@import url("https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
+:root{
+  --navy:#0a1022; --navy-2:#2b3550; --deep:#05070f;
+  --on:#f3f5fb; --on-2:rgba(243,245,251,.80); --on-3:rgba(243,245,251,.64); --faint:rgba(243,245,251,.46); --line:rgba(255,255,255,.14);
+  --ember:#ff6a2b; --ember-t:#ff8a50; --green:#3fd68f; --green-t:#6ee7a8; --red:#ff7b7b; --amber:#f5b84a; --violet:#b9a3ff;
+  --sans:"Onest",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+html,body{margin:0;padding:0;background:var(--deep)}
+body{font-family:var(--sans);color:var(--on);-webkit-font-smoothing:antialiased}
+.slide{position:relative;box-sizing:border-box;width:1280px;height:720px;overflow:hidden;padding:104px 80px 98px;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;text-align:left;gap:0;font-family:var(--sans);color:var(--on);
+  background:radial-gradient(rgba(255,255,255,.055) 1px,transparent 1.3px) 0 0/22px 22px,radial-gradient(120% 90% at 82% 0%,#1a2444 0%,#0a1022 55%,#05070f 100%)}
+.slide *{box-sizing:border-box}
+.slide p,.slide h1,.slide h2,.slide h3,.slide ul,.slide ol{margin:0}
+.slide ul,.slide ol{padding:0;list-style:none}
+.slide > *{position:relative;z-index:1}
+.slide.warm{background:radial-gradient(rgba(255,255,255,.05) 1px,transparent 1.3px) 0 0/22px 22px,radial-gradient(90% 80% at 85% 100%,rgba(63,214,143,.18) 0%,rgba(10,16,34,0) 60%),radial-gradient(120% 90% at 82% 0%,#1a2444 0%,#0a1022 55%,#05070f 100%)}
+
+/* barra e rodapé */
+.bar{position:absolute;left:80px;right:80px;top:40px;display:flex;align-items:center;justify-content:space-between;z-index:5}
+.logo{font-weight:500;font-size:15px;letter-spacing:.32em;color:#fff}
+.logo b{color:var(--ember);font-weight:500}
+.mono{font-family:var(--mono);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--on-3)}
+.foot{position:absolute;left:80px;right:80px;bottom:46px;display:flex;justify-content:space-between;gap:24px;z-index:5;font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--on-3);border-top:1px solid var(--line);padding-top:10px}
+
+/* título-afirmação */
+.slide h2{font-weight:500;font-size:44px;line-height:1.08;letter-spacing:-.035em;color:#fff;margin:0 0 28px;max-width:1120px}
+.slide .g{color:var(--faint)}
+.slide .m{color:var(--ember-t)}
+.slide .ok{color:var(--green-t)}
+.slide .n{font-family:var(--mono);font-feature-settings:"tnum" 1;letter-spacing:-.02em}
+
+/* layouts */
+.split{display:flex;gap:28px;flex:1;min-height:0}
+.split > .txt{flex:0 0 400px;display:flex;flex-direction:column}
+.split > .ex{flex:1;position:relative;min-width:0;display:flex;flex-direction:column}
+.full{flex:1;display:flex;flex-direction:column;min-height:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+
+/* peças */
+.tag{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:#ffb48c;border:1px solid rgba(255,180,140,.45);border-radius:999px;padding:5px 12px;background:rgba(0,0,0,.25)}
+.tag.gr{color:var(--green-t);border-color:rgba(110,231,168,.45)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--ember);display:inline-block;flex:none}
+.card{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:20px;padding:22px 24px;backdrop-filter:blur(10px)}
+.card.hot{border-color:rgba(255,106,43,.6);background:rgba(255,106,43,.08);box-shadow:0 0 0 4px rgba(255,106,43,.08)}
+.card.win{border-color:rgba(63,214,143,.55);background:rgba(63,214,143,.07);box-shadow:0 0 0 4px rgba(63,214,143,.07),0 0 60px -20px rgba(63,214,143,.45)}
+.card .mono{display:block;margin-bottom:10px}
+.card h3{margin:0 0 8px;font-weight:500;font-size:24px;letter-spacing:-.02em;line-height:1.15;color:#fff}
+.card p{font-size:18px;line-height:1.45;color:var(--on-2)}
+.card b{font-weight:500;color:#fff}
+.big{font-weight:300;font-size:64px;line-height:.95;letter-spacing:-.05em;color:#fff}
+.big small{font-size:24px;letter-spacing:-.01em;color:var(--on-3);margin-left:6px}
+.big.ok{color:var(--green-t)}
+.quote{font-weight:300;font-size:40px;line-height:1.1;letter-spacing:-.03em;color:#fff}
+.who{margin-top:18px !important;font-family:var(--mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--on-3)}
+
+/* chips de status */
+.chip{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:99px;border:1px solid var(--line);color:var(--on-2);white-space:nowrap;background:rgba(0,0,0,.2)}
+.chip .dot{width:7px;height:7px}
+.chip.okc{color:var(--green-t);border-color:rgba(110,231,168,.45)}.chip.okc .dot{background:var(--green)}
+.chip.wt{color:var(--amber);border-color:rgba(245,184,74,.45)}.chip.wt .dot{background:var(--amber)}
+.chip.bad{color:var(--red);border-color:rgba(255,123,123,.45)}.chip.bad .dot{background:var(--red)}
+.chip.ia{color:var(--violet);border-color:rgba(185,163,255,.5)}.chip.ia .dot{background:var(--violet)}
+
+/* tabela */
+.tbl{width:100%;border-collapse:collapse;font-size:18px}
+.tbl th{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--on-3);font-weight:400;text-align:left;padding:0 12px 12px 0;border-bottom:1px solid var(--line)}
+.tbl td{padding:13px 12px 13px 0;border-bottom:1px solid var(--line);color:var(--on-2);vertical-align:middle;line-height:1.3}
+.tbl td:first-child{color:#fff;font-weight:500}
+.tbl .r{text-align:right}
+.tbl tr.tot td{border-bottom:none;color:#fff;font-weight:500}
+
+/* fluxo */
+.flow{display:flex;gap:16px;align-items:stretch}
+.flow .card{flex:1;display:flex;flex-direction:column}
+.flow .arrow{align-self:center;color:var(--on-3);font-size:24px}
+.flow .brk{align-self:center;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--red);font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;width:96px;text-align:center}
+.flow .brk::before{content:"";width:80px;border-top:2px dashed var(--red)}
+.step-n{font-family:var(--mono);font-size:13px;color:var(--on-3);letter-spacing:.1em;margin-bottom:8px !important}
+
+/* barras verdes */
+.gbars{display:flex;align-items:flex-end;gap:18px;flex:1;border-bottom:1px solid var(--line);padding:0 6px}
+.gbar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:8px;height:100%}
+.gbar b{font-family:var(--mono);font-weight:500;font-size:16px;color:#fff}
+.gbar i{display:block;width:100%;border-radius:8px 8px 2px 2px;background:linear-gradient(180deg,#6ee7a8,#1f9d63);transform-origin:bottom}
+.gbar.dim i{background:linear-gradient(180deg,#4b5a8c,#2b3550)}
+.glab{display:flex;gap:18px;padding:8px 6px 0}
+.glab span{flex:1;text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--on-3);line-height:1.35}
+
+/* log */
+.log{font-family:var(--mono);font-size:15px;background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:16px;padding:16px 20px}
+.log .ln{display:grid;grid-template-columns:110px 1fr 120px;gap:14px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.08);align-items:center;color:var(--on-2)}
+.log .ln:last-child{border-bottom:none}
+.log .k{color:var(--on-3)}
+.log .v{text-align:right;color:#fff}
+
+/* ===== CAPA: documentos → agente → resultado ===== */
+.slide.cover{padding:0}
+.cover .copy{position:absolute;left:80px;top:138px;width:450px;z-index:4}
+.cover h1{font-weight:300;font-size:60px;line-height:1;letter-spacing:-.045em;margin:22px 0 0;color:#fff}
+.cover .lead{font-size:19px;line-height:1.45;color:var(--on-2);margin-top:22px;max-width:430px}
+.cover .tagl{margin-top:26px;font-family:var(--mono);font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--on-2)}
+.cover .tagl b{color:var(--green-t);font-weight:500}
+.cover .sig{position:absolute;left:80px;bottom:56px;z-index:4;font-size:15px;color:var(--on-2)}
+.cover .sig b{font-weight:500;color:#fff}
+.cover .glow{position:absolute;right:-80px;top:80px;width:760px;height:620px;border-radius:50%;background:radial-gradient(closest-side,rgba(63,214,143,.20),rgba(63,214,143,0));z-index:1}
+.cover .glow2{position:absolute;left:560px;top:160px;width:420px;height:420px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,106,43,.16),rgba(255,106,43,0));z-index:1}
+.stage{position:absolute;left:548px;top:104px;width:680px;height:470px;z-index:3}
+.stage svg.wires{position:absolute;left:0;top:0;width:680px;height:470px;overflow:visible}
+.wires path{fill:none;stroke:rgba(255,138,80,.55);stroke-width:1.6;stroke-dasharray:300;stroke-dashoffset:0;transition:stroke-dashoffset 1.2s cubic-bezier(.6,0,.2,1),stroke .6s;transition-delay:var(--d,0s)}
+.wires path.out{stroke:rgba(110,231,168,.8);stroke-width:2.2}
+.docs{position:absolute;left:0;top:14px;width:206px;display:flex;flex-direction:column;gap:9px}
+.doc{display:flex;align-items:center;gap:10px;height:52px;padding:0 12px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid var(--line);transition:opacity .6s,transform .7s cubic-bezier(.2,.8,.2,1);transition-delay:var(--d,0s)}
+.doc .ext{flex:none;width:38px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;letter-spacing:.04em;color:#0a1022;font-weight:500;background:#c9d3f0}
+.doc .ext.x{background:#7fd8a6}.doc .ext.e{background:#ffb48c}.doc .ext.o{background:#c9b8ff}
+.doc span{display:flex;flex-direction:column;font-size:13px;line-height:1.2;color:#fff;font-weight:500}
+.doc small{font-family:var(--mono);font-size:10px;color:var(--on-3);font-weight:400;letter-spacing:.02em}
+.orb{position:absolute;left:278px;top:150px;width:112px;height:112px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  background:radial-gradient(circle at 50% 40%,rgba(110,231,168,.95),rgba(31,157,99,.9) 60%,rgba(10,16,34,.9) 100%);
+  box-shadow:0 0 0 10px rgba(63,214,143,.10),0 0 0 22px rgba(63,214,143,.05),0 0 80px rgba(63,214,143,.55);transition:background .8s,box-shadow .8s,transform .8s,opacity .6s}
+.orb b{font-size:15px;font-weight:600;color:#06140d;letter-spacing:-.01em}
+.orb small{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:#06140d}
+.orb-st{position:absolute;left:214px;top:282px;width:240px;text-align:center;font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.orb-st span{display:block;transition:opacity .4s}
+.orb-st .run{position:absolute;left:0;right:0;top:0;color:var(--ember-t);opacity:0}
+.orb-st .done{color:var(--green-t)}
+.out{position:absolute;left:432px;top:6px;width:250px;height:440px;border-radius:20px;padding:18px 18px 16px;display:flex;flex-direction:column;gap:12px;
+  background:linear-gradient(180deg,rgba(63,214,143,.12),rgba(63,214,143,.03));border:1px solid rgba(110,231,168,.5);box-shadow:0 30px 80px -30px rgba(0,0,0,.8),0 0 70px -25px rgba(63,214,143,.6);transition:opacity .7s,transform .9s cubic-bezier(.2,.8,.2,1)}
+.out .h{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--green-t)}
+.out .kpi{border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:10px}
+.out .kv{font-weight:300;font-size:40px;line-height:1;letter-spacing:-.04em;color:#fff}
+.out .kv.s{font-size:26px;font-family:var(--mono);font-weight:500;letter-spacing:-.03em;color:var(--green-t)}
+.out .kd{font-size:12.5px;line-height:1.35;color:var(--on-2);margin-top:4px !important}
+.mini{display:flex;align-items:flex-end;gap:8px;height:96px;padding:0 2px;border-bottom:1px solid rgba(255,255,255,.14)}
+.mini i{flex:1;border-radius:5px 5px 1px 1px;background:linear-gradient(180deg,#6ee7a8,#1f9d63);transform-origin:bottom;transition:transform 1s cubic-bezier(.3,.8,.2,1);transition-delay:var(--d,0s)}
+.mini-l{display:flex;gap:8px;font-family:var(--mono);font-size:9px;letter-spacing:.04em;text-transform:uppercase;color:var(--on-3)}
+.mini-l span{flex:1;text-align:center}
+.out .foot-k{margin-top:auto;display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--on-2)}
+
+/* linha do tempo da capa: sem .play = estado final; o nav_js liga .play e acende k1..k5 */
+.cover.play .doc{opacity:0;transform:translateX(-36px)}
+.cover.play .wires path{stroke-dashoffset:300}
+.cover.play .orb{opacity:.35;transform:scale(.8);background:radial-gradient(circle at 50% 40%,rgba(255,170,120,.95),rgba(255,106,43,.9) 60%,rgba(10,16,34,.9) 100%);box-shadow:0 0 0 10px rgba(255,106,43,.10),0 0 0 22px rgba(255,106,43,.05),0 0 80px rgba(255,106,43,.5)}
+.cover.play .orb-st .run{opacity:0}
+.cover.play .orb-st .done{opacity:0}
+.cover.play .out{opacity:0;transform:translateX(40px)}
+.cover.play .mini i{transform:scaleY(0)}
+.cover.play.k1 .doc{opacity:1;transform:none}
+.cover.play.k2 .wires path.in{stroke-dashoffset:0}
+.cover.play.k2 .orb{opacity:1;transform:scale(1)}
+.cover.play.k3 .orb{animation:orbp 1s ease-in-out infinite}
+.cover.play.k3 .orb-st .run{opacity:1}
+.cover.play.k4 .orb{animation:none;background:radial-gradient(circle at 50% 40%,rgba(110,231,168,.95),rgba(31,157,99,.9) 60%,rgba(10,16,34,.9) 100%);box-shadow:0 0 0 10px rgba(63,214,143,.10),0 0 0 22px rgba(63,214,143,.05),0 0 80px rgba(63,214,143,.55)}
+.cover.play.k4 .orb-st .run{opacity:0}
+.cover.play.k4 .orb-st .done{opacity:1}
+.cover.play.k4 .wires path.out{stroke-dashoffset:0}
+.cover.play.k4 .out{opacity:1;transform:none}
+.cover.play.k5 .mini i{transform:none}
+.cover.play.k5 .wires path.in{stroke-dasharray:3 9;animation:flow 1.1s linear infinite}
+@keyframes orbp{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+@keyframes flow{to{stroke-dashoffset:-24}}
+
+/* entradas e barras (só com nav_js) */
+.cv-anim .slide:not(.cover) .fx{opacity:0;transform:translateY(20px);filter:blur(8px);transition:opacity 1s cubic-bezier(.2,.7,.1,1),transform 1s cubic-bezier(.2,.7,.1,1),filter 1s;transition-delay:var(--d,0s)}
+.cv-anim .slide.is-active .fx{opacity:1;transform:none;filter:none}
+.cv-anim .slide:not(.cover) .gbar i{transform:scaleY(0);transition:transform 1.3s cubic-bezier(.3,.8,.2,1);transition-delay:var(--d,.4s)}
+.cv-anim .slide.is-active .gbar i{transform:none}
+@media (prefers-reduced-motion: reduce){.cv-anim .slide *{transition:none !important;animation:none !important;opacity:1 !important;filter:none !important;transform:none !important}}
+
+</style>
+<style data-viewer>
+html{scroll-snap-type:y mandatory;overflow-y:scroll;scrollbar-width:none}
+html::-webkit-scrollbar{display:none}
+.frame{height:100vh;height:100dvh;display:flex;align-items:center;justify-content:center;scroll-snap-align:start;overflow:hidden}
+.frame>.slide{zoom:var(--z,1);flex:none}
+.vbar{position:fixed;left:0;right:0;bottom:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;font:500 12px/1 "JetBrains Mono",ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:rgba(243,245,251,.72);background:linear-gradient(0deg,rgba(5,7,15,.85),rgba(5,7,15,0));opacity:.35;transition:opacity .3s}
+.vbar:hover,.vbar:focus-within{opacity:1}
+.vbar a,.vbar button{color:inherit;font:inherit;letter-spacing:inherit;text-transform:inherit;text-decoration:none;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:8px 12px;cursor:pointer}
+.vbar a:hover,.vbar button:hover{color:#fff;border-color:#ff8a50}
+.vbar .grp{display:flex;gap:8px;align-items:center}
+@media print{html{scroll-snap-type:none}.frame{height:auto;break-after:page}.frame>.slide{zoom:1}.vbar{display:none}}
+</style>
+</head>
+<body>
+<div class="deck">
+<div id="slides" class="slides" data-canvas-slides>
+<section data-canvas-slide-id="e0ddee2b-d9ae-47b7-b0c4-a713ff249de9" class="slide cover is-active play k1 k2 k3 k4 k5"><style data-canvas-slide-styles>.cover .copy{top:160px;width:450px}.cover h1{font-size:40px;line-height:1.08;white-space:nowrap}.cover .lead{font-size:18px;max-width:440px}.okt{color:var(--green-t);font-weight:500}
+.cvstage{position:absolute;left:556px;top:110px;width:670px;height:500px;z-index:3}
+.cvstage svg{position:absolute;left:0;top:0}
+.wire,.braid{stroke-dasharray:var(--len);stroke-dashoffset:0;transition:stroke-dashoffset 1.1s cubic-bezier(.6,0,.2,1);transition-delay:var(--d,0s)}
+.flowline path{stroke-dasharray:3 7}
+.cvres{position:absolute;left:480px;top:150px;width:190px;border-radius:20px;padding:18px;background:linear-gradient(180deg,rgba(63,214,143,.14),rgba(63,214,143,.03));border:1px solid rgba(110,231,168,.5);box-shadow:0 0 70px -24px rgba(63,214,143,.65);transition:opacity .7s,transform .9s cubic-bezier(.2,.8,.2,1)}
+.cvres p{margin:0}
+.cvres .h{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--green-t)}
+.cvres .v{font-weight:300;font-size:42px;letter-spacing:-.04em;line-height:1;margin-top:10px !important;color:#fff}
+.cvres .v2{font-family:var(--mono);font-weight:500;font-size:19px;color:var(--green-t);margin-top:14px !important}
+.cvres .d{font-size:13px;color:var(--on-2);margin-top:4px !important;line-height:1.35}
+.a-up,.knot{transition:opacity .7s,transform .8s cubic-bezier(.2,.7,.1,1);transition-delay:var(--d,0s)}
+.cover.play .a-up{opacity:0;transform:translateY(14px)}
+.cover.play .wire,.cover.play .braid{stroke-dashoffset:var(--len)}
+.cover.play .knot{opacity:0}
+.cover.play .cvres{opacity:0;transform:translateX(40px)}
+.cover.play .flowline{opacity:0}
+.cover.play.k1 .a-up{opacity:1;transform:none}
+.cover.play.k2 .wire{stroke-dashoffset:0}
+.cover.play.k3 .knot{opacity:1}
+.cover.play.k3 .braid{stroke-dashoffset:0}
+.cover.play.k4 .cvres{opacity:1;transform:none}
+.cover.play.k5 .flowline{opacity:1;animation:cvflow 1s linear infinite}
+@keyframes cvflow{to{stroke-dashoffset:-20}}</style><div class="bar"><span class="logo">DATARM<b>O</b>S</span><span class="mono">Tarvo · fechamento de setembro/2026</span></div><div class="glow"></div><div class="copy"><span class="tag gr"><span class="dot" style="background:var(--green)"></span>Agente de fechamento</span><h1><span class="g">E se um agente pudesse<br>ajudar você a</span><br>reorganizar o seu<br>final de mês?</h1><p class="lead">As regras da Helena viraram um agente: setembro é processado em <b class="okt">0,5 s</b>, reconciliado linha por linha, e os <b class="okt">R$ 20.225,93</b> cobrados errado aparecem antes de o lojista reclamar.</p></div><div class="cvstage"><svg width="670" height="500" viewBox="0 0 670 500" style="overflow:visible"><defs><linearGradient id="cylb" x1="0" x2="1"><stop offset="0" stop-color="rgba(255,255,255,.04)"></stop><stop offset=".5" stop-color="rgba(255,255,255,.12)"></stop><stop offset="1" stop-color="rgba(255,255,255,.03)"></stop></linearGradient></defs><g fill="none" stroke-width="1.8"><path class="wire" style="--len:260;--d:0s" stroke="rgba(143,166,232,.75)" d="M262,70 C330,70 330,250 380,250"></path><path class="wire" style="--len:220;--d:.08s" stroke="rgba(255,138,80,.75)" d="M262,190 C330,190 330,250 380,250"></path><path class="wire" style="--len:220;--d:.16s" stroke="rgba(185,163,255,.75)" d="M262,310 C330,310 330,250 380,250"></path><path class="wire" style="--len:260;--d:.24s" stroke="rgba(201,207,220,.65)" d="M262,430 C330,430 330,250 380,250"></path></g><g fill="none" stroke-width="1.8" class="flowline"><path stroke="rgba(143,166,232,1)" d="M262,70 C330,70 330,250 380,250"></path><path stroke="rgba(255,138,80,1)" d="M262,190 C330,190 330,250 380,250"></path><path stroke="rgba(185,163,255,1)" d="M262,310 C330,310 330,250 380,250"></path><path stroke="rgba(201,207,220,.9)" d="M262,430 C330,430 330,250 380,250"></path></g><g class="a-up" style="--d:.2s"><path d="M168,44 v52 a47,13 0 0 0 94,0 v-52" fill="url(#cylb)" stroke="#8fa6e8" stroke-width="1.6"></path><ellipse cx="215" cy="44" rx="47" ry="13" fill="#141c38" stroke="#8fa6e8" stroke-width="1.6"></ellipse><circle cx="215" cy="78" r="13" fill="none" stroke="#8fa6e8" stroke-width="3"></circle><circle cx="215" cy="78" r="4.5" fill="#8fa6e8"></circle></g><g class="a-up" style="--d:.4s"><path d="M168,164 v52 a47,13 0 0 0 94,0 v-52" fill="url(#cylb)" stroke="#ff8a50" stroke-width="1.6"></path><ellipse cx="215" cy="164" rx="47" ry="13" fill="#141c38" stroke="#ff8a50" stroke-width="1.6"></ellipse><path d="M197,206 Q215,182 233,206 M195,206 H235 M203,197 V206 M227,197 V206" fill="none" stroke="#ff8a50" stroke-width="2.6" stroke-linecap="round"></path></g><g class="a-up" style="--d:.6s"><path d="M168,284 v52 a47,13 0 0 0 94,0 v-52" fill="url(#cylb)" stroke="#b9a3ff" stroke-width="1.6"></path><ellipse cx="215" cy="284" rx="47" ry="13" fill="#141c38" stroke="#b9a3ff" stroke-width="1.6"></ellipse><path d="M200,308 L215,300 L230,308 Z M202,312 V324 M210,312 V324 M220,312 V324 M228,312 V324 M199,327 H231" fill="none" stroke="#b9a3ff" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" style="transform: translate(1px, 7px);"></path></g><g class="a-up" style="--d:.8s"><path d="M168,404 v52 a47,13 0 0 0 94,0 v-52" fill="url(#cylb)" stroke="#c9cfdc" stroke-width="1.6"></path><ellipse cx="215" cy="404" rx="47" ry="13" fill="#141c38" stroke="#c9cfdc" stroke-width="1.6"></ellipse><rect x="199" y="426" width="32" height="22" rx="3" fill="none" stroke="#c9cfdc" stroke-width="2.2"></rect><path d="M199,433 H231 M199,441 H231 M210,426 V448" stroke="#c9cfdc" stroke-width="1.6"></path></g><g class="a-up" style="--d:.5s" font-family="Onest"><text x="150" y="71" text-anchor="end" font-size="16" font-weight="600" fill="#fff">Orbe</text><text x="150" y="89" text-anchor="end" font-size="12.5" fill="#8fa6e8">a taxa cobrada em cada venda</text><text x="150" y="191" text-anchor="end" font-size="16" font-weight="600" fill="#fff">Ponte Câmbio</text><text x="150" y="209" text-anchor="end" font-size="12.5" fill="#ff8a50">o spread de cada remessa</text><text x="150" y="311" text-anchor="end" font-size="16" font-weight="600" fill="#fff">Aurora e Meridiano</text><text x="150" y="329" text-anchor="end" font-size="12.5" fill="#b9a3ff">o dinheiro que entrou e saiu</text><text x="150" y="431" text-anchor="end" font-size="16" font-weight="600" fill="#fff">Planilha e ERP Fênix</text><text x="150" y="449" text-anchor="end" font-size="12.5" fill="#c9cfdc">o que foi contratado</text></g><g fill="none" stroke-linecap="round"><circle class="knot" cx="380" cy="250" r="7" fill="#df285d" stroke="rgba(223,40,93,.35)" stroke-width="8"></circle><path class="braid" style="--len:120;--d:0s" d="M382,250 C394,236 406,236 418,250 C430,264 442,264 454,250 C466,236 474,240 480,246" stroke="#df285d" stroke-width="3.2"></path><path class="braid" style="--len:120;--d:.1s" d="M382,250 C394,264 406,264 418,250 C430,236 442,236 454,250 C466,264 474,260 480,254" stroke="#f62762" stroke-width="3.2"></path><path class="braid" style="--len:110;--d:.2s" d="M382,250 L480,250" stroke="rgba(223,40,93,.45)" stroke-width="2"></path></g></svg><div class="cvres"><p class="h">Setembro fechado</p><p class="v">0,5 s</p><p class="d">de processamento, contra 8 dias úteis</p><p class="v2">R$ 20.225,93</p><p class="d">corrigidos antes de o lojista reclamar</p></div></div><p class="sig">Por <b>Time Datarmos</b> · Hackathon Barte AI Services · 17/10/2026</p></section>
+<section data-canvas-slide-id="b3833634-c046-4901-9c7b-2511b7fdcfa7" class="slide"><style data-canvas-slide-styles>.qcard .quote{font-size:40px;line-height:1.1;color:#fff}.qcard{display:flex;flex-direction:column;justify-content:center;padding:34px}.rows{justify-content:space-between}.r{flex:1;display:flex;gap:22px;align-items:center;border-top:1px solid var(--line);padding:6px 0}.r:last-child{border-bottom:1px solid var(--line)}.rv{flex:0 0 150px;font-weight:300;font-size:40px;letter-spacing:-.04em;color:#fff}.rv.m{color:var(--ember-t)}.r h3{margin:0 0 3px;font-weight:500;font-size:22px;letter-spacing:-.02em;color:#fff}.r p{font-size:18px;line-height:1.4;color:var(--on-2)}</style><div class="bar"><span class="logo">DATARM<b>O</b>S</span><span class="mono">02 · Hoje</span></div><h2>Hoje o mês leva <span class="m">8 dias úteis</span> <span class="g">e só fecha se a Helena estiver lá.</span></h2><div class="split"><div class="txt card fx qcard"><p class="mono">O que o financeiro nos disse</p><p class="quote">“Se eu sair de férias, o mês não fecha.”</p><p class="who">Time financeiro da Tarvo</p></div><div class="ex rows"><div class="r fx" style="--d:.1s"><span class="rv">8 dias</span><div><h3>Fonte por fonte</h3><p>Cada fonte é um arquivo diferente, batido uma por uma.</p></div></div><div class="r fx" style="--d:.2s"><span class="rv">1 pessoa</span><div><h3>Regra que não está escrita</h3><p>“Tem regra que só eu sei.” Nas férias, ninguém fecha.</p></div></div><div class="r fx" style="--d:.3s"><span class="rv m">lojista</span><div><h3>Quem achou o erro foi o lojista</h3><p>A taxa a mais só apareceu porque o lojista reclamou.</p></div></div><div class="r fx" style="--d:.4s"><span class="rv">3×</span><div><h3>O volume triplicou, o time não</h3><p>Em um ano. O financeiro continua com três pessoas.</p></div></div></div></div><div class="foot"><span>Fonte: falas do time financeiro no enunciado do case</span><span>Tarvo · 3 pessoas no financeiro</span></div></section>
+<section data-canvas-slide-id="73a5d417-c765-43d7-907d-fcca90f2e0d1" class="slide"><style data-canvas-slide-styles>.full{gap:18px}.flow .c{padding:16px 18px}.flow h3{font-size:19px;margin:0}.lower{display:flex;gap:22px;flex:1;min-height:0}.lower .tbl{flex:1;font-size:17px}.lower .tbl td{padding:10px 12px 10px 0}.bad{color:var(--red) !important}.wt{color:var(--amber) !important}.side{flex:0 0 300px;display:flex;flex-direction:column;justify-content:center}.sq{font-weight:300;font-size:24px;line-height:1.25;letter-spacing:-.02em;color:#fff}</style><div class="bar"><span class="logo">DATARM<b>O</b>S</span><span class="mono">03 · Causa raiz</span></div><h2><span class="m">R$ 16.845,60</span> dos erros de setembro começaram no comercial: <span class="g">a condição foi fechada e ninguém avisou a Orbe nem a Ponte.</span></h2><div class="full"><div class="flow fx"><div class="card c"><p class="step-n">01</p><h3>Comercial fecha a condição</h3></div><div class="brk">ninguém avisa</div><div class="card c"><p class="step-n">02</p><h3>Orbe ou Ponte cobra o contrato antigo</h3></div><div class="arrow">→</div><div class="card c"><p class="step-n">03</p><h3>Lojista paga a mais</h3></div><div class="arrow">→</div><div class="card c hot"><p class="step-n">04</p><h3>Só aparece se ele reclamar</h3></div></div><div class="lower"><table class="tbl fx" style="--d:.2s"><thead><tr><th>Lojista</th><th>O combinado</th><th>Quem soube</th><th class="r">R$</th></tr></thead><tbody><tr><td>Casa do Estudante</td><td>tarifa zerada de set. a dez.</td><td class="bad">Orbe nunca avisada</td><td class="r n">15.396,77</td></tr><tr><td>Mundo Aberto</td><td>spread de 1,20% desde julho</td><td class="bad">Ponte nunca avisada</td><td class="r n">1.418,88</td></tr><tr><td>Bridge Idiomas</td><td>nova taxa a partir de 15/09</td><td class="wt">Orbe avisada dias depois</td><td class="r n">29,95</td></tr><tr class="tot"><td>Total</td><td></td><td></td><td class="r n m">16.845,60</td></tr></tbody></table><div class="card fx side" style="--d:.35s"><p class="mono">Helena · 17/10</p><p class="sq">“Ninguém tem essa função hoje. O comercial fecha e, quando lembra, manda um e-mail.”</p></div></div></div><div class="foot"><span>Fonte: saida/pendencias.csv e divergencias_taxa.csv · canal #duvidas-hackathon-ai</span><span>Competência set/2026</span></div></section>
+<section data-canvas-slide-id="dc102d0f-3995-45a5-8068-92d024f23c4c" class="slide"><style data-canvas-slide-styles>.g6{flex:1;grid-template-rows:1fr 1fr;gap:16px}.g6 .card{padding:16px 22px}.g6 .card{display:flex;flex-direction:column;justify-content:center;gap:4px}.kv{font-weight:300;font-size:34px;letter-spacing:-.04em;line-height:1.05;color:#fff;margin:2px 0 6px !important}.g6 .card p:not(.mono):not(.kv){font-size:17px}</style><div class="bar"><span class="logo">DATARM<b>O</b>S</span><span class="mono">04 · O que o agente entrega</span></div><h2>Em uma execução, o agente entrega o mês inteiro <span class="g">e deixa só</span> <span class="m">13 decisões</span> <span class="g">para a Helena.</span></h2><div class="grid3 g6"><div class="card fx" style="--d:0s"><p class="mono">Comissão de checkout</p><p class="kv">R$ 203.735,34</p><p>bruto × taxa contratada, linha a linha</p></div><div class="card fx" style="--d:.08s"><p class="mono">Participação em remessas</p><p class="kv">R$ 39.543,45</p><p>50% do spread realizado, 228 operações</p></div><div class="card fx win" style="--d:.16s"><p class="mono ok">Notas a emitir</p><p class="kv">21 · R$ 243.284,29</p><p>prontas para a Helena revisar e emitir</p></div><div class="card fx" style="--d:.24s"><p class="mono">Divergências de taxa</p><p class="kv">115</p><p>transação por transação, com o valor em reais</p></div><div class="card fx" style="--d:.32s"><p class="mono">Lançamentos bancários</p><p class="kv">184</p><p>Aurora e Meridiano, pela conta de contrapartida</p></div><div class="card fx hot" style="--d:.4s"><p class="mono m">Pendências</p><p class="kv">13</p><p>cada uma com motivo, valor e quem decide</p></div></div><div class="foot"><span>Fonte: saida/metrics.json · com os ajustes tardios da Orbe</span><span>Competência set/2026</span></div></section>
+<section data-canvas-slide-id="bbe9bf0d-bb1e-496f-954d-d86caf68240c" class="slide warm"><style data-canvas-slide-styles>.card p.big{font-size:64px;line-height:.95;color:var(--green-t)}.ct{font-size:22px;font-weight:500;letter-spacing:-.02em;color:#fff}.cs{margin:4px 0 14px !important;font-size:12px}.ex{min-height:0}.gbars{min-height:0}.split>.side2{flex:0 0 360px;gap:12px}.side2 .card{padding:16px 22px}.side2 .card{flex:1;display:flex;flex-direction:column;justify-content:center;gap:6px}.side2 p:not(.mono):not(.big):not(.kv2){font-size:15px;line-height:1.38}.kv2{font-weight:300;font-size:34px;letter-spacing:-.04em;color:#fff}</style><div class="bar"><span class="logo">DATARM<b>O</b>S</span><span class="mono">05 · Economia</span></div><h2>Setembro corrige <span class="ok">R$ 20.225,93</span> antes de o lojista reclamar <span class="g">e processa o mês em 0,5 s.</span></h2><div class="split"><div class="ex"><p class="ct">Corrigido antes da reclamação, por natureza</p><p class="mono cs">R$ · setembro/2026 · soma 20.225,93</p><div class="gbars"><div class="gbar"><b>1.418,88</b><i style="height:9.2%;--d:.3s"></i></div><div class="gbar"><b>1.576,23</b><i style="height:10.2%;--d:.45s"></i></div><div class="gbar"><b>1.834,05</b><i style="height:11.9%;--d:.6s"></i></div><div class="gbar"><b>15.396,77</b><i style="height:100%;--d:.75s"></i></div></div><div class="glab"><span>Ponte · Mundo Aberto<br>contestar</span><span>Orbe · Rota e Bridge<br>cobrar</span><span>Spreads negativos<br>recuperar da Ponte</span><span>Casa do Estudante<br>devolver ao lojista</span></div></div><div class="txt side2"><div class="card win fx" style="--d:.2s"><p class="mono ok">Tempo de processamento</p><p class="big ok">0,5<small>s</small></p><p>por fechamento, medido em 3 execuções. Hoje: 8 dias úteis de conferência.</p></div><div class="card fx" style="--d:.35s"><p class="mono">Vendas sem nota</p><p class="kv2">R$ 262.138,61</p><p>da Atlas, até o comercial confirmar a taxa, que vale desde 10/09.</p></div></div></div><div class="foot"><span>Fonte: saida/pendencias.csv · tempo medido em 17/10 (0,53 s, 0,43 s, 0,45 s)</span><span>Competência set/2026</span></div></section>
+<section data-canvas-slide-id="06894cef-48ac-4c17-8f29-4020ad794564" class="slide"><style data-canvas-slide-styles>.card p.big{font-size:64px;line-height:.95;color:var(--green-t)}.ex{gap:14px}.log .ln{grid-template-columns:96px 1fr 110px;font-size:15px}.v.m{color:var(--ember-t)}.v.ok{color:var(--green-t)}.raw{font-family:var(--mono);font-size:13px;line-height:1.55;color:var(--on-3);background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:14px;padding:12px 16px;word-break:break-all}.raw b{color:var(--ember-t);font-weight:500}.split>.s3{flex:0 0 320px;gap:16px}.s3 .card{flex:1;display:flex;flex-direction:column;justify-content:center;gap:8px}.s3 p:not(.big){font-size:17px}</style><div class="bar"><span class="logo">DATARM<b>O</b>S</span><span class="mono">06 · Rastro</span></div><h2>Os <span class="m">R$ 15.396,77</span> da Casa são a soma de 118 linhas da Orbe, <span class="g">e cada uma se abre no arquivo original.</span></h2><div class="split"><div class="ex"><div class="log fx"><div class="ln"><span class="k">saída</span><span>pendencias.csv · devolução por condição comercial</span><span class="v m">15.396,77</span></div><div class="ln"><span class="k">├ linha</span><span>TX88410932 ← 01_orbe, linha 2</span><span class="v">16,37</span></div><div class="ln"><span class="k">├ linha</span><span>TX88410975 ← 01_orbe, linha 3</span><span class="v">16,53</span></div><div class="ln"><span class="k">├ linha</span><span>TX88410128 ← 01_orbe, linha 5</span><span class="v">218,81</span></div><div class="ln"><span class="k">├ …</span><span class="k">mais 115 linhas</span><span></span></div><div class="ln"><span class="k">└ soma</span><span>igual ao valor da saída <span class="chip okc"><span class="dot"></span>confere</span></span><span class="v ok">15.396,77</span></div></div><p class="raw fx" style="--d:.3s"><span class="mono">linha 2 do arquivo da Orbe, como veio</span><br>TX88410932;01/09/2026;1018325654;CASA DO ESTUDANTE VIAGENS;VENDA;CREDITO A VISTA;1;MASTERCARD;608,88;2,69;<b>16,37</b>;592,51</p></div><div class="txt s3"><div class="card win fx" style="--d:.2s"><p class="big ok">2.374</p><p>linhas de origem, todas com destino: numa conta, numa pendência ou fora com o motivo.</p></div><div class="card fx" style="--d:.35s"><p>A cada envio, o GitHub refaz setembro e compara com a saída entregue. <b>46 testes</b> conferem as regras.</p></div></div></div><div class="foot"><span>Fonte: saida/rastro.csv e cobertura.csv · 01_orbe_relatorio_comissoes_set2026.csv</span><span>Competência set/2026</span></div></section>
+<section data-canvas-slide-id="e71cb53e-377b-4c14-be0a-8e24022643dd" class="slide"><style data-canvas-slide-styles>.tbl{font-size:17px}.tbl td{padding:11px 12px 11px 0}.split>.s4{flex:0 0 340px;display:flex;flex-direction:column;justify-content:center}.sq{font-weight:300;font-size:26px;line-height:1.22;letter-spacing:-.02em;color:#fff}</style><div class="bar"><span class="logo">DATARM<b>O</b>S</span><span class="mono">07 · Regras</span></div><h2>O agente só aplica regra aprovada e datada. <span class="g">O que a Helena sabia de cabeça agora está escrito.</span></h2><div class="split"><div class="ex"><table class="tbl fx"><thead><tr><th>Regra</th><th>Aprovou</th><th>Quando</th><th>Status</th></tr></thead><tbody><tr><td>Comissão = bruto × taxa contratada</td><td>Helena</td><td class="n">16/10 20h05</td><td><span class="chip okc"><span class="dot"></span>ativa</span></td></tr><tr><td>Estorno abate no mês, pela taxa da venda</td><td>Helena</td><td class="n">16/10 20h06</td><td><span class="chip okc"><span class="dot"></span>ativa</span></td></tr><tr><td>Remessa: nota única para a Ponte</td><td>Helena</td><td class="n">16/10 20h47</td><td><span class="chip okc"><span class="dot"></span>ativa</span></td></tr><tr><td>Spread negativo vai para contestação</td><td>Helena</td><td class="n">16/10 20h48</td><td><span class="chip okc"><span class="dot"></span>ativa</span></td></tr><tr><td>Devolução = valor descontado de fato</td><td>Helena</td><td class="n">17/10 12h50</td><td><span class="chip okc"><span class="dot"></span>ativa</span></td></tr><tr><td>Atlas: não faturar até o contrato</td><td>Helena</td><td class="n">16/10 20h24</td><td><span class="chip wt"><span class="dot"></span>aguarda comercial</span></td></tr></tbody></table></div><div class="txt s4 card hot fx" style="--d:.3s"><p class="mono m">Quem aprova</p><p class="sq">“Taxa e condição comercial, quem aprova é o comercial, e eu registro. Regra de como fechar, aprovo eu.”</p><p class="who">Helena · 17/10</p></div></div><div class="foot"><span>Fonte: docs/slack-financeiro.md · HIPOTESES.md · config/closing-policy.json</span><span>6 de 23 respostas da Helena</span></div></section>
+<section data-canvas-slide-id="b90e0959-ef86-4b2d-bea6-03997e0f9313" class="slide"><style data-canvas-slide-styles>.q{padding:14px 20px;display:flex;flex-direction:column}.qh{display:flex;gap:22px;align-items:center;font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--on-3);padding-bottom:10px;border-bottom:1px solid var(--line)}.qh .on{color:#fff}.qh b{color:var(--amber);font-weight:500}.qr{display:grid;grid-template-columns:1fr 120px 160px;gap:12px;align-items:center;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:15px}.qr b{font-weight:500;color:#fff}.qr small{display:block;font-size:12.5px;color:var(--on-3)}.qr .n{text-align:right;color:#fff;font-size:15px}.wd{font-family:var(--mono);font-size:12px;color:var(--amber);letter-spacing:.02em}.more{margin-top:auto !important;font-size:12px;color:var(--on-3);padding-top:6px}.split>.s5{flex:0 0 330px;gap:12px}.bub{border-color:rgba(185,163,255,.5);background:rgba(185,163,255,.07)}.bub p{font-size:16px}.pp{margin-top:10px !important;color:#fff !important}.acts{display:flex;gap:10px;margin-top:14px}.acts span{font-size:13px;font-weight:500;padding:7px 14px;border-radius:9px}.b1{background:var(--violet);color:#120c26}.b2{border:1px solid rgba(185,163,255,.5);color:var(--violet)}.nt{font-size:15px;color:var(--on-2)}</style><div class="bar"><span class="logo">DATARM<b>O</b>S</span><span class="mono">08 · A fila da Helena</span></div><h2>Cada pendência chega com valor e dono; <span class="g">a IA, ainda em construção, vai trazer a proposta.</span></h2><div class="split"><div class="ex card q fx"><div class="qh"><span class="on">Aguardando <b>13</b></span><span>Com proposta de IA <span class="chip ia"><span class="dot"></span>em construção</span></span></div><div class="qr"><span><b>Casa do Estudante</b><small>devolver tarifa da isenção · 118 lanç.</small></span><span class="n">15.396,77</span><span class="wd">Helena + Comercial</span></div><div class="qr"><span><b>Ponte Câmbio</b><small>contestar 4 spreads negativos</small></span><span class="n">1.834,05</span><span class="wd">Helena</span></div><div class="qr"><span><b>Rota Global</b><small>cobrar a Orbe · 87 lançamentos</small></span><span class="n">1.546,28</span><span class="wd">Helena</span></div><div class="qr"><span><b>Mundo Aberto</b><small>contestar spread com a Ponte · 23</small></span><span class="n">1.418,88</span><span class="wd">Helena</span></div><div class="qr"><span><b>Atlas Idiomas</b><small>não faturar até o contrato · brutos</small></span><span class="n">262.138,61</span><span class="wd">Comercial</span></div><div class="qr"><span><b>Atlas Idiomas</b><small>alerta: antecipação acima das vendas</small></span><span class="n">179.592,82</span><span class="wd">Helena + Comercial</span></div><div class="qr"><span><b>Aurora · linha 50</b><small>Pix sem pagador identificado</small></span><span class="n">7.350,00</span><span class="wd">Tesouraria</span></div><p class="more">+ 6: Pix devolvido R$ 12.400,00 · Bridge R$ 29,95 · operação repetida · saldo da Casa · R$ 300 mil em trânsito · TED da Ponte</p></div><div class="txt s5"><span class="chip ia"><span class="dot"></span>agente de IA · exemplo</span><div class="card bub fx" style="--d:.3s"><p>Pix de <b>R$ 7.350,00</b> no Aurora em 16/09, do CNPJ 38.686.002/0001-80, que não está na planilha de lojistas.</p><p class="pp">Proposta: manter em créditos não identificados e pedir ao banco o comprovante do pagador.</p><div class="acts"><span class="b1">Aprovar</span><span class="b2">Ajustar</span></div></div><p class="nt">A proposta só vira ação depois que a Helena aprova.</p></div></div><div class="foot"><span>Fonte: saida/pendencias.csv · extrato Aurora, linha 50</span><span>7 de 13 pendências</span></div></section>
+<section data-canvas-slide-id="2ee81365-7eae-4cd9-bb09-7b216e7e0fc9" class="slide warm"><style data-canvas-slide-styles>.card p.big{font-size:64px;line-height:.95;color:var(--green-t)}.tl{justify-content:space-between}.ev{display:grid;grid-template-columns:70px 150px 1fr;gap:16px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}.ev .t{font-family:var(--mono);font-size:14px;color:var(--on-3)}.ev p{font-size:17px;color:var(--on-2)}.ev b{color:#fff;font-weight:500}.ev .chip{justify-self:start}.split>.s6{flex:0 0 340px}.s6 .card{flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px}.s6 p:not(.mono):not(.big){font-size:17px}</style><div class="bar"><span class="logo">DATARM<b>O</b>S</span><span class="mono">09 · Ao vivo, hoje</span></div><h2>Hoje às 13h15 chegaram 14 ajustes da Orbe <span class="g">e o mês se refez em uma execução:</span> <span class="ok">−R$ 3.304,39</span> <span class="g">na comissão.</span></h2><div class="split"><div class="ex tl"><div class="ev fx" style="--d:0s"><span class="t">13h15</span><span class="chip"><span class="dot"></span>recebido</span><p>Orbe enviou <b>06_orbe_ajustes_tardios_set2026.csv</b> · 14 linhas</p></div><div class="ev fx" style="--d:.12s"><span class="t">→</span><span class="chip okc"><span class="dot"></span>conectado</span><p>10 estornos, 3 reversões de antecipação e 1 venda nova</p></div><div class="ev fx" style="--d:.24s"><span class="t">→</span><span class="chip okc"><span class="dot"></span>recalculado</span><p>Comissão de checkout <span class="n">207.039,73 → <b>203.735,34</b></span></p></div><div class="ev fx" style="--d:.36s"><span class="t">→</span><span class="chip okc"><span class="dot"></span>recalculado</span><p>Notas <span class="n">246.588,68 → <b>243.284,29</b></span></p></div><div class="ev fx" style="--d:.48s"><span class="t">→</span><span class="chip okc"><span class="dot"></span>conferido</span><p>Nenhuma divergência nova; valor batido por fora do motor</p></div><div class="ev fx" style="--d:.6s"><span class="t">→</span><span class="chip wt"><span class="dot"></span>aguardando</span><p>Notas revisadas voltam para a Helena</p></div></div><div class="txt s6"><div class="card win fx" style="--d:.2s"><p class="mono ok">Sem retrabalho</p><p class="big ok">1<small>comando</small></p><p>O mesmo de sempre, com um arquivo a mais na pasta. Se faltar um arquivo, o resto fecha e o que falta vira pendência.</p></div></div></div><div class="foot"><span>Fonte: 06_orbe_ajustes_tardios_set2026.csv · saida/metrics.json · conferência das 14 linhas</span><span>Aviso da organização, 17/10</span></div></section>
+<section data-canvas-slide-id="c0534654-4292-4fbc-97e8-8ec4c10b2ad9" class="slide"><style data-canvas-slide-styles>.lv{flex:1}.lv .card{display:flex;flex-direction:column;gap:8px;align-items:flex-start}.ln0{font-weight:300;font-size:56px;line-height:1;letter-spacing:-.05em;color:var(--on-3)}.ln0.ok{color:var(--green-t)}.ln0.v{color:var(--violet)}.lv h3{margin:0}.lv p:not(.ln0){font-size:17px}.lv .chip{margin-top:auto}.iac{border:1px dashed rgba(185,163,255,.55)}.never{display:flex;align-items:center;gap:24px;margin-top:18px;font-size:18px;color:#fff;border:1px solid rgba(255,123,123,.35);border-radius:16px;padding:12px 18px;background:rgba(255,123,123,.05)}</style><div class="bar"><span class="logo">DATARM<b>O</b>S</span><span class="mono">10 · Autonomia</span></div><h2>A autonomia sobe aos poucos, <span class="g">mas</span> <span class="m">emitir nota, pagar e contestar nunca ficam automáticos.</span></h2><div class="grid4 lv"><div class="card fx" style="--d:0s"><p class="ln0">0</p><h3>Hoje</h3><p>A Helena bate fonte por fonte, em 8 dias úteis.</p><span class="chip bad"><span class="dot"></span>manual</span></div><div class="card win fx" style="--d:.1s"><p class="ln0 ok">1</p><h3>Entregue</h3><p>O agente calcula e propõe tudo. A Helena aprova cada saída.</p><span class="chip okc"><span class="dot"></span>pronto</span></div><div class="card fx iac" style="--d:.2s"><p class="ln0 v">2</p><h3>A seguir</h3><p>Agentes de IA analisam o que a regra não decide e propõem a solução antes da Helena.</p><span class="chip ia"><span class="dot"></span>em construção</span></div><div class="card fx" style="--d:.3s"><p class="ln0">3</p><h3>Com histórico</h3><p>Regra aprovada age sozinha abaixo de um limite que a Helena define.</p><span class="chip"><span class="dot" style="background:var(--on-3)"></span>próximo</span></div></div><div class="never fx" style="--d:.4s"><span class="chip bad"><span class="dot"></span>nunca automático</span><span>emitir nota</span><span>pagar ou repassar</span><span>enviar contestação</span><span>mudar taxa ou cadastro</span></div><div class="foot"><span>Fonte: respostas da Helena sobre aprovação (17/10) · README</span><span>Nível 1 entregue em setembro</span></div></section>
+<section data-canvas-slide-id="f781b364-566a-4010-b085-d94784940012" class="slide"><style data-canvas-slide-styles>.tbl{font-size:17px}.tbl td{padding:14px 12px 14px 0}.wt{color:var(--amber) !important;font-family:var(--mono);font-size:14px}.dim{color:var(--on-3) !important;font-family:var(--mono);font-size:14px}.split>.s7{flex:0 0 340px;gap:16px}.s7 .card{flex:1;display:flex;flex-direction:column;justify-content:center}.s7 p:not(.mono){font-size:17px}</style><div class="bar"><span class="logo">DATARM<b>O</b>S</span><span class="mono">11 · Onde falha</span></div><h2>Quando falta um arquivo ou uma regra, o agente para ali, <span class="g">diz o motivo e fecha o resto.</span></h2><div class="split"><div class="ex"><table class="tbl fx"><thead><tr><th>Situação</th><th>O que o agente faz</th><th>Quem decide</th></tr></thead><tbody><tr><td>Arquivo atrasado ou layout novo</td><td>fecha o resto, marca provisório e diz o que ficou bloqueado</td><td class="wt">Helena libera</td></tr><tr><td>Caso sem regra</td><td>tira do cálculo e abre pendência com o valor</td><td class="wt">Helena</td></tr><tr><td>Lojista sem contrato</td><td>não fatura e guarda as linhas (Atlas: 57)</td><td class="wt">Comercial</td></tr><tr><td>Orbe × banco, parcela a parcela</td><td>não faz: depende da agenda de recebíveis</td><td class="dim">fora do escopo</td></tr></tbody></table></div><div class="txt s7"><div class="card fx" style="--d:.2s"><p class="mono">Onde a IA atuou</p><p>Leu o case e os sete arquivos, propôs as perguntas à Helena, escreveu o motor e os 46 testes, revisou o código.</p></div><div class="card hot fx" style="--d:.35s"><p class="mono m">Onde não atua</p><p>Não decide regra nem calcula o mês: nota fiscal precisa dar o mesmo valor toda vez. Nas pendências, a IA só propõe.</p></div></div></div><div class="foot"><span>Fonte: README (limitações) · testes · PROMPTS/ · Helena, 17/10 12h31</span><span>46 testes automatizados</span></div></section>
+<section data-canvas-slide-id="7f21cc0f-51d7-40b2-b28f-8057d7bfb8f5" class="slide"><style data-canvas-slide-styles>.g4{flex:1;grid-template-rows:1fr 1fr}.g4 .card{display:flex;flex-direction:column;justify-content:center;gap:6px}.nn{font-weight:300;font-size:40px;letter-spacing:-.04em;line-height:1;color:var(--on-3)}.nn.ok{color:var(--green-t)}.nn.v{color:var(--violet)}.g4 h3{margin:0}.g4 p:not(.nn){font-size:17px}</style><div class="bar"><span class="logo">DATARM<b>O</b>S</span><span class="mono">12 · Mais um mês</span></div><h2>Com mais um mês, <span class="m">a IA entra na fila</span> <span class="g">e o aviso à Orbe e à Ponte ganha dono.</span></h2><div class="grid2 g4"><div class="card fx" style="--d:0s"><p class="nn v">01</p><h3>Agentes de IA na fila</h3><p>Cada pendência chega com análise, evidência e proposta. A Helena decide.</p></div><div class="card win fx" style="--d:.1s"><p class="nn ok">02</p><h3>Registro de condição comercial</h3><p>Aprovador, data e aviso à Orbe e à Ponte. Teria evitado <b>R$ 16.845,60</b> em setembro.</p></div><div class="card fx" style="--d:.2s"><p class="nn">03</p><h3>Pendências que atravessam o mês</h3><p>Atlas faturada desde 10/09, TED da Ponte e os R$ 300 mil conferidos sozinhos.</p></div><div class="card fx" style="--d:.3s"><p class="nn">04</p><h3>Orbe × banco e repasse antecipado</h3><p>Agenda de recebíveis e limite por lojista na conta garantida.</p></div></div><div class="foot"><span>Fonte: limitações no README · respostas da Helena sobre avisos e repasse</span><span>Plano de 4 semanas</span></div></section>
+<section data-canvas-slide-id="89fa051d-8943-40dd-a79a-591c5a0b1f15" class="slide warm"><style data-canvas-slide-styles>.qs{display:flex;flex-direction:column;flex:1;justify-content:center}.qs>div{display:grid;grid-template-columns:90px 1fr;align-items:baseline;padding:18px 0;border-top:1px solid var(--line)}.qs>div:last-child{border-bottom:1px solid var(--line)}.k{font-family:var(--mono);font-size:14px;color:var(--ember-t);letter-spacing:.1em}.k.ok{color:var(--green-t)}.t{font-weight:300;font-size:40px;letter-spacing:-.035em;line-height:1.05;color:#fff}.s{font-size:18px;color:var(--on-2);margin-top:6px !important}.s b{font-weight:500}</style><div class="bar"><span class="logo">DATARM<b>O</b>S</span><span class="mono">13 · O pedido</span></div><h2>Pedido: outubro com o agente em paralelo <span class="g">e a Helena aprovando cada pendência.</span></h2><div class="qs"><div class="fx" style="--d:0s"><span class="k">01</span><div><p class="t">Outubro em paralelo</p><p class="s">O agente fecha junto com o processo atual; a Helena compara e aprova.</p></div></div><div class="fx" style="--d:.12s"><span class="k">02</span><div><p class="t">Um dono para o aviso</p><p class="s">O comercial registra cada condição e avisa a Orbe e a Ponte.</p></div></div><div class="fx" style="--d:.24s"><span class="k ok">03</span><div><p class="t">Medir em outubro</p><p class="s">Dias até fechar · divergências achadas antes do lojista · pendências sem dono: <b class="ok">0</b></p></div></div></div><div class="foot"><span>github.com/Ceugox/Datarmos-Agent-for-Tarvo</span><span>Time Datarmos · dados reais de setembro/2026</span></div></section>
+</div>
+</div>
+<nav class="vbar" aria-label="Navegação do pitch"><a href="../">← Site</a><div class="grp"><button type="button" data-go="-1" aria-label="Slide anterior">←</button><span id="vpos">1 / 13</span><button type="button" data-go="1" aria-label="Próximo slide">→</button><button type="button" id="vfs">Tela cheia</button></div></nav>
+<script data-viewer>
+(function(){
+  var root=document.getElementById('slides');
+  var slides=[].slice.call(root.querySelectorAll('section.slide'));
+  slides.forEach(function(s){var f=document.createElement('div');f.className='frame';s.parentNode.insertBefore(f,s);f.appendChild(s);});
+  var frames=[].slice.call(document.querySelectorAll('.frame'));
+  function fit(){var z=Math.min(innerWidth/1280,innerHeight/720);document.documentElement.style.setProperty('--z',z);}
+  fit();addEventListener('resize',fit);
+  var cur=0,pos=document.getElementById('vpos');
+  function go(i){cur=Math.max(0,Math.min(frames.length-1,i));frames[cur].scrollIntoView({behavior:'smooth'});}
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){cur=frames.indexOf(e.target);pos.textContent=(cur+1)+' / '+frames.length;}});},{threshold:.6});
+  frames.forEach(function(f){io.observe(f);});
+  addEventListener('keydown',function(e){
+    if(['ArrowRight','ArrowDown','PageDown',' '].indexOf(e.key)>=0){e.preventDefault();go(cur+1);}
+    else if(['ArrowLeft','ArrowUp','PageUp'].indexOf(e.key)>=0){e.preventDefault();go(cur-1);}
+    else if(e.key==='Home'){e.preventDefault();go(0);} else if(e.key==='End'){e.preventDefault();go(frames.length-1);}
+    else if(e.key==='f'){toggleFs();}
+  });
+  document.querySelectorAll('[data-go]').forEach(function(b){b.addEventListener('click',function(){go(cur+(+b.dataset.go));});});
+  function toggleFs(){if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();}
+  document.getElementById('vfs').addEventListener('click',toggleFs);
+  var m=/^#(\d+)$/.exec(location.hash);if(m)setTimeout(function(){go(+m[1]-1);},50);
+})();
+</script>
+<script data-canvas-nav>
+/* Tarvo: capa animada (arquivos entram, agente conecta, resultado verde) e entradas.
+   Render headless (navigator.webdriver) e prefers-reduced-motion veem o estado final, sem movimento. */
+(function () {
+  if (window.__tarvoAnim) return; window.__tarvoAnim = true;
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (navigator.webdriver || reduce) return;
+  var slides = Array.prototype.slice.call(document.querySelectorAll('section.slide'));
+  if (!slides.length || !('IntersectionObserver' in window)) return;
+  document.documentElement.classList.add('cv-anim');
+  var T = [];
+  function playCover(c) {
+    T.forEach(clearTimeout); T = [];
+    c.classList.remove('k1', 'k2', 'k3', 'k4', 'k5');
+    c.classList.add('play');
+    [[400, 'k1'], [1500, 'k2'], [2600, 'k3'], [4300, 'k4'], [5100, 'k5']].forEach(function (s) {
+      T.push(setTimeout(function () { c.classList.add(s[1]); }, s[0]));
+    });
+  }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      var s = e.target;
+      if (e.isIntersecting && e.intersectionRatio >= 0.55) {
+        if (s.classList.contains('is-active')) return;
+        s.classList.add('is-active');
+        if (s.classList.contains('cover')) playCover(s);
+      } else if (!e.isIntersecting || e.intersectionRatio < 0.2) {
+        s.classList.remove('is-active');
+        if (s.classList.contains('cover')) { T.forEach(clearTimeout); T = []; s.classList.remove('play', 'k1', 'k2', 'k3', 'k4', 'k5'); }
+      }
+    });
+  }, { threshold: [0, 0.2, 0.55, 0.9] });
+  slides.forEach(function (s) { io.observe(s); });
+})();
+</script>
+</body>
+</html>
