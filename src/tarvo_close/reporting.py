@@ -122,15 +122,18 @@ const records=JSON.parse(document.getElementById('records').textContent);const s
 </script><script>selector.value='comissoes_por_lojista';render();</script></body></html>'''
 
 
-def publish_result(bundle,result,policy,period,output):
+def publish_result(bundle,result,policy,period,output,revision=None):
     output = Path(output).resolve()
     engine_digest = hashlib.sha256()
     for path in sorted(Path(__file__).parent.glob('*.py')):
         engine_digest.update(path.name.encode())
         engine_digest.update(path.read_bytes())
     source_hashes = {key:value['sha256'] for key,value in bundle.sources.items()}
-    fingerprint = hashlib.sha256(encode_json({'period':period,'sources':source_hashes,'policy':policy,'engine':engine_digest.hexdigest()}).encode()).hexdigest()
-    run_id = f'{period}-{fingerprint[:16]}'
+    identity = {'period':period,'sources':source_hashes,'policy':policy,'engine':engine_digest.hexdigest()}
+    if revision:
+        identity['revision'] = revision
+    fingerprint = hashlib.sha256(encode_json(identity).encode()).hexdigest()
+    run_id = f'{period}-rev{revision["numero"]}-{fingerprint[:16]}' if revision else f'{period}-{fingerprint[:16]}'
     contents = {name+'.csv':encode_csv(name,rows).encode('utf-8') for name,rows in {**result.tables,'rastro':result.traces,'cobertura':result.coverage}.items()}
     contents['checks.json'] = encode_json(result.checks).encode()
     contents['policy.json'] = encode_json(policy).encode()
@@ -143,6 +146,8 @@ def publish_result(bundle,result,policy,period,output):
     for name,content in bundle.attachments.items():
         contents['anexos/'+name] = content
     manifest = {'run_id':run_id,'period':period,'status':result.metrics['status'],'engine_version':__version__,'engine_sha256':engine_digest.hexdigest(),'sources':{name:{k:v for k,v in meta.items() if k != 'path'} for name,meta in bundle.sources.items()},'output_sha256':{key:hashlib.sha256(content).hexdigest() for key,content in contents.items()},'rules':policy['status'],'slack_read':True}
+    if revision:
+        manifest['revisao'] = revision
     contents['manifest.json'] = encode_json(manifest).encode()
     if output.exists():
         for name,content in contents.items():

@@ -8,10 +8,10 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'src'))
 
-from tarvo_close.closing import close_month
+from tarvo_close.closing import bank_rule_for, close_month
 from tarvo_close.exceptions import CLASSES, ClosingException
 from tarvo_close.readers import read_inputs
-from tarvo_close.validators import ACTIONS, VALIDATORS, check_evidence, check_schema, check_shape, load_schema, source_line, validator_for
+from tarvo_close.validators import ACTIONS, VALIDATORS, check_evidence, check_schema, check_shape, known_pairs, load_schema, source_line, validator_for
 
 
 def proposal(excecao_id='PEN-X', classe='MOVIMENTO_SEM_REGRA', acao='CLASSIFICAR_CONTA', parametros=None, evidencias=None):
@@ -188,10 +188,12 @@ class ValidatorTests(unittest.TestCase):
         ref = EvidenceTests.ref
         return proposal(evidencias=[{'arquivo':ref['arquivo'],'ref':ref['ref'],'trecho':trecho}])
 
-    def test_valid_shape_and_evidence_stop_at_the_class_validator(self):
-        outcome = validator_for('MOVIMENTO_SEM_REGRA').validate(self.build(EvidenceTests.entry['description']),EvidenceTests.item,EvidenceTests.bundle,{})
-        self.assertFalse(outcome['ok'])
-        self.assertEqual([(c['check'],c['status']) for c in outcome['checks']],[('schema','PASS'),('evidencia','PASS'),('validador_da_classe','FAIL')])
+    def test_context_without_closing_policy_stops_at_movimento(self):
+        for context in ({}, {'versao':1,'classes':{}}):
+            outcome = validator_for('MOVIMENTO_SEM_REGRA').validate(self.build(EvidenceTests.entry['description']),EvidenceTests.item,EvidenceTests.bundle,context)
+            self.assertFalse(outcome['ok'])
+            self.assertEqual([(c['check'],c['status']) for c in outcome['checks']],[('schema','PASS'),('evidencia','PASS'),('movimento','FAIL')])
+            self.assertIn('closing_policy',outcome['checks'][-1]['reason'])
 
     def test_invalid_evidence_stops_before_the_class_check(self):
         outcome = validator_for('MOVIMENTO_SEM_REGRA').validate(self.build('TRECHO QUE NAO EXISTE'),EvidenceTests.item,EvidenceTests.bundle,{})
@@ -203,6 +205,114 @@ class ValidatorTests(unittest.TestCase):
         bad['excecao_id'] = 'PEN-OUTRO'
         outcome = validator_for('MOVIMENTO_SEM_REGRA').validate(bad,EvidenceTests.item,EvidenceTests.bundle,{})
         self.assertEqual([(c['check'],c['status']) for c in outcome['checks']],[('schema','FAIL')])
+
+
+CHECKS = ['schema','evidencia','movimento','evidencia_descricao','conta','par_conhecido','nao_provisao','nao_disponibilidade']
+
+
+class MovimentoSemRegraTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.policy = json.loads((ROOT/'config/closing-policy.json').read_text(encoding='utf-8'))
+        cls.bundle = read_inputs(ROOT/'Tarvo_Data_Pack_set2026')
+        close_month(cls.bundle,cls.policy,'2026-09')
+        cls.context = {'closing_policy':cls.policy,'accounts':cls.bundle.accounts}
+        cls.validator = validator_for('MOVIMENTO_SEM_REGRA')
+        cls.fee = next(e for e in cls.bundle.bank_entries if e['bank']=='AURORA' and e['description'].startswith('TAR PACOTE SERVICOS'))
+        cls.credit = next(e for e in cls.bundle.bank_entries if e['bank']=='AURORA' and e['amount']>0)
+
+    def build(self, entry=None, conta='4.2.01', trecho='TAR PACOTE SERVICOS', scope=None, refs=None):
+        entry = entry or self.fee
+        source = entry['_source']
+        ref = {'arquivo':source['arquivo_origem'],'aba':'','ref':source['ref_origem'],'linha':source['linha_origem']}
+        item = ClosingException('PEN-X','MOVIMENTO_SEM_REGRA','CONCILIACAO_BANCARIA',scope or f'{entry["bank"]}:{source["ref_origem"]}','Helena','motivo','conta',None,[ref] if refs is None else refs)
+        data = proposal(parametros={'conta_codigo':conta},evidencias=[{'arquivo':ref['arquivo'],'ref':ref['ref'],'trecho':trecho}])
+        return data, item
+
+    def run_case(self, **kwargs):
+        data, item = self.build(**kwargs)
+        return self.validator.validate(data,item,self.bundle,self.context)
+
+    def failed(self, outcome):
+        self.assertFalse(outcome['ok'],outcome)
+        self.assertEqual(outcome['checks'][-1]['status'],'FAIL')
+        return outcome['checks'][-1]['check']
+
+    def test_valid_proposal_passes_every_check_in_order(self):
+        outcome = self.run_case()
+        self.assertTrue(outcome['ok'],outcome)
+        self.assertEqual([c['check'] for c in outcome['checks']],CHECKS)
+        self.assertTrue(all(c['status']=='PASS' for c in outcome['checks']))
+
+    def test_movimento(self):
+        ref = self.build()[1].refs[0]
+        self.assertEqual(self.failed(self.run_case(scope='SEM-DOIS-PONTOS')),'movimento')
+        self.assertEqual(self.failed(self.run_case(scope='MERIDIANO:'+ref['ref'])),'movimento')
+        self.assertEqual(self.failed(self.run_case(scope='AURORA:L99999')),'movimento')
+        self.assertEqual(self.failed(self.run_case(refs=[ref,ref])),'movimento')
+
+    def test_evidencia_descricao(self):
+        # the amount is in the CSV line (so it passes the generic evidence check) but not in the description
+        amount = '389,00'
+        self.assertIn(amount,source_line(self.bundle,self.build()[1].refs[0]))
+        for snippet in ('TA',amount):
+            self.assertEqual(self.failed(self.run_case(trecho=snippet)),'evidencia_descricao',snippet)
+        self.assertTrue(self.run_case(trecho='SERVICOS')['ok'])
+
+    def test_conta(self):
+        accounts = self.bundle.accounts
+        self.assertEqual(accounts['1.1']['TIPO'],'SINTETICA')
+        for code in ('9.9.99','1.1'):
+            self.assertEqual(self.failed(self.run_case(conta=code)),'conta',code)
+        no_posting = next((code for code,a in accounts.items() if a['TIPO']=='ANALITICA' and a['ACEITA_LANCTO']!='S'),None)
+        if no_posting:
+            self.assertEqual(self.failed(self.run_case(conta=no_posting)),'conta')
+        self.assertTrue(self.run_case(conta='4.2.06')['ok'])
+
+    def test_par_conhecido(self):
+        self.assertEqual(self.failed(self.run_case(conta='3.2.01')),'par_conhecido')
+        credit = self.credit['description']
+        self.assertEqual(self.failed(self.run_case(entry=self.credit,conta='4.2.01',trecho=credit)),'par_conhecido')
+        self.assertTrue(self.run_case(entry=self.credit,conta='3.2.01',trecho=credit)['ok'])
+
+    def test_nao_provisao(self):
+        for code in ('2.1.03.001','2.1.04.001'):
+            self.assertEqual(self.failed(self.run_case(conta=code)),'nao_provisao',code)
+
+    def test_nao_disponibilidade(self):
+        for code in ('1.1.01.001','1.1.09.001'):
+            self.assertEqual(self.failed(self.run_case(conta=code)),'nao_disponibilidade',code)
+
+    def test_known_pairs_of_september(self):
+        pairs = known_pairs(self.bundle,self.policy)
+        self.assertIn(('-','4'),pairs)
+        self.assertIn(('+','1'),pairs)
+        self.assertNotIn(('+','4'),pairs)
+
+    def test_known_pairs_follow_the_policy(self):
+        policy = {**self.policy,'bank_rules':[r for r in self.policy['bank_rules'] if r['account'].split('.')[0]!='4']}
+        self.assertNotIn(('-','4'),known_pairs(self.bundle,policy))
+
+    def test_known_pairs_ignore_movements_outside_the_period(self):
+        from datetime import date
+        extra = {**self.credit,'date':date(2026,10,5),'description':'TAR PACOTE OUTUBRO','amount':self.credit['amount']}
+        extra['_source'] = {**self.credit['_source'],'ref_origem':'L9999'}
+        policy = {**self.policy,'bank_rules':[r for r in self.policy['bank_rules'] if r['account'].split('.')[0]!='4' or r['id']=='bank-fees']}
+        bundle = SimpleNamespace(bank_entries=[extra])
+        self.assertIn(('+','4'),known_pairs(bundle,policy))
+        self.assertNotIn(('+','4'),known_pairs(bundle,policy,'2026-09'))
+        self.assertIn(('+','4'),known_pairs(bundle,policy,'2026-10'))
+        outcome = self.validator.validate(*self.build(entry=self.credit,conta='4.2.01',trecho=self.credit['description']),self.bundle,{**self.context,'period':'2026-09'})
+        self.assertEqual(self.failed(outcome),'par_conhecido')
+
+    def test_bank_rule_for_matches_the_versioned_csv(self):
+        import csv
+        with open(ROOT/'saida/lancamentos_classificados.csv',encoding='utf-8-sig',newline='') as handle:
+            rows = {(r['banco'],r['ref_origem']):r['regra_id'] for r in csv.DictReader(handle,delimiter=';')}
+        self.assertEqual(len(rows),184)
+        for entry in self.bundle.bank_entries:
+            rule = bank_rule_for(self.policy,entry)
+            self.assertEqual(rule['id'] if rule else '',rows[(entry['bank'],entry['_source']['ref_origem'])])
 
 
 if __name__ == '__main__':

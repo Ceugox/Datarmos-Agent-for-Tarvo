@@ -9,6 +9,7 @@ import re
 
 from openpyxl import load_workbook
 
+from .closing import bank_rule_for
 from .privacy import mask_personal_data
 from .readers import decode
 
@@ -198,17 +199,17 @@ def _result(check, errors, ok_reason):
 class Validator:
     classe = None
 
-    def class_checks(self, proposal, excecao, bundle, policy):
+    def class_checks(self, proposal, excecao, bundle, context):
         return []
 
-    def validate(self, proposal, excecao, bundle, policy):
+    def validate(self, proposal, excecao, bundle, context):
         checks = []
         for name, errors, ok in (('schema', lambda: check_shape(proposal, excecao), 'Forma conforme o schema e a exceção.'),
                                  ('evidencia', lambda: check_evidence(proposal, excecao, bundle), 'Trechos existem literalmente nas linhas citadas.')):
             checks.append(_result(name, errors(), ok))
             if checks[-1]['status'] == 'FAIL':
                 return {'ok':False, 'checks':checks}
-        for item in self.class_checks(proposal, excecao, bundle, policy):
+        for item in self.class_checks(proposal, excecao, bundle, context):
             checks.append(item)
             if item['status'] == 'FAIL':
                 break
@@ -228,9 +229,87 @@ def validator_for(classe):
     return cls() if cls else None
 
 
+MIN_SNIPPET = 3
+PROVISION_PREFIXES = ('2.1.03.', '2.1.04.')
+
+
+def _sign(entry):
+    return '-' if entry['amount'] < 0 else '+'
+
+
+def known_pairs(bundle, closing_policy, period=None):
+    """(movement sign, first-level account group) pairs that the applied bank rules already produce in the month."""
+    pairs = set()
+    for entry in bundle.bank_entries:
+        if period and entry['date'].isoformat()[:7] != period:
+            continue
+        rule = bank_rule_for(closing_policy, entry)
+        if rule:
+            pairs.add((_sign(entry), rule['account'].split('.')[0]))
+    return pairs
+
+
+def _check_result(name, error, ok_reason):
+    return _result(name, [error] if error else [], ok_reason)
+
+
 @register
 class MovimentoSemRegraValidator(Validator):
     classe = 'MOVIMENTO_SEM_REGRA'
 
-    def class_checks(self, proposal, excecao, bundle, policy):
-        return [{'check':'validador_da_classe', 'status':'FAIL', 'reason':'Validador de MOVIMENTO_SEM_REGRA chega na Fase 3; até lá toda proposta vai para humano.'}]
+    def _movement(self, excecao, bundle):
+        excecao = _as_dict(excecao)
+        refs = excecao.get('refs') or []
+        bank, _, ref = str(excecao.get('escopo') or '').partition(':')
+        if len(refs) != 1 or not bank or not ref:
+            return None, 'a exceção precisa ter exatamente um ref e escopo no formato BANCO:REF'
+        entry = next((e for e in bundle.bank_entries if e['bank'] == bank and e['_source']['ref_origem'] == ref), None)
+        if entry is None:
+            return None, f'movimento {bank}:{ref} não existe nos extratos'
+        if refs[0]['ref'] != ref:
+            return None, f'o ref da exceção ({refs[0]["ref"]}) difere do escopo {bank}:{ref}'
+        return entry, None
+
+    def class_checks(self, proposal, excecao, bundle, context):
+        closing_policy = (context or {}).get('closing_policy')
+        if not closing_policy:
+            return [_check_result('movimento', 'contexto sem closing_policy: não dá para validar o movimento', '')]
+        entry, error = self._movement(excecao, bundle)
+        checks = [_check_result('movimento', error, 'Exceção de um único movimento bancário existente.')]
+        if error:
+            return checks
+        description = entry['description']
+        masked = mask_personal_data(description)
+        errors = []
+        for index, evidence in enumerate(proposal['evidencias']):
+            snippet = evidence['trecho']
+            if len(snippet.strip()) < MIN_SNIPPET:
+                errors.append(f'evidencias[{index}]: trecho com menos de {MIN_SNIPPET} caracteres')
+            elif snippet not in description and snippet not in masked:
+                errors.append(f'evidencias[{index}]: trecho não está literalmente na descrição do movimento')
+        checks.append(_result('evidencia_descricao', errors, 'Trechos estão literalmente na descrição do movimento.'))
+        if errors:
+            return checks
+        code = proposal['parametros']['conta_codigo']
+        account = bundle.accounts.get(code)
+        if account is None:
+            error = f'conta {code} não existe no plano de contas'
+        elif account['TIPO'] != 'ANALITICA' or account['ACEITA_LANCTO'] != 'S':
+            error = f'conta {code} não é analítica com lançamento aceito'
+        else:
+            error = None
+        checks.append(_check_result('conta', error, 'Conta analítica que aceita lançamento.'))
+        if error:
+            return checks
+        pair = (_sign(entry), code.split('.')[0])
+        error = None if pair in known_pairs(bundle, closing_policy, context.get('period')) else f'par (sinal {pair[0]}, grupo {pair[1]}) não ocorre nas regras bancárias aplicadas no mês'
+        checks.append(_check_result('par_conhecido', error, 'Par (sinal, grupo da conta) já ocorre nas regras aplicadas.'))
+        if error:
+            return checks
+        error = f'conta {code} é provisão de folha ou tributos: baixar exige obrigação conhecida' if code.startswith(PROVISION_PREFIXES) else None
+        checks.append(_check_result('nao_provisao', error, 'Conta não é provisão de folha ou tributos.'))
+        if error:
+            return checks
+        error = f'conta {code} é disponibilidade ou transferência entre contas: o casamento é do núcleo' if code.startswith('1.1.01.') or code == '1.1.09.001' else None
+        checks.append(_check_result('nao_disponibilidade', error, 'Conta não é disponibilidade nem transferência entre contas.'))
+        return checks

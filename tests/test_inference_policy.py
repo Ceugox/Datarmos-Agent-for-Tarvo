@@ -57,14 +57,17 @@ class InferencePolicyTests(unittest.TestCase):
     def test_automatico_needs_approval_and_35_clean_cases(self):
         criterion = {'casos_seguidos_sem_erro':35,'erros':0,'backtest_versao':'1','data':'2026-10-17'}
         approval = {'aprovado_por':'Helena','aprovado_em':'2026-10-17'}
-        ok = self.load(edited(MOVIMENTO_SEM_REGRA={'modo':'automatico','criterio':criterion,**approval}))
+        measured = {'confianca':'0.90'}
+        ok = self.load(edited(MOVIMENTO_SEM_REGRA={'modo':'automatico','criterio':criterion,**measured,**approval}))
         self.assertEqual(effective_mode(ok,'MOVIMENTO_SEM_REGRA'),'automatico')
         with self.assertRaisesRegex(ValueError,'aprovado_por'):
-            self.load(edited(MOVIMENTO_SEM_REGRA={'modo':'automatico','criterio':criterion}))
+            self.load(edited(MOVIMENTO_SEM_REGRA={'modo':'automatico','criterio':criterion,**measured}))
         with self.assertRaisesRegex(ValueError,'35'):
-            self.load(edited(MOVIMENTO_SEM_REGRA={'modo':'automatico','criterio':{**criterion,'casos_seguidos_sem_erro':34},**approval}))
+            self.load(edited(MOVIMENTO_SEM_REGRA={'modo':'automatico','criterio':{**criterion,'casos_seguidos_sem_erro':34},**measured,**approval}))
         with self.assertRaisesRegex(ValueError,'35'):
-            self.load(edited(MOVIMENTO_SEM_REGRA={'modo':'automatico','criterio':{**criterion,'erros':1},**approval}))
+            self.load(edited(MOVIMENTO_SEM_REGRA={'modo':'automatico','criterio':{**criterion,'erros':1},**measured,**approval}))
+        with self.assertRaisesRegex(ValueError,'confianca'):
+            self.load(edited(MOVIMENTO_SEM_REGRA={'modo':'automatico','criterio':criterion,**approval}))
 
     def test_missing_class_and_bad_confidence_are_rejected(self):
         policy = edited()

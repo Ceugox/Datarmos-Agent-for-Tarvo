@@ -407,6 +407,11 @@ def close_remittances(bundle,policy,period,result):
     })
 
 
+def bank_rule_for(policy,entry):
+    description = normalize(entry['description'])
+    return next((r for r in policy['bank_rules'] if r['bank'] in {'ANY',entry['bank']} and re.search(r['pattern'],description)),None)
+
+
 def classify_banks(bundle,policy,period,result):
     entries = []
     own_transfers = []
@@ -419,8 +424,7 @@ def classify_banks(bundle,policy,period,result):
         if entry['date'].isoformat()[:7] != period:
             result.cover('BANCO',entry,'FORA_COMPETENCIA','Movimento fora do período')
             continue
-        description = normalize(entry['description'])
-        rule = next((r for r in policy['bank_rules'] if r['bank'] in {'ANY',entry['bank']} and re.search(r['pattern'],description)),None)
+        rule = bank_rule_for(policy,entry)
         account = rule['account'] if rule else ''
         if account and (account not in bundle.accounts or bundle.accounts[account]['ACEITA_LANCTO'] != 'S' or bundle.accounts[account]['TIPO'] != 'ANALITICA'):
             raise ValueError(f'Invalid posting account in bank rule: {account}')

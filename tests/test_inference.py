@@ -24,7 +24,7 @@ class InferenceTests(unittest.TestCase):
         cls.inference_policy = load_inference_policy(ROOT/'config/inference-policy.json')
         cls.bundle = read_inputs(ROOT/'Tarvo_Data_Pack_set2026')
         cls.september = close_month(cls.bundle,cls.policy,'2026-09')
-        cls.entries = [e for e in cls.bundle.bank_entries if e['bank'] == 'AURORA' and e['description'].strip()][:3]
+        cls.entries = [e for e in cls.bundle.bank_entries if e['bank'] == 'AURORA' and e['description'].strip() and e['amount'] < 0][:3]
         cls.synthetic = ClosingResult()
         for index, entry in enumerate(cls.entries):
             source = entry['_source']
@@ -73,12 +73,13 @@ class InferenceTests(unittest.TestCase):
         broken = ClosingException('PEN-X','MOVIMENTO_SEM_REGRA','CONCILIACAO_BANCARIA','x','H','m','f',None,[{'arquivo':'nao_existe.csv','aba':'','ref':'L1','linha':1}])
         self.assertEqual(exception_payload(broken,self.bundle)['linhas_citadas'][0]['texto'],'')
 
-    def test_valid_proposal_still_goes_to_the_human_in_phase_two(self):
+    def test_valid_proposal_in_shadow_is_validated_and_not_applied(self):
         resolver, audit, events = self.run_layer(self.synthetic,{'PEN-SINT0':self.proposal(0)})
         self.assertEqual(resolver.calls,['PEN-SINT0','PEN-SINT1','PEN-SINT2'])
         first = events[0]
-        self.assertEqual((first['resultado'],first['motivo']),('HUMANO','VALIDADOR_REJEITOU'))
-        self.assertEqual({c['check']:c['status'] for c in first['verificacoes']},{'schema':'PASS','evidencia':'PASS','validador_da_classe':'FAIL'})
+        self.assertEqual((first['modo'],first['resultado'],first['motivo']),('sombra','VALIDADA',None))
+        self.assertEqual([(c['check'],c['status']) for c in first['verificacoes']],
+                         [(name,'PASS') for name in ('schema','evidencia','movimento','evidencia_descricao','conta','par_conhecido','nao_provisao','nao_disponibilidade')])
         self.assertFalse(first['aplicada'])
         self.assertEqual(first['proposta'],self.proposal(0))
         self.assertEqual([e['motivo'] for e in events[1:]],['SEM_TOOL_CALL','SEM_TOOL_CALL'])
@@ -120,7 +121,7 @@ class InferenceTests(unittest.TestCase):
         usage = {'input_tokens':3000, 'output_tokens':2000}
         resolver, audit, events = self.run_layer(self.synthetic,{'PEN-SINT0':{**self.proposal(0), '_usage':usage}},budget=TokenBudget(1000))
         self.assertEqual(resolver.calls,['PEN-SINT0'])
-        self.assertEqual(events[0]['motivo'],'VALIDADOR_REJEITOU')
+        self.assertEqual((events[0]['resultado'],events[0]['motivo']),('VALIDADA',None))
         self.assertEqual([e['motivo'] for e in events[1:]],['ORCAMENTO_ESGOTADO','ORCAMENTO_ESGOTADO'])
         summary = audit.events[-1]
         self.assertEqual(summary['tokens_total'],5000)

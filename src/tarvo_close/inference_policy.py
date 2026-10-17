@@ -45,6 +45,8 @@ def load_inference_policy(path):
                 raise ValueError(f'{classe}: automatico exige aprovado_por e aprovado_em')
             if criterion.get('casos_seguidos_sem_erro',0) < MIN_CLEAN_CASES or criterion.get('erros',0) != 0:
                 raise ValueError(f'{classe}: automatico exige {MIN_CLEAN_CASES} casos seguidos sem erro no backtest')
+            if entry.get('confianca') is None:
+                raise ValueError(f'{classe}: automatico exige confianca medida no backtest (não nula)')
         confidence = entry.get('confianca')
         if confidence is not None:
             try:

@@ -85,18 +85,18 @@ class CliInferenceTests(unittest.TestCase):
             root = Path(directory)
             good = root/'good.json'
             good.write_text(json.dumps([{'excecao_id':known, 'decisao':'aprovar', 'decidido_por':'Helena', 'motivo':'ok'}]),encoding='utf-8')
-            code, _, err = run(root/'a','--decisoes',str(good),'--cache-dir',str(root/'c'),resolver=FakeResolver())
-            self.assertEqual(code,0)
-            self.assertIn('phase 3',err)
-            events = [json.loads(l) for l in (root/'a'/'auditoria.jsonl').read_text(encoding='utf-8').splitlines()]
-            received = [e for e in events if e['evento'] == 'DECISAO_RECEBIDA']
-            self.assertEqual([(e['excecao_id'],e['decidido_por']) for e in received],[(known,'Helena')])
+            fake = FakeResolver()
+            code, _, err = run(root/'a','--decisoes',str(good),'--cache-dir',str(root/'c'),resolver=fake)
+            self.assertEqual(code,1)  # decisions only make sense as a revision of a parent run
+            self.assertIn('Closing failed',err)
+            self.assertFalse((root/'a').exists())
+            self.assertEqual(fake.calls,[])
             for index, bad in enumerate(({'excecao_id':known, 'decisao':'aprovar', 'motivo':'ok'},
                                          {'excecao_id':known, 'decisao':'talvez', 'decidido_por':'Helena', 'motivo':'ok'})):
                 path = root/f'bad{index}.json'
                 path.write_text(json.dumps([bad]),encoding='utf-8')
                 fake = FakeResolver()
-                code, _, err = run(root/f'b{index}','--decisoes',str(path),'--cache-dir',str(root/'c'),resolver=fake)
+                code, _, err = run(root/f'b{index}','--decisoes',str(path),'--revisao-de',str(self.base),'--cache-dir',str(root/'c'),resolver=fake)
                 self.assertEqual(fake.calls,[])
                 self.assertEqual(code,1)
                 self.assertIn('Closing failed',err)
