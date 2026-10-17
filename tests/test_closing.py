@@ -98,6 +98,7 @@ class SourceAndClosingTests(unittest.TestCase):
         self.assertEqual(refund['valor_brl'],Decimal('15396.77'))
         self.assertIn('= 15397.42 (+0.65 em 67 de 118 lançamentos',refund['motivo'])
         self.assertIn('devolveria 0.65 a mais do que o lojista pagou',refund['motivo'])
+        self.assertIn('o que foi descontado de fato',refund['motivo'])
 
     def test_refund_reason_follows_the_sign_of_the_recomputed_gap(self):
         bundle = deepcopy(self.bundle)

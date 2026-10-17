@@ -297,7 +297,7 @@ def close_checkout(bundle, policy, period, result):
         alternative = f'valor bruto x taxa aplicada com o arredondamento do fechamento ({rounding}) = {recomputed}'
         if gap:
             alternative = (f'Alternativa considerada e descartada: {alternative} ({gap:+} em {mismatched} de {len(terms)} lançamentos em que o valor da Orbe difere do recalculado; a Orbe trunca os centavos). '
-                'Por que o valor cobrado: a Helena separou este caso das divergências ("É diferente de uma divergência comum. [...] é devolução ao lojista", 17/10) e definiu a base ("O que foi cobrado eu devolvo ao lojista", 16/10 20h49). '
+                'Por que o valor cobrado: a Helena separou este caso das divergências ("É diferente de uma divergência comum. [...] é devolução ao lojista", 17/10) e definiu a base ("O que foi cobrado eu devolvo ao lojista", 16/10 20h49); depois confirmou este critério para a Casa ("Devolvo o que saiu do bolso do lojista, o que foi descontado de fato. A diferença para a fórmula é centavo: segue como você fez", 17/10 12h50). '
                 'A fórmula bruto x (aplicada - contratada) e o "a gente não trunca" (16/10 21h13) valem para a divergência a cobrar da Orbe e para a comissão da Tarvo; '
                 f'numa devolução, o recalculado devolveria {abs(gap)} {"a mais" if gap > 0 else "a menos"} do que o lojista pagou.')
         else:

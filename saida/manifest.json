@@ -1,5 +1,5 @@
 {
-  "engine_sha256": "7b4afa115908c2e3524321c5b53f224476e52113cf560749e5d06d1123033c34",
+  "engine_sha256": "b69866ce9a81f98074c216492452c50d88314cc4cae1fa965f7fc95e8f83bc0b",
   "engine_version": "0.2.0",
   "output_sha256": {
     "anexos/PonteCambio_Relatorio_TARVO_092026.xlsx": "c7d4e137fe7ee00ae5838cc229bfed87b34aca3e3495518921f6bc19c607fc26",
@@ -11,17 +11,17 @@
     "contestacoes/rascunho_orbe.txt": "fd04a0cb551c8a790760624f32fc58fdfcaea380d1b5c1d171ff502eeadc91f7",
     "contestacoes/rascunho_ponte.txt": "86f1c9c7f6e8eb68ab582a421c7d2f5529f4f390bae034441bc8715a5a894d0e",
     "divergencias_taxa.csv": "9881a8129cee6ed90a32dd660f7966408212540987f61208fa888d11d156fe18",
-    "index.html": "b9ec2a7cafc93e1eb36637f52f74acb7ff199a95f8b4f51af586124377635c8c",
+    "index.html": "10aee8cc2da4d2716fb99cb087efd09082e669ce36be59db8c81b9f2657e2949",
     "lancamentos_classificados.csv": "cffc110f1bd9e347eaf830f5518364fbf60d07f217d1793aa88b689a6505d05b",
     "metrics.json": "129a6ab09ee14d13b409bef8c17b899ba3bd4ca16734b09f74417ebebd3a3926",
     "notas_a_emitir.csv": "c69b4eeb25e65387ab08e79ad72dd1cb0d409b29f313f0270529fc873054a0e7",
-    "pendencias.csv": "c0ccf1c00ed115b16950bdb9effaf17bc74f1d80a702ae6b8b575750bab9a0ff",
+    "pendencias.csv": "165a2dd3ff09c3405198d0689cb39815c7dc5be17db684468afd8350dc3902fa",
     "policy.json": "fb9bd0383a9e34c87902a03bda74a709adb5bcdbca0ccd15080a53978e1ebecf",
     "rastro.csv": "794e5fb265f6ff215720196ea018f9e3720203ff79f533e3909021d1a27157db"
   },
   "period": "2026-09",
   "rules": "REGRAS_DO_FINANCEIRO",
-  "run_id": "2026-09-77b4b79389cd0ad8",
+  "run_id": "2026-09-994681bcc3357253",
   "slack_read": true,
   "sources": {
     "01_orbe_relatorio_comissoes_set2026.csv": {

@@ -277,3 +277,23 @@ Canal `#duvidas-hackathon-ai` (workspace Barte Hackathon AI), lido em 17/10/2026
 **Resposta do financeiro** (17/10 11h03):
 
 > [Financeiro] Resposta para Lucca Landeiro Conta por conta eu não valido. Respondi isso para a Casa Barton agora há pouco, e o critério está na resposta para a Fox AI sobre o plano de contas. Sobre a Atlas: o repasse não para. O dinheiro é do lojista, e o que fica suspenso é só o faturamento da nossa taxa. — Helena, financeiro da Tarvo
+
+---
+
+**Pergunta — Turma do Barulho** (17/10):
+
+> [financeiro] Turma do Barulho: para entender como o fechamento muda de um mês para outro, em outubro podemos receber arquivos com colunas, abas ou formatos diferentes, novas fontes, arquivos ausentes ou correções de arquivos já enviados? Ou a estrutura permanece igual e mudam apenas os registros, lojistas e condições comerciais? Quando faltar uma fonte ou chegar uma informação nova sem regra definida, vocês esperam que o fechamento inteiro aguarde ou que as partes independentes sejam concluídas, deixando explícitos os resultados provisórios, os bloqueios e as pendências? Quem decide quando esses casos podem ser liberados?
+
+**Resposta do financeiro** (17/10 12h31):
+
+> [Financeiro] Resposta para Turma do Barulho A estrutura é a mesma todo mês: mesmas fontes, mesmas colunas. Mudam os registros, os lojistas e as condições. Mas na prática acontece de arquivo chegar atrasado, de a Orbe mandar ajuste depois do relatório, e já teve parceiro mudando o layout sem avisar. Prefiro que a solução avise a que quebre sem ninguém perceber. Quando falta alguma coisa, eu não seguro o mês inteiro. Fecha o que não depende daquilo, marca o que é provisório e deixa claro o que está bloqueado e por quê. Quem libera sou eu. Se for taxa ou cadastro, o comercial decide antes. — Helena
+
+---
+
+**Pergunta — Lucca Landeiro** (17/10):
+
+> [Financeiro] Lucca Landeiro: na devolução ao lojista, usamos o que a Orbe descontou de fato (valor_taxa) menos a comissão contratada, porque o lojista recebeu o líquido (Q-U 4). Na Casa isso dá R$ 15.396,77, contra R$ 15.397,42 pela fórmula da divergência (bruto × diferença de taxa), que mantivemos em divergencias_taxa.csv como a senhora definiu. A diferença é o truncamento da Orbe. A devolução segue esse valor cobrado de fato?
+
+**Resposta do financeiro** (17/10 12h50):
+
+> [Financeiro] Resposta para Lucca Landeiro Devolvo o que saiu do bolso do lojista, o que foi descontado de fato. A diferença para a fórmula é centavo: segue como você fez. — Helena
