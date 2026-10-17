@@ -1,4 +1,4 @@
-# Tarvo: motor de fechamento mensal
+# Datarmos Agent for Tarvo: motor de fechamento mensal
 
 Motor local para o case Barte AI. Recebe a pasta (ou o ZIP) com os seis arquivos do mês, aplica as regras do financeiro da Tarvo e gera os seis CSVs de `saida/`, um relatório HTML de revisão e rascunhos de contestação para a Orbe e a Ponte. Um único comando, sem limpeza manual dos arquivos.
 
@@ -86,7 +86,8 @@ Cobrem os números de setembro, as regras do financeiro (estorno de agosto, isen
 - `saida/`: execução entregue de setembro.
 - `PROMPTS/`, `HIPOTESES.md`, `docs/`: histórico de IA, premissas e respostas do financeiro.
 - `analysis/`: scripts e materiais da investigação inicial.
+- `LICENSE`: licença MIT do código.
 
 ## Licença
 
-MIT, ver `LICENSE`.
+O código do Datarmos Agent for Tarvo (`src/`, `run_engine.py`, `config/`, `tests/`, `analysis/`) é MIT, ver `LICENSE`. O data pack `Tarvo_Data_Pack_set2026/`, as saídas derivadas em `saida/` e as transcrições em `docs/` e `PROMPTS/` são material do case Barte AI e não estão cobertos pela licença.
