@@ -1,22 +1,79 @@
 # Datarmos Agent for Tarvo: motor de fechamento mensal
 
-Motor local para o case Barte AI. Recebe a pasta (ou o ZIP) com os arquivos do mês, incluindo ajustes tardios da Orbe quando chegam, aplica as regras do financeiro da Tarvo e gera os seis CSVs de `saida/`, um relatório HTML de revisão e rascunhos de contestação para a Orbe e a Ponte. Um único comando, sem limpeza manual dos arquivos.
+> ### [Abrir o site da Datarmos ↗](https://datarmos.up.railway.app)
+>
+> **Vídeo de abertura, pitch, resultados do case e guia para usar a API.**
+>
+> [datarmos.up.railway.app](https://datarmos.up.railway.app) · [Pitch de 13 slides](https://datarmos.up.railway.app/pitch/) · [Relatório do fechamento](https://datarmos.up.railway.app/relatorio/)
 
-**O cálculo é determinístico e roda sem chave de API.** Sem chave, ou com `--no-llm`, nenhuma chamada de IA é feita e `saida/` fica byte a byte igual (fora `manifest.json` e `index.html`). Existe uma camada de inferência opcional, desligada por padrão, que só propõe (nunca calcula) e cuja chamada fica registrada em `auditoria.jsonl` ao lado das saídas; ver "Camada de inferência". A IA também foi usada na investigação e no desenvolvimento (ver `PROMPTS/`).
+Motor de fechamento mensal para o case Barte AI. **Você pode rodar localmente com Python ou enviar os arquivos por HTTP para a API.** Os dois caminhos usam o mesmo motor: recebem os arquivos do mês, aplicam as regras do financeiro e geram seis CSVs principais, relatório HTML e rascunhos de contestação, sem limpeza manual dos arquivos.
 
-## Rodar do zero
+O repositório também implementa API autenticada por cliente, fila de exceções, decisões humanas e revisões preservando o original. O site e o pitch são uma apresentação estática do case, sem conexão com a API. Descrição do produto em [docs/product-description.md](docs/product-description.md); inventário, evidências e limites da auditoria em [docs/repository-audit.md](docs/repository-audit.md).
+
+O pedido central é um **motor determinístico com inferência via LLM para reduzir a fricção da análise das exceções que exigem intervenção humana**. Cálculo, proposta e aprovação têm papéis separados. A conferência das entregas e dos critérios oficiais está em [docs/submission-review.md](docs/submission-review.md), com as pendências de comprovação.
+
+**O cálculo é determinístico e roda sem chave de API.** Sem chave, ou com `--no-llm`, nenhuma chamada de IA é feita e as saídas financeiras são iguais. A CLI com chave no ambiente habilita a inferência, salvo `--no-llm`; a API exige `usar_llm=true`, exceto durante a demonstração temporária. A inferência propõe classificação, nunca calcula valores, e registra a execução em `auditoria.jsonl`; ver "Camada de inferência". A IA também foi usada na investigação e no desenvolvimento (ver `PROMPTS/`).
+
+## Usar o motor
+
+| Caminho | O que você precisa | Onde recebe o resultado |
+|---|---|---|
+| **Local** | Python 3.12+ e o pacote do mês; sem servidor ou chave | Pasta de saída no seu computador |
+| **HTTP** | Pacote do mês e chave da API; sem instalar Python | Consulta e download pela API |
+
+### Opção 1 — Rodar localmente
 
 Python 3.12 ou superior (testado em 3.14):
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe run_engine.py --input Tarvo_Data_Pack_set2026 --period 2026-09 --output saida-banca
+.\.venv\Scripts\python.exe run_engine.py --input Tarvo_Data_Pack_set2026 --period 2026-09 --output saida-banca --no-llm
 ```
 
 Em Linux/macOS, troque `.\.venv\Scripts\python.exe` por `.venv/bin/python`.
 
-Abra `saida-banca/index.html` no navegador. Os CSVs ficam direto na pasta de saída e devem coincidir com os de `saida/` entregues.
+Abra `saida-banca/index.html` no navegador. Os CSVs ficam na mesma pasta. Para outro mês, troque `--input`, `--period` e `--output`. O parâmetro `--input` também aceita um `.zip`.
+
+Na auditoria de 17/10, `saida/` estava inacessível neste diretório de trabalho. O comando acima funciona em uma pasta nova; não precisa sobrescrever nem restaurar a entrega. A comparação com os arquivos versionados foi feita em uma cópia isolada do `HEAD`.
+
+### Opção 2 — Enviar por HTTP
+
+API: `https://api-production-0e0e3.up.railway.app`. Use uma chave fornecida pelo operador do serviço. Durante a demonstração temporária, também é possível obter uma chave por `POST /v1/demo/chave`; fora desse período, essa rota responde `410`. Detalhes em [docs/api.md](docs/api.md#modo-demonstração).
+
+Exemplo em PowerShell, na raiz do repositório, com `curl.exe`:
+
+```powershell
+# 1. Compacte os arquivos do case e informe sua chave.
+Compress-Archive -Path .\Tarvo_Data_Pack_set2026\* -DestinationPath .\tarvo-set2026.zip
+$api = 'https://api-production-0e0e3.up.railway.app'
+$chave = '<sua-chave-da-api>'
+
+# 2. Envie o ZIP. A resposta contém o ID do fechamento.
+$fechamento = curl.exe --fail-with-body --silent --show-error "$api/v1/fechamentos" `
+  -H "Authorization: Bearer $chave" `
+  -F 'periodo=2026-09' -F 'usar_llm=false' `
+  -F 'arquivos=@tarvo-set2026.zip' | ConvertFrom-Json
+$id = $fechamento.id
+
+# 3. Consulte o processamento; repita até CONCLUIDO, PROVISORIO ou ERRO.
+curl.exe --fail-with-body --silent --show-error "$api/v1/fechamentos/$id" `
+  -H "Authorization: Bearer $chave"
+
+# 4. Quando CONCLUIDO ou PROVISORIO, baixe o relatório e um CSV.
+curl.exe --fail-with-body --silent --show-error "$api/v1/fechamentos/$id/arquivos/index.html" `
+  -H "Authorization: Bearer $chave" -o relatorio-api.html
+curl.exe --fail-with-body --silent --show-error "$api/v1/fechamentos/$id/arquivos/comissoes_por_lojista.csv" `
+  -H "Authorization: Bearer $chave" -o comissoes-api.csv
+```
+
+O envio retorna **HTTP 202** e `NA_FILA`: o resultado ainda está sendo processado. `PROVISORIO` permite baixar as partes calculadas e revisar o que ficou bloqueado; `ERRO` traz o motivo em `erro`. Download antes de concluir responde `409`. Abra `relatorio-api.html` no navegador depois do download.
+
+`usar_llm=false` reproduz o caminho local com `--no-llm`, inclusive durante a demonstração. Para experimentar a inferência opcional, use `usar_llm=true`; ela depende da chave Anthropic no servidor e das classes habilitadas na política. O pacote original de setembro não tem movimento sem regra elegível para o modelo.
+
+Também é possível enviar vários arquivos no mesmo POST, repetindo o campo `arquivos` para cada arquivo, em vez de enviar um ZIP. Em Linux/macOS, use `curl` no lugar de `curl.exe` e adapte as variáveis ao seu shell. A referência completa de endpoints, autenticação e decisões está em [docs/api.md](docs/api.md).
+
+### Opções da execução local
 
 - `--input`: pasta ou `.zip` com os arquivos do mês. Os arquivos são identificados pelos prefixos `01_`, `02_`, `03_`, `04_`, `05a_` e `05b_`; nada é fixo para setembro. Ajustes tardios da Orbe (`06_*.csv`, mesmo layout do `01`) são opcionais: quando existem, entram no checkout do mês; quando não existem, nada é bloqueado.
 - `--period`: competência `AAAA-MM`.
@@ -69,6 +126,10 @@ Sempre: separador `;`, ponto decimal, datas `AAAA-MM-DD` e CNPJ só com 14 dígi
 - Devolução à Casa do Estudante pela isenção não informada à Orbe: R$ 15.396,77.
 - 184 movimentos bancários classificados; 2.374 linhas de origem com destino registrado.
 
+**R$ 20.225,93 identificados para revisão:** R$ 15.396,77 de devolução comercial + R$ 1.834,05 de spreads negativos a contestar + R$ 1.576,23 de divergências Orbe + R$ 1.418,88 de divergências Ponte. A soma reúne obrigações de devolução e contestações, sem comprovar pagamento, recuperação ou economia realizada. As 13 pendências têm responsáveis distintos (financeiro, comercial e tesouraria), não são todas decisões exclusivas da Helena. Os 8 dias úteis descritos no case são o prazo manual; tempo de execução do motor não comprova redução desse prazo.
+
+A soma checkout + remessa é R$ 243.278,79; as notas somam R$ 243.284,29 porque o saldo negativo de R$ 5,50 da Casa não gera nota.
+
 ## Camada de inferência
 
 Decisão de projeto: `docs/adr/0002-camada-de-inferencia.md`. O núcleo continua determinístico; a camada fica por cima e resolve só o que não é decisão da Helena.
@@ -105,7 +166,7 @@ Setembro não tem movimento sem regra, então os casos são perturbados: para ca
 
 ### O que sai para a Anthropic
 
-Só com a camada ligada (`usar_llm=true` na API, ou chave no ambiente sem `--no-llm` na CLI) e só para classes fora de `desligado`. Por exceção vão a descrição e a linha citada da fonte, com CPF e número de conta mascarados; o `system` leva a política de fechamento e o plano de contas inteiros. Campo a campo, o que é e o que não é mascarado e a retenção: seção LGPD de `docs/api.md`. Estimativa do ADR (`claude-opus-5-5`, preços de 2026-10): cerca de US$ 0,04 por exceção, setembro abaixo de US$ 0,10, mês ruim com 50 exceções elegíveis perto de US$ 2; `LLM_BUDGET_TOKENS` (padrão 200000) limita a execução e, ao estourar, o restante vai para humano (`ORCAMENTO_ESGOTADO`). Os números reais saem da auditoria; a única chamada real até agora foi recusada pela API (ver Limitações), então ainda não há custo medido.
+Só com a camada ligada (`usar_llm=true` na API, ou chave no ambiente sem `--no-llm` na CLI) e só para classes elegíveis fora de `desligado`. Durante `DEMO_ATE`, a API habilita IA por padrão; `usar_llm=false` desliga explicitamente. Por exceção vão a descrição e a linha citada da fonte, com CPF e número de conta mascarados; o `system` leva a política de fechamento e o plano de contas inteiros. Campo a campo, o que é e o que não é mascarado e a retenção: seção LGPD de `docs/api.md`. `LLM_BUDGET_TOKENS` (padrão 200000) limita a execução e, ao estourar, o restante vai para humano (`ORCAMENTO_ESGOTADO`). Estimativas do ADR são históricas; tokens e custos registrados devem ser consultados na auditoria de cada execução. O registro de produção em `docs/testes-producao.md` relata respostas válidas e uma reexecução em cache com 0 tokens; não é uma medição atual de custo por fechamento.
 
 ## Serviço HTTP
 
@@ -137,7 +198,7 @@ Projeto `tarvo-fechamento`: serviços `api` e `Postgres`, mais o volume `/data` 
 - `DATABASE_URL=${{Postgres.DATABASE_URL}}` no serviço `api`; demais variáveis abaixo, conforme `.env.example`.
 - Deploy com `railway up` a partir de uma cópia limpa (`git archive HEAD` para uma pasta nova), porque o diretório local tem pastas ignoradas sem permissão de leitura que quebram o upload.
 - Primeira chave, no terminal de quem vai guardá-la (ela aparece uma vez): `railway ssh --service api -- python -m api.keys criar --cliente "Tarvo"`. O `DATABASE_URL` interno só resolve dentro do contêiner; `railway run` local não o alcança.
-- `railway.json` (Dockerfile, health check em `/health`, 120 s) é Config as Code que o CLI marca como deprecated; funciona até 2026-12-01.
+- `railway.json` registra a configuração legada da API. A ferramenta de gestão consultada marca Config as Code como deprecated; confira a configuração efetiva do serviço no Railway antes de publicar.
 
 ## Variáveis de ambiente
 
@@ -166,8 +227,8 @@ Modelo em `.env.example`. Nenhuma é necessária para a CLI sem a camada.
 - O alerta de antecipação só avalia lojistas sem histórico anterior no pacote.
 - O bloqueio é por fonte inteira: com `02_` indisponível, a remessa também para, embora a participação de 50% não dependa da planilha (a divergência de spread depende). Erro na regra ou na configuração continua parando o fechamento inteiro, com mensagem.
 - A confiança da classificação bancária por regra é um escore, não probabilidade calibrada. Só a das linhas `IA` é medida (Wilson no backtest), e o backtest real ainda não foi rodado: a política não tem `criterio` nem `confianca` preenchidos.
-- Camada e API: job preso em `PROCESSANDO` se o processo morrer no meio (não há retomada); não há revogação de chave (perdeu, cria outra; trocar o pepper invalida todas); o rate limit é por processo; a primeira chamada real à Anthropic falhou com `400 invalid_request_error: "tools.0.custom: For 'anyOf', 'type' is not supported"` (o schema da proposta tinha `type` junto do `anyOf` na raiz); a correção tira o `type: object` da raiz, mantém o dos 8 ramos e sobe `prompt_version` para `2026-10-17.2`, para não reaproveitar o cache antigo. Erros da API agora são separados na auditoria: `ERRO_REDE` só para conexão, timeout, 429 e status 500 ou mais; `ERRO_API` para os demais 4xx (400, 401, 403, 404, 413, 422), com `detalhe` (tipo, status, mensagem, `request_id`).
-- `railway.json` é Config as Code deprecated; funciona até 2026-12-01.
+- Camada e API: job preso em `PROCESSANDO` se o processo morrer no meio (não há retomada); não há revogação individual de chave; o rate limit é por processo. Os erros iniciais de schema da Anthropic foram corrigidos: cada chamada leva apenas a variante da classe da exceção, e a versão do resolvedor entra na chave do cache. O histórico e o registro de 78/78 verificações em produção estão em `docs/testes-producao.md`; essa bateria não foi repetida nesta auditoria. Erros são separados entre `ERRO_REDE` (conexão, timeout, 429, 5xx) e `ERRO_API` (demais 4xx), com detalhe na auditoria.
+- `railway.json` é configuração legada; a ferramenta de gestão consultada não aceita novas alterações no campo Config as Code. Os campos do serviço podem ser conferidos diretamente no Railway.
 - Detalhes e decisões do time em `HIPOTESES.md`.
 
 ## Regras
@@ -215,8 +276,28 @@ Contra o serviço publicado há uma bateria à parte, fora do CI porque precisa 
 
 ## Estrutura
 
+### Site e pitch
+
+O site é HTML/CSS/JavaScript estático, com o pitch em `site/pitch/index.html`. Ambos apresentam o pacote de setembro; não enviam arquivos nem decisões para a API. A seção “Usar a API” explica envio, consulta e download, e o topo tem atalho para o GitHub. O painel usa Chart.js e fontes de CDNs externas.
+
+O vídeo de 44 segundos fornecido pelo autor está em `site/media/abertura.mp4`. Na abertura, `site/intro.js` tenta reproduzi-lo com som habilitado e mantém “Pular” disponível. Se a política do navegador bloquear autoplay com áudio, exibe “Iniciar com som”, sem silenciar o vídeo. Ao terminar, a logo Datarmos aparece com um raio no laranja da marca (`--ember`, `#ff6a2b`), e o site é liberado automaticamente. O mesmo vídeo está disponível na seção de apresentação. A animação é feita no player, sem alterar o conteúdo do vídeo original; movimento reduzido elimina as transições.
+
+Para atualizar os gráficos a partir de uma execução:
+
+```powershell
+.\.venv\Scripts\python.exe site/build_data.py --input saida-banca
+.\.venv\Scripts\python.exe -m http.server 8765 --directory site
+```
+
+Abra `http://localhost:8765`. `--baseline <execução sem ajustes tardios>` habilita a comparação antes/depois da mesma competência; sem baseline, o gráfico informa a ausência. O gerador deriva os valores das saídas e grava o `run_id` e o hash do motor em `results.js`. O texto do site e do pitch é editorial: ao trocar competência, revise também os números e exemplos nesses HTMLs.
+
+O retrato publicado do case está em `site/relatorio/`, para que o build do site pelo GitHub também sirva o relatório e seus CSVs. Ao trocar o pacote do painel, atualize esse diretório junto de `results.js`. `site/deploy.sh [pasta-do-relatório]` monta um pacote limpo com o relatório informado (padrão: `saida/`). No Railway, o serviço `site` precisa de **Root Directory `/site`**, Dockerfile `Dockerfile`, porta 8080 e healthcheck `/health`: a raiz do repositório contém o Dockerfile da API e não deve ser usada como raiz do site. O serviço foi recuperado e republicado em 17/10; o registro da investigação está em `docs/repository-audit.md`.
+
+### Diretórios
+
 - `run_engine.py`, `src/tarvo_close/`: leitura das fontes, cálculo, validação e publicação; camada de inferência (`inference.py`, `resolver.py`, `validators.py`, `backtest.py`).
 - `api/`, `Dockerfile`, `railway.json`: serviço HTTP.
+- `site/`: site estático, dados dos gráficos e pitch de 13 slides.
 - `config/closing-policy.json`: regras e decisões. `config/inference-policy.json`: modos da camada.
 - `Tarvo_Data_Pack_set2026/`: arquivos do case.
 - `saida/`: execução entregue de setembro.

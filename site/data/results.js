@@ -1,4 +1,10 @@
 window.RESULTS = {
+ "source": {
+  "run_id": "2026-09-0f5dc9b0948c6539",
+  "engine_sha256": "2a7df6c8ebc978acb274d51e8274c4ebbc8fe8cf277679742f3a2d54e0c9307d",
+  "period": "2026-09",
+  "kind": "static_case_snapshot"
+ },
  "metrics": {
   "checkout_bruto_nao_faturado": "262138.61",
   "checkout_comparados": 1900,
@@ -242,7 +248,7 @@ window.RESULTS = {
   },
   {
    "tipo": "DECISAO_DO_FINANCEIRO",
-   "valor": 0.0,
+   "valor": null,
    "quem": "Helena (financeiro)"
   }
  ],
@@ -371,15 +377,10 @@ window.RESULTS = {
   "notes_before": 246588.68,
   "notes_after": 243284.29
  },
- "corrected": {
-  "Casa do Estudante · devolver ao lojista": 15396.77,
-  "Spreads negativos · recuperar da Ponte": 1834.05,
-  "Orbe · Rota e Bridge · cobrar": 1576.23,
-  "Ponte · Mundo Aberto · contestar": 1418.88
- },
- "runtime_s": [
-  0.53,
-  0.43,
-  0.45
- ]
+ "amounts_to_review": {
+  "Casa do Estudante · devolução a revisar": 15396.77,
+  "Spreads negativos · contestação a revisar": 1834.05,
+  "Orbe · divergências a contestar": 1576.23,
+  "Ponte · divergências a contestar": 1418.88
+ }
 };

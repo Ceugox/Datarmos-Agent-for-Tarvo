@@ -3,10 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="canonical" href="https://datarmos.up.railway.app/">
+<meta property="og:url" content="https://datarmos.up.railway.app/">
 <title>Datarmos · Agente de fechamento</title>
 <meta name="description" content="Datarmos: o agente que fecha o mês financeiro da Tarvo a partir dos arquivos como chegam, com cada número apontando para a linha de origem.">
-<meta property="og:title" content="Datarmos · Seis arquivos entram, o mês sai fechado">
-<meta property="og:description" content="Setembro/2026 da Tarvo processado em 0,5 s, com R$ 20.225,93 corrigidos antes de o lojista reclamar.">
+<meta property="og:title" content="Datarmos · Os arquivos entram, o financeiro revisa">
+<meta property="og:description" content="Fechamento por regras, API e inferência opcional. R$ 20.225,93 identificados para revisão no case de setembro.">
 <link rel="icon" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,6 +16,28 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+<dialog class="intro-dialog" id="video-intro" aria-labelledby="intro-title">
+  <div class="intro-layout">
+    <div class="intro-toolbar">
+      <span class="logo">DATARM<b>O</b>S</span>
+      <p class="mono" id="intro-title">Vídeo de abertura</p>
+      <button class="btn ghost sm" type="button" id="skip-intro" autofocus>Pular <span aria-hidden="true">→</span></button>
+    </div>
+    <div class="intro-player">
+      <video id="intro-video" controls autoplay playsinline preload="auto" poster="media/abertura.jpg" aria-label="Apresentação de abertura da Datarmos">
+        <source src="media/abertura.mp4" type="video/mp4">
+        Seu navegador não reproduz este vídeo. Use Pular para acessar o site.
+      </video>
+      <button class="btn intro-start" type="button" id="start-intro" hidden>Iniciar com som <span aria-hidden="true">▶</span></button>
+      <div class="brand-outro" id="intro-brand" role="img" aria-label="Datarmos, raio laranja" hidden>
+        <svg class="brand-bolt" viewBox="0 0 96 144" aria-hidden="true"><path d="M59 4 10 81h34l-8 59 50-83H54L66 4Z"/></svg>
+        <span class="brand-wordmark" aria-hidden="true">DATARM<b>O</b>S</span>
+        <span class="brand-line" aria-hidden="true"></span>
+      </div>
+    </div>
+    <p class="intro-caption" id="intro-status" role="status">Conheça a Datarmos em 44 segundos. Você pode pular a qualquer momento.</p>
+  </div>
+</dialog>
 <div class="bg" aria-hidden="true"></div>
 <div class="progress" aria-hidden="true"><i id="progress"></i></div>
 
@@ -23,11 +47,14 @@
     <a href="#problema">Problema</a>
     <a href="#solucao">Solução</a>
     <a href="#controle">Controle</a>
-    <a href="#video">Vídeo</a>
+    <a href="#api">Usar a API</a>
     <a href="#pitch">Pitch</a>
     <a href="#resultados">Resultados</a>
   </nav>
-  <a class="btn sm" href="pitch/">Abrir o pitch <span aria-hidden="true">↗</span></a>
+  <div class="nav-actions">
+    <a class="btn ghost sm" href="https://github.com/Ceugox/Datarmos-Agent-for-Tarvo" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+    <a class="btn sm" href="pitch/">Abrir o pitch <span aria-hidden="true">↗</span></a>
+  </div>
 </header>
 
 <main>
@@ -35,20 +62,20 @@
 <section class="hero" aria-labelledby="h-hero">
   <div class="hero-copy">
     <p class="tag"><i class="dot"></i>Agente de fechamento · Hackathon Barte AI Services</p>
-    <h1 id="h-hero">Seis arquivos entram.<br><span class="ok">O mês sai fechado.</span></h1>
-    <p class="lead">A Datarmos transformou as regras do financeiro da Tarvo num agente: setembro é processado em <b class="n">0,5 s</b>, conciliado linha por linha, e os <b class="n">R$ 20.225,93</b> cobrados errado aparecem antes de o lojista reclamar.</p>
+    <h1 id="h-hero">Os arquivos entram.<br><span class="ok">O financeiro revisa.</span></h1>
+    <p class="lead">Motor de cálculo por regras, API com revisão de exceções e IA opcional. No case de setembro, <b class="n">R$ 20.225,93</b> foram identificados para devolução ou contestação, com rastro até a origem.</p>
     <div class="cta">
       <a class="btn" href="pitch/">Abrir o pitch <span aria-hidden="true">→</span></a>
       <a class="btn ghost" href="#resultados">Ver os resultados</a>
     </div>
     <ul class="hero-kpis">
       <li><b class="n" data-count="8" data-suffix=" dias">8 dias</b><span>úteis hoje</span></li>
-      <li><b class="n ok" data-count="0.5" data-dec="1" data-suffix=" s">0,5 s</b><span>com o agente</span></li>
-      <li><b class="n" data-count="13">13</b><span>decisões para a Helena</span></li>
+      <li><b class="n ok" data-count="1" data-suffix=" execução">1 execução</b><span>para gerar as propostas</span></li>
+      <li><b class="n" data-count="13">13</b><span>pendências com responsável</span></li>
     </ul>
   </div>
 
-  <div class="stage" id="stage" aria-label="Animação: os seis arquivos do mês entram, o agente conecta e o mês sai fechado">
+  <div class="stage" id="stage" aria-label="Animação: seis fontes-base geram propostas; ajustes tardios entram na mesma execução">
     <svg class="wires" viewBox="0 0 640 460" preserveAspectRatio="none" aria-hidden="true">
       <path d="M200 40 C 260 40, 250 220, 300 225"/>
       <path d="M200 112 C 260 112, 250 222, 300 227" style="--d:.1s"/>
@@ -67,11 +94,11 @@
       <li class="doc" style="--d:.6s"><i class="ext o">OFX</i><span>05b · Meridiano<small>extrato bancário</small></span></li>
     </ul>
     <div class="orb"><b>Agente</b><small>Datarmos</small></div>
-    <p class="orb-st"><span class="run">conectando 2.374 linhas…</span><span class="done">conciliado</span></p>
+    <p class="orb-st"><span class="run">conectando 2.374 linhas…</span><span class="done">rastreado</span></p>
     <div class="out">
-      <p class="h">Setembro fechado</p>
-      <div class="kpi"><p class="kv s">0,5 s</p><p class="kd">de processamento, contra 8 dias úteis</p></div>
-      <div class="kpi"><p class="kv">R$ 20.225,93</p><p class="kd">corrigidos antes de o lojista reclamar</p></div>
+      <p class="h">Setembro calculado</p>
+      <div class="kpi"><p class="kv s">1 execução</p><p class="kd">cálculo e arquivos para revisão</p></div>
+      <div class="kpi"><p class="kv">R$ 20.225,93</p><p class="kd">identificados para revisão</p></div>
       <div class="mini" aria-hidden="true"><i style="--h:22%;--d:.1s"></i><i style="--h:38%;--d:.2s"></i><i style="--h:52%;--d:.3s"></i><i style="--h:70%;--d:.4s"></i><i style="--h:100%;--d:.5s"></i></div>
       <p class="kd">21 notas · 115 divergências · 184 lançamentos</p>
     </div>
@@ -79,8 +106,8 @@
 </section>
 
 <div class="marquee" aria-hidden="true"><div class="track">
-  <span>Orbe</span><span>Ponte Câmbio</span><span>Aurora</span><span>Meridiano</span><span>ERP Fênix</span><span>2.374 linhas de origem</span><span>46 testes automatizados</span><span>0 aproximação de nome</span><span>cálculo em decimal</span><span>rastro até a linha</span>
-  <span>Orbe</span><span>Ponte Câmbio</span><span>Aurora</span><span>Meridiano</span><span>ERP Fênix</span><span>2.374 linhas de origem</span><span>46 testes automatizados</span><span>0 aproximação de nome</span><span>cálculo em decimal</span><span>rastro até a linha</span>
+  <span>Orbe</span><span>Ponte Câmbio</span><span>Aurora</span><span>Meridiano</span><span>ERP Fênix</span><span>2.374 linhas de origem</span><span>testes de regras, inferência e API</span><span>0 aproximação de nome</span><span>cálculo em decimal</span><span>rastro até a linha</span>
+  <span>Orbe</span><span>Ponte Câmbio</span><span>Aurora</span><span>Meridiano</span><span>ERP Fênix</span><span>2.374 linhas de origem</span><span>testes de regras, inferência e API</span><span>0 aproximação de nome</span><span>cálculo em decimal</span><span>rastro até a linha</span>
 </div></div>
 
 <!-- PROBLEMA -->
@@ -135,10 +162,10 @@
 <!-- SOLUÇÃO -->
 <section class="sec" id="solucao" aria-labelledby="h-sol">
   <p class="eyebrow reveal">03 · O que o agente entrega</p>
-  <h2 id="h-sol" class="reveal">Em uma execução, o agente entrega o mês inteiro <span class="g">e deixa só</span> <span class="ok">13 decisões</span> <span class="g">para a Helena.</span></h2>
+  <h2 id="h-sol" class="reveal">Em uma execução, o agente prepara o fechamento <span class="g">e organiza</span> <span class="ok">13 pendências</span> <span class="g">para os responsáveis.</span></h2>
   <div class="grid3">
     <article class="card tile reveal"><p class="mono">Comissão de checkout</p><b class="big n" data-count="203735.34" data-money>R$ 203.735,34</b><p>bruto × taxa contratada, linha a linha</p></article>
-    <article class="card tile reveal" style="--d:.06s"><p class="mono">Participação em remessas</p><b class="big n" data-count="39543.45" data-money>R$ 39.543,45</b><p>50% do spread realizado, 228 operações</p></article>
+    <article class="card tile reveal" style="--d:.06s"><p class="mono">Participação em remessas</p><b class="big n" data-count="39543.45" data-money>R$ 39.543,45</b><p>50% do spread, por operação · 228 operações</p></article>
     <article class="card tile reveal" style="--d:.12s"><p class="mono">Notas a emitir</p><b class="big n"><span data-count="21">21</span> <small>· R$ 243.284,29</small></b><p>prontas para a Helena revisar e emitir</p></article>
     <article class="card tile reveal" style="--d:.18s"><p class="mono">Divergências de taxa</p><b class="big n" data-count="115">115</b><p>transação por transação, com o valor em reais</p></article>
     <article class="card tile reveal" style="--d:.24s"><p class="mono">Lançamentos bancários</p><b class="big n" data-count="184">184</b><p>Aurora e Meridiano, pela conta de contrapartida</p></article>
@@ -165,7 +192,7 @@
     </div>
     <ul class="facts">
       <li class="card reveal"><b class="n" data-count="2374">2.374</b><span>linhas de origem, todas com destino: numa conta, numa pendência ou fora com o motivo.</span></li>
-      <li class="card reveal" style="--d:.08s"><b class="n" data-count="46">46</b><span>testes automatizados conferem as regras. A cada envio, a CI refaz setembro e compara com a saída entregue.</span></li>
+      <li class="card reveal" style="--d:.08s"><b class="n" data-count="5">5</b><span>checagens do fechamento: rastro, regras citadas, cobertura, IDs e CNPJs, e regras do financeiro. Testes também cobrem inferência, revisões e API.</span></li>
       <li class="card reveal" style="--d:.16s"><b class="n">0</b><span>aproximação de nome no cadastro. Falha de leitura nunca vira zero.</span></li>
     </ul>
   </div>
@@ -190,9 +217,9 @@
     </div>
     <ol class="ladder">
       <li class="reveal"><b>0</b><div><h3>Hoje</h3><p>A Helena bate fonte por fonte, em 8 dias úteis.</p></div><span class="st">manual</span></li>
-      <li class="reveal done" style="--d:.08s"><b>1</b><div><h3>Entregue</h3><p>O agente calcula e propõe tudo. A Helena aprova cada saída.</p></div><span class="st">pronto</span></li>
-      <li class="reveal wip" style="--d:.16s"><b>2</b><div><h3>A seguir</h3><p>Agentes de IA analisam o que a regra não decide e propõem antes da Helena.</p></div><span class="st">em construção</span></li>
-      <li class="reveal" style="--d:.24s"><b>3</b><div><h3>Com histórico</h3><p>Regra aprovada age sozinha abaixo de um limite que a Helena define.</p></div><span class="st">próximo</span></li>
+      <li class="reveal done" style="--d:.08s"><b>1</b><div><h3>Entregue</h3><p>O motor calcula por regras e gera propostas. O financeiro revisa as saídas.</p></div><span class="st">pronto</span></li>
+      <li class="reveal wip" style="--d:.16s"><b>2</b><div><h3>Inferência opcional</h3><p>Inferência opcional em sombra: propõe classificação bancária e preserva os CSVs.</p></div><span class="st">sombra</span></li>
+      <li class="reveal" style="--d:.24s"><b>3</b><div><h3>Com histórico</h3><p>Promoção exige backtest por classe; modo automático também exige aprovação registrada.</p></div><span class="st">não promovido</span></li>
     </ol>
   </div>
 </section>
@@ -219,7 +246,7 @@
       <table>
         <caption>Situação → o que o agente faz → quem decide</caption>
         <tbody>
-          <tr><td>Arquivo atrasado ou layout novo</td><td>fecha o resto, marca provisório e diz o que ficou bloqueado</td><td>Helena libera</td></tr>
+          <tr><td>Arquivo atrasado ou layout novo</td><td>fecha as fontes independentes, marca provisório e registra o bloqueio</td><td>Helena libera</td></tr>
           <tr><td>Caso sem regra</td><td>tira do cálculo e abre pendência com o valor</td><td>Helena</td></tr>
           <tr><td>Lojista sem contrato</td><td>não fatura e guarda as linhas (Atlas: 57)</td><td>Comercial</td></tr>
           <tr><td>Orbe × banco, parcela a parcela</td><td>não faz: depende da agenda de recebíveis</td><td>fora do escopo</td></tr>
@@ -227,9 +254,47 @@
       </table>
     </div>
     <div class="ai">
-      <div class="card reveal" style="--d:.06s"><p class="mono ok">Onde a IA atuou</p><p>Leu o case e os sete arquivos, propôs as perguntas à Helena, escreveu o motor e os 46 testes, revisou o código.</p></div>
-      <div class="card reveal" style="--d:.12s"><p class="mono m">Onde não atua</p><p>Não decide regra nem calcula o mês: nota fiscal precisa dar o mesmo valor toda vez. Nas pendências, a IA só propõe.</p></div>
+      <div class="card reveal" style="--d:.06s"><p class="mono ok">API e revisão implementadas</p><p>Envie o pacote pela API com chave de cliente, acompanhe o fechamento e consulte arquivos e exceções. Aprovar, rejeitar ou editar gera uma revisão auditada, preservando o original. Este site apresenta o case; não é a interface da API.</p></div>
+      <div class="card reveal" style="--d:.12s"><p class="mono m">Inferência opcional</p><p>Propõe classificação bancária com evidência, sem calcular valores. Na política padrão, roda em sombra. Clientes de demonstração usam sugerir e exigem aprovação; esse modo só existe até DEMO_ATE. Setembro não tem movimento sem regra elegível; a validação usa casos perturbados.</p></div>
     </div>
+  </div>
+</section>
+
+<section class="sec" id="api" aria-labelledby="h-api">
+  <p class="eyebrow reveal">Como usar · local ou HTTP</p>
+  <h2 id="h-api" class="reveal">Envie os arquivos pela API <span class="g">ou rode o mesmo motor no seu computador.</span></h2>
+  <p class="lead reveal">O código e o passo a passo estão no <a href="https://github.com/Ceugox/Datarmos-Agent-for-Tarvo" target="_blank" rel="noopener noreferrer">repositório no GitHub ↗</a>. Localmente, basta Python e o pacote do mês. Via HTTP, você precisa do pacote e de uma chave da API; não precisa instalar o motor.</p>
+  <div class="grid3">
+    <article class="card tile reveal"><p class="mono">01 · Enviar</p><h3>Um ZIP com os arquivos</h3><p>Compacte o pacote sem limpar os dados. Informe a competência e autentique com <code>Authorization: Bearer</code>. A resposta HTTP 202 traz o ID do fechamento.</p></article>
+    <article class="card tile reveal"><p class="mono">02 · Consultar</p><h3>Acompanhar pelo ID</h3><p>Consulte até <code>CONCLUIDO</code>, <code>PROVISORIO</code> ou <code>ERRO</code>. Provisório entrega o que foi calculado e registra os bloqueios para revisão.</p></article>
+    <article class="card tile reveal"><p class="mono">03 · Baixar e revisar</p><h3>Relatório, CSVs e exceções</h3><p>Baixe os arquivos e consulte a fila em <code>/excecoes</code>. Decisões humanas geram revisões auditadas, sem sobrescrever o original.</p></article>
+  </div>
+  <div class="card api-example reveal">
+    <p class="mono">Exemplo HTTP · terminal com curl</p>
+    <pre><code># Informe sua chave e use um ZIP com os arquivos do mês.
+export TARVO_API_KEY='sua-chave'
+API='https://api-production-0e0e3.up.railway.app'
+
+# Enviar: a resposta contém o ID e o status NA_FILA.
+curl --fail-with-body "$API/v1/fechamentos" \
+  -H "Authorization: Bearer $TARVO_API_KEY" \
+  -F 'periodo=2026-09' -F 'usar_llm=false' \
+  -F 'arquivos=@pacote.zip'
+
+# Substitua pelo ID retornado e consulte até concluir.
+ID='id-retornado'
+curl --fail-with-body "$API/v1/fechamentos/$ID" \
+  -H "Authorization: Bearer $TARVO_API_KEY"
+
+# Após CONCLUIDO ou PROVISORIO, baixe o relatório.
+curl --fail-with-body "$API/v1/fechamentos/$ID/arquivos/index.html" \
+  -H "Authorization: Bearer $TARVO_API_KEY" -o relatorio.html</code></pre>
+    <p>Peça a chave ao operador. Durante a demonstração temporária, <code>POST /v1/demo/chave</code> permite obter uma chave; após o prazo, responde 410. O exemplo desliga a IA explicitamente com <code>usar_llm=false</code>. Para habilitar a inferência, use <code>true</code>; a execução depende da configuração do servidor e da política.</p>
+    <p>Este site não recebe sua chave nem envia arquivos: as chamadas são feitas no seu terminal. O README também tem o exemplo para PowerShell e o comando local.</p>
+  </div>
+  <div class="cta reveal">
+    <a class="btn" href="https://github.com/Ceugox/Datarmos-Agent-for-Tarvo" target="_blank" rel="noopener noreferrer">Abrir repositório e README ↗</a>
+    <a class="btn ghost" href="https://api-production-0e0e3.up.railway.app/docs" target="_blank" rel="noopener noreferrer">Referência da API ↗</a>
   </div>
 </section>
 
@@ -238,10 +303,14 @@
   <p class="eyebrow reveal">08 · Vídeo</p>
   <h2 id="h-video" class="reveal">A apresentação em vídeo.</h2>
   <div class="video reveal" id="video-box">
-    <div class="poster">
-      <div class="pulse" aria-hidden="true"><i></i></div>
-      <p class="mono">Vídeo em breve</p>
-      <p class="g">A apresentação gravada entra aqui assim que for publicada no YouTube.</p>
+    <video controls playsinline preload="none" poster="media/abertura.jpg" aria-label="Assistir novamente ao vídeo de abertura da Datarmos">
+      <source src="media/abertura.mp4" type="video/mp4">
+      <a href="media/abertura.mp4">Abrir o vídeo de apresentação</a>
+    </video>
+    <div class="brand-outro" id="replay-brand" role="img" aria-label="Datarmos, raio laranja" hidden>
+      <svg class="brand-bolt" viewBox="0 0 96 144" aria-hidden="true"><path d="M59 4 10 81h34l-8 59 50-83H54L66 4Z"/></svg>
+      <span class="brand-wordmark" aria-hidden="true">DATARM<b>O</b>S</span>
+      <span class="brand-line" aria-hidden="true"></span>
     </div>
   </div>
 </section>
@@ -262,23 +331,23 @@
 <!-- RESULTADOS -->
 <section class="sec" id="resultados" aria-labelledby="h-res">
   <p class="eyebrow reveal">10 · Resultados do motor</p>
-  <h2 id="h-res" class="reveal">Setembro/2026 da Tarvo, <span class="g">direto da saída do motor.</span></h2>
+  <h2 id="h-res" class="reveal">Setembro/2026 da Tarvo, <span class="g">retrato estático da saída do motor.</span></h2>
   <div class="kpis">
-    <div class="card kpi reveal"><p class="mono">Corrigido antes da reclamação</p><b class="n ok" data-count="20225.93" data-money>R$ 20.225,93</b></div>
+    <div class="card kpi reveal"><p class="mono">Identificado para revisão</p><b class="n ok" data-count="20225.93" data-money>R$ 20.225,93</b></div>
     <div class="card kpi reveal" style="--d:.05s"><p class="mono">Notas a emitir</p><b class="n" data-count="243284.29" data-money>R$ 243.284,29</b></div>
     <div class="card kpi reveal" style="--d:.1s"><p class="mono">Vendas sem nota (Atlas)</p><b class="n m" data-count="262138.61" data-money>R$ 262.138,61</b></div>
-    <div class="card kpi reveal" style="--d:.15s"><p class="mono">Processamento médio</p><b class="n" data-count="0.47" data-dec="2" data-suffix=" s">0,47 s</b></div>
+    <div class="card kpi reveal" style="--d:.15s"><p class="mono">Cobertura das fontes</p><b class="n" data-count="2374">2.374</b></div>
   </div>
   <div class="dash">
     <figure class="card chart w2 reveal"><figcaption><b>Comissão por lojista</b><span>R$ · checkout + remessa · 10 maiores de 23 · set/2026</span></figcaption><div class="cbox tall"><canvas id="c-merchants" role="img" aria-label="Comissão por lojista"></canvas></div></figure>
-    <figure class="card chart reveal"><figcaption><b>Corrigido por natureza</b><span>R$ · soma 20.225,93 · set/2026</span></figcaption><div class="cbox"><canvas id="c-corrected" role="img" aria-label="Valor corrigido por natureza"></canvas></div></figure>
+    <figure class="card chart reveal"><figcaption><b>Valores a revisar por natureza</b><span>R$ · soma 20.225,93 · set/2026</span></figcaption><div class="cbox"><canvas id="c-corrected" role="img" aria-label="Valores identificados para devolução ou contestação"></canvas></div></figure>
     <figure class="card chart reveal"><figcaption><b>Destino das linhas de origem</b><span>contagem · n = 2.374 · set/2026</span></figcaption><div class="cbox"><canvas id="c-coverage" role="img" aria-label="Destino das linhas de origem"></canvas></div></figure>
     <figure class="card chart reveal"><figcaption><b>Ajustes tardios da Orbe (13h15)</b><span>R$ · antes e depois do arquivo 06 · comissão −3.304,39</span></figcaption><div class="cbox"><canvas id="c-late" role="img" aria-label="Antes e depois dos ajustes tardios"></canvas></div></figure>
     <figure class="card chart reveal"><figcaption><b>Divergências de taxa</b><span>R$ · contraparte e lojista · n = 115 · set/2026</span></figcaption><div class="cbox"><canvas id="c-div" role="img" aria-label="Divergências de taxa por contraparte"></canvas></div></figure>
     <figure class="card chart reveal"><figcaption><b>Pendências por quem decide</b><span>contagem · n = 13 · set/2026</span></figcaption><div class="cbox"><canvas id="c-pend" role="img" aria-label="Pendências por responsável"></canvas></div></figure>
-    <figure class="card chart w3 reveal"><figcaption><b>Tempo de fechamento</b><span>processamento medido em 3 execuções · 17/10</span></figcaption><div class="cbox"><canvas id="c-time" role="img" aria-label="Tempo de processamento por execução"></canvas></div></figure>
+    <article class="card tile w3 reveal"><h3>Propostas geradas, revisão pendente</h3><p>Os 8 dias úteis vêm do enunciado do case. O tempo do motor não mede o fechamento completo: revisão, emissão, devolução e contestação continuam com o financeiro. Os valores identificados não representam economia realizada.</p></article>
   </div>
-  <p class="src reveal">Fonte: saida/metrics.json, comissoes_por_lojista.csv, divergencias_taxa.csv, pendencias.csv, cobertura.csv · com os ajustes tardios da Orbe · <a href="relatorio/">abrir o relatório de revisão gerado pelo motor ↗</a></p>
+  <p class="src reveal">Painel estático do case, sem consulta à API. Inclui as seis fontes-base e o ajuste tardio 06. Fonte: saida/metrics.json, comissoes_por_lojista.csv, divergencias_taxa.csv, pendencias.csv, cobertura.csv · com os ajustes tardios da Orbe · <a href="relatorio/">abrir o relatório de revisão gerado pelo motor ↗</a></p>
 </section>
 
 <!-- PEDIDO -->
@@ -287,7 +356,7 @@
   <h2 id="h-ask" class="reveal big">Outubro com o agente em paralelo <span class="ok">e a Helena aprovando cada pendência.</span></h2>
   <ol class="grid3">
     <li class="card reveal"><b class="mono m">01</b><h3>Outubro em paralelo</h3><p>O agente fecha junto com o processo atual; a Helena compara e aprova.</p></li>
-    <li class="card reveal" style="--d:.06s"><b class="mono m">02</b><h3>Um dono para o aviso</h3><p>O comercial registra cada condição e avisa a Orbe e a Ponte. Teria evitado R$ 16.845,60 em setembro.</p></li>
+    <li class="card reveal" style="--d:.06s"><b class="mono m">02</b><h3>Um dono para o aviso</h3><p>O comercial registra cada condição e avisa a Orbe e a Ponte. R$ 16.845,60 identificados estão associados a falhas de comunicação.</p></li>
     <li class="card reveal" style="--d:.12s"><b class="mono m">03</b><h3>Medir em outubro</h3><p>Dias até fechar · divergências achadas antes do lojista · pendências sem dono: 0.</p></li>
   </ol>
   <div class="cta center reveal">
@@ -300,11 +369,12 @@
 
 <footer class="foot">
   <span class="logo">DATARM<b>O</b>S</span>
-  <span class="mono">Time Datarmos · Hackathon Barte AI Services · dados reais de setembro/2026 da Tarvo</span>
+  <span class="mono">Time Datarmos · Hackathon Barte AI Services · dados do case de setembro/2026 da Tarvo</span>
 </footer>
 
 <script src="config.js"></script>
 <script src="data/results.js"></script>
+<script src="intro.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
 <script src="app.js" defer></script>
 </body>

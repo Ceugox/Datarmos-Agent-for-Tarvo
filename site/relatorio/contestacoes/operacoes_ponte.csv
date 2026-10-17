@@ -1,0 +1,29 @@
+motivo;ref_origem;lojista;valor_brl;detalhe;id_saida
+OPERACAO_REPETIDA;PC-0926-0162;Bagagem Livre Turismo Ltda;821.88;"Linha repetida (reprocessada) somada no total do relatório; corrigir o relatório.";
+SPREAD_ACIMA_DO_CONTRATO;PC-0926-0011;Mundo Aberto;29.56;Spread aplicado 1.5007% x contratado 1.200%;DIV-f1e8fc0f852a4cab0d
+SPREAD_ACIMA_DO_CONTRATO;PC-0926-0016;Mundo Aberto;68.33;Spread aplicado 1.5007% x contratado 1.200%;DIV-25b6b623427ae32b82
+SPREAD_ACIMA_DO_CONTRATO;PC-0926-0033;Mundo Aberto;68.19;Spread aplicado 1.5001% x contratado 1.200%;DIV-c347972e1e932c98ae
+SPREAD_ACIMA_DO_CONTRATO;PC-0926-0039;Mundo Aberto;63.60;Spread aplicado 1.5001% x contratado 1.200%;DIV-1daebf6b066be7cc99
+SPREAD_ACIMA_DO_CONTRATO;PC-0926-0045;Mundo Aberto;45.66;Spread aplicado 1.5003% x contratado 1.200%;DIV-b551f5d77b984b18fd
+SPREAD_ACIMA_DO_CONTRATO;PC-0926-0075;Mundo Aberto;75.39;Spread aplicado 1.4993% x contratado 1.200%;DIV-55fb427ca645d2f36f
+SPREAD_ACIMA_DO_CONTRATO;PC-0926-0098;Mundo Aberto;18.59;Spread aplicado 1.5002% x contratado 1.200%;DIV-46ab574ab81a19e129
+SPREAD_ACIMA_DO_CONTRATO;PC-0926-0141;Mundo Aberto;44.40;Spread aplicado 1.5009% x contratado 1.200%;DIV-b8f07bb8352ed5a812
+SPREAD_ACIMA_DO_CONTRATO;PC-0926-0145;Mundo Aberto;65.71;Spread aplicado 1.5003% x contratado 1.200%;DIV-bbcc4947ad8af9173c
+SPREAD_ACIMA_DO_CONTRATO;PC-0926-0180;Mundo Aberto;69.13;Spread aplicado 1.5002% x contratado 1.200%;DIV-a8d3c6f8f14d2a723b
+SPREAD_ACIMA_DO_CONTRATO;PC-0926-0188;Mundo Aberto;40.38;Spread aplicado 1.4991% x contratado 1.200%;DIV-be42e0e3194df19d17
+SPREAD_ACIMA_DO_CONTRATO;PC-0926-0236;Mundo Aberto;71.36;Spread aplicado 1.5009% x contratado 1.200%;DIV-c6967b5c53466176fb
+SPREAD_ACIMA_DO_CONTRATO;PC-0926-0240;Mundo Aberto;16.72;Spread aplicado 1.5003% x contratado 1.200%;DIV-90766da0eb6968ecb2
+SPREAD_ACIMA_DO_CONTRATO;PC-0926-0266;Mundo Aberto;65.77;Spread aplicado 1.4995% x contratado 1.200%;DIV-954380f856e62a575d
+SPREAD_ACIMA_DO_CONTRATO;PC-0926-0364;Mundo Aberto;43.42;Spread aplicado 1.5002% x contratado 1.200%;DIV-2cf27fedbbce97e54e
+SPREAD_ACIMA_DO_CONTRATO;PC-0926-0373;Mundo Aberto;113.43;Spread aplicado 1.4998% x contratado 1.200%;DIV-02d1ce6f53b8cbb653
+SPREAD_ACIMA_DO_CONTRATO;PC-0926-0388;Mundo Aberto;62.41;Spread aplicado 1.4993% x contratado 1.200%;DIV-fc5e030b9406f8b240
+SPREAD_ACIMA_DO_CONTRATO;PC-0926-0409;Mundo Aberto;19.89;Spread aplicado 1.4996% x contratado 1.200%;DIV-11c8c1fb11c79f471d
+SPREAD_ACIMA_DO_CONTRATO;PC-0926-0434;Mundo Aberto;235.76;Spread aplicado 1.4996% x contratado 1.200%;DIV-f0b91c2d7b7244f2db
+SPREAD_ACIMA_DO_CONTRATO;PC-0926-0487;Mundo Aberto;65.01;Spread aplicado 1.4994% x contratado 1.200%;DIV-26635376dbd40a21b8
+SPREAD_ACIMA_DO_CONTRATO;PC-0926-0492;Mundo Aberto;36.13;Spread aplicado 1.4998% x contratado 1.200%;DIV-ed835ee2e4dca6d605
+SPREAD_ACIMA_DO_CONTRATO;PC-0926-0516;Mundo Aberto;23.28;Spread aplicado 1.5001% x contratado 1.200%;DIV-7d369c30a999612cdd
+SPREAD_ACIMA_DO_CONTRATO;PC-0926-0566;Mundo Aberto;76.76;Spread aplicado 1.5001% x contratado 1.200%;DIV-1222f356fe866249f7
+SPREAD_NEGATIVO;PC-0926-0326;Canguru;-509.22;"Spread realizado -509.22 (Taxa travada no pedido (D-1)); trava de 2 horas vencida, não aceito pela Tarvo.";
+SPREAD_NEGATIVO;PC-0926-0491;Dublin Hub Intercâmbio Ltda;-292.28;"Spread realizado -292.28 (Taxa travada no pedido (D-1)); trava de 2 horas vencida, não aceito pela Tarvo.";
+SPREAD_NEGATIVO;PC-0926-0545;Novo Horizonte Intercambio;-345.03;"Spread realizado -345.03 (Taxa travada no pedido (D-1)); trava de 2 horas vencida, não aceito pela Tarvo.";
+SPREAD_NEGATIVO;PC-0926-0210;Ponte Aérea Estudantil Ltda;-687.52;"Spread realizado -687.52 (Taxa travada no pedido (D-1)); trava de 2 horas vencida, não aceito pela Tarvo.";

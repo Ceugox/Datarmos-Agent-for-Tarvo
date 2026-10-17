@@ -1,0 +1,39 @@
+{
+  "checkout_bruto_nao_faturado": "262138.61",
+  "checkout_comparados": 1900,
+  "checkout_lidos": 1957,
+  "checkout_nao_faturado": 57,
+  "checkout_sem_contrato": 0,
+  "comissao_checkout": "203735.34",
+  "devolucao_condicao_comercial": "15396.77",
+  "diferenca_checkout_brl": "1576.23",
+  "diferenca_remessa_brl": "1418.88",
+  "divergencias": 115,
+  "divergencias_checkout": 92,
+  "movimentos_bancarios_exportados": 184,
+  "movimentos_bancarios_lidos": 184,
+  "notas": 21,
+  "participacao_remessas": "39543.45",
+  "pendencias": 13,
+  "periodo": "2026-09",
+  "regras": "REGRAS_DO_FINANCEIRO",
+  "remessas_contestadas": 4,
+  "remessas_distintas_sem_conflito": 232,
+  "remessas_elegiveis": 228,
+  "remessas_lidas": 233,
+  "saldos_bancarios": {
+    "AURORA": {
+      "closing": "-1920088.60",
+      "opening": "612334.81",
+      "opening_status": "EXPLICITO"
+    },
+    "MERIDIANO": {
+      "closing": "1320453.26",
+      "opening": "204118.03",
+      "opening_status": "INFERIDO"
+    }
+  },
+  "spread_elegivel": "79085.76",
+  "status": "CALCULADO",
+  "valor_notas": "243284.29"
+}

@@ -210,7 +210,7 @@ Fechamento (e revisão, que é um fechamento filho): `NA_FILA`, `PROCESSANDO`, d
 
 ## LGPD: o que sai para a Anthropic, campo a campo
 
-**Por padrão nada sai.** `usar_llm` é `false`; só com `usar_llm=true` **e** `ANTHROPIC_API_KEY` configurada a camada roda. Sem uma das duas, a saída é idêntica à de `--no-llm`. Só as classes com modo diferente de `desligado` na `inference-policy` chamam o modelo; no estado inicial é só `MOVIMENTO_SEM_REGRA` (modo `sombra`).
+**Fora da demonstração, por padrão nada sai.** `usar_llm` é `false`; só com `usar_llm=true` **e** `ANTHROPIC_API_KEY` configurada a camada roda. Durante `DEMO_ATE`, o padrão passa a `true` para todos os clientes; envie `usar_llm=false` para desligar explicitamente. Sem a camada, a saída é idêntica à de `--no-llm`. Só classes elegíveis com modo diferente de `desligado` na `inference-policy` chamam o modelo; na política padrão é só `MOVIMENTO_SEM_REGRA` (modo `sombra`). Clientes demo nascem com essa classe em `sugerir`.
 
 A chamada é `AnthropicResolver.propose` (`src/tarvo_close/resolver.py`) e leva três partes.
 

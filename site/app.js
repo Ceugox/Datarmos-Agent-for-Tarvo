@@ -80,33 +80,8 @@
   addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
   onScroll();
 
-  // ---------- vídeo do YouTube ----------
   var cfg = window.SITE_CONFIG || {};
   if (cfg.repo) document.getElementById('repo-link').href = cfg.repo;
-  function ytId(v) {
-    if (!v) return '';
-    v = String(v).trim();
-    if (/^[\w-]{11}$/.test(v)) return v;
-    var m = v.match(/(?:youtu\.be\/|v=|\/embed\/|\/shorts\/|\/live\/)([\w-]{11})/);
-    return m ? m[1] : '';
-  }
-  var id = ytId(cfg.youtube);
-  if (id) {
-    var box = document.getElementById('video-box');
-    box.innerHTML = '';
-    var b = document.createElement('button');
-    b.className = 'yt'; b.type = 'button'; b.setAttribute('aria-label', 'Assistir à apresentação em vídeo');
-    b.style.backgroundImage = 'url(https://i.ytimg.com/vi/' + id + '/hqdefault.jpg)';
-    b.innerHTML = '<span class="pulse" aria-hidden="true"><i></i></span>';
-    b.addEventListener('click', function () {
-      var f = document.createElement('iframe');
-      f.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&modestbranding=1';
-      f.title = 'Apresentação Datarmos'; f.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
-      f.allowFullscreen = true; f.referrerPolicy = 'strict-origin-when-cross-origin';
-      box.replaceChild(f, b);
-    });
-    box.appendChild(b);
-  }
 
   // ---------- dashboard (Chart.js) ----------
   var R = window.RESULTS;
@@ -145,8 +120,8 @@
             plugins: { tooltip: { callbacks: { label: function (c) { return c.dataset.label + ': ' + money(c.raw); } } } } } });
       },
       'c-corrected': function () {
-        var k = Object.keys(R.corrected);
-        make('c-corrected', { type: 'bar', data: { labels: k.map(function (s) { return s.split(' · ')[0].replace('Casa do Estudante', 'Casa do Estudante').replace('Spreads negativos', 'Spread negativo'); }), datasets: [{ data: k.map(function (s) { return R.corrected[s]; }), backgroundColor: [GREEN, AMBER, EMBER, VIOLET], borderRadius: 6 }] },
+        var k = Object.keys(R.amounts_to_review);
+        make('c-corrected', { type: 'bar', data: { labels: k.map(function (s) { return s.split(' · ')[0].replace('Casa do Estudante', 'Casa do Estudante').replace('Spreads negativos', 'Spread negativo'); }), datasets: [{ data: k.map(function (s) { return R.amounts_to_review[s]; }), backgroundColor: [GREEN, AMBER, EMBER, VIOLET], borderRadius: 6 }] },
           options: { maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { title: function (c) { return k[c[0].dataIndex]; }, label: function (c) { return money(c.raw); } } } }, indexAxis: 'y', scales: { x: { ticks: { callback: kfmt, maxTicksLimit: 4, maxRotation: 0 } }, y: { grid: { display: false }, ticks: { font: { family: 'Onest', size: 12 }, color: '#f3f5fb' } } } } });
       },
       'c-coverage': function () {
@@ -157,6 +132,10 @@
       },
       'c-late': function () {
         var L = R.late_adjustments;
+        if (!L) {
+          document.getElementById('c-late').parentNode.textContent = 'Comparação indisponível: gere os dados com --baseline para uma execução anterior da mesma competência.';
+          return;
+        }
         make('c-late', { type: 'bar', data: { labels: ['Comissão', 'Notas'], datasets: [
           { label: 'Antes do 06', data: [L.commission_before, L.notes_before], backgroundColor: MUTED, borderRadius: 6 },
           { label: 'Depois do 06', data: [L.commission_after, L.notes_after], backgroundColor: GREEN, borderRadius: 6 }] },
@@ -176,12 +155,6 @@
         var k = Object.keys(g).sort(function (a, b) { return g[b] - g[a]; });
         make('c-pend', { type: 'bar', data: { labels: k, datasets: [{ data: k.map(function (s) { return g[s]; }), backgroundColor: k.map(function (s) { return s === 'Helena' ? EMBER : s.indexOf('Helena') === 0 ? AMBER : BLUE; }), borderRadius: 6 }] },
           options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { stepSize: 2 } }, y: { grid: { display: false }, ticks: { font: { family: 'Onest', size: 12 }, color: '#f3f5fb' } } } } });
-      },
-      'c-time': function () {
-        make('c-time', { type: 'bar', data: { labels: R.runtime_s.map(function (_, i) { return 'Execução ' + (i + 1); }), datasets: [{ data: R.runtime_s, backgroundColor: GREEN, borderRadius: 6 }] },
-          options: { maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (c) { return num(c.raw, 2) + ' s'; } } },
-            subtitle: { display: true, text: 'Hoje: 8 dias úteis de conferência manual', color: EMBER, font: { size: 12 }, padding: { bottom: 8 } } },
-            scales: { y: { min: 0, max: 0.6, ticks: { callback: function (v) { return num(v, 1) + ' s'; } } }, x: { grid: { display: false } } } } });
       }
     };
     var ids = Object.keys(builders);
