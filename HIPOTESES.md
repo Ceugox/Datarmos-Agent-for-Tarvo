@@ -53,6 +53,26 @@ As regras de negócio vieram das respostas da Helena (financeiro da Tarvo) no ca
 - Notas, contestações e lançamentos são entregues para revisão. O motor não emite nota, não envia e-mail e não lança no ERP.
 - Confiança da classificação bancária é um escore de regra, não uma probabilidade calibrada.
 
-## Perguntas e respostas no Slack
+## Perguntas feitas ao financeiro e respostas recebidas
 
-A transcrição das perguntas relevantes e das respostas da Helena, como lidas no canal em 17/10/2026, está em `docs/slack-financeiro.md`.
+As perguntas foram feitas no canal compartilhado por vários times; as respostas da Helena valem para todos e foram as usadas aqui. Transcrição completa em `docs/slack-financeiro.md`.
+
+| # | Pergunta | Resposta da Helena |
+|---|---|---|
+| 1 | Comissão de checkout: `valor_taxa` da Orbe ou bruto × taxa contratada? | Taxa contratada, linha a linha; a diferença é divergência, decidida caso a caso. |
+| 2 | Estorno abate a comissão? E venda de agosto estornada em setembro? | Abate, no mês do estorno, pela taxa da data da venda original. Agosto não reabre. |
+| 3 | Quais CNPJs e taxas dos 4 ECs sem cadastro? Atlas é cliente ativa? | Três correspondem às linhas sem EC; Atlas sem contrato: não faturar até o comercial confirmar. |
+| 4 | Regra das notas: uma por lojista? Antecipação? Saldo negativo? Tomador da remessa? | Uma por lojista; antecipação na mesma nota, reversão anula; negativo não emite e vira pendência; remessa: uma nota para a Ponte. |
+| 5 | Remessa: 50% do realizado ou do contratado? Negativo, repetida, ressalva, competência? | Realizado; negativo não aceito (contestar); número de operação é único; ressalva não muda nada; vale a contratação; padrão 1,5%. |
+| 6 | Rota Global +0,50 p.p.: reajuste ou divergência? Casa do Estudante tem condição especial? Competência de folha/impostos? Créditos sem origem? | Rota: divergência. Casa: tarifa zerada set–dez, devolver o cobrado. Folha e tributos de agosto provisionados. R$ 7.350 desconhecido; R$ 12.400 repasse devolvido; R$ 300 mil cai no Meridiano em 01/10. |
+| 7 | Divergência de remessa: valor cheio ou metade? Tolerância? | Valor cheio; tolerância é critério do time, escrito com motivo. |
+| 8 | Arredondamento e fórmula da divergência? | Arredondamento comum, linha a linha; divergência = bruto × (aplicada − contratada); remessa por operação. |
+| 9 | Plano de contas: contrapartida ou natureza? | Contrapartida; o que estava provisionado baixa a provisão. |
+| 10 | O excesso da Mundo Aberto entra na nota de setembro? | Entra pelo realizado; ajuste no mês em que a Ponte devolver. |
+| 11 | Prazo de contestação venceu? Duplicata precisa ser contestada? | Nada contestado, prazo aberto; manter pendência com valor e operações; duplicata conta uma vez e vai na lista. |
+| 12 | Fluxo de liquidação da Orbe e saldo negativo do Aurora? | Tudo no Aurora; crédito por parcelas; saldo negativo é conta garantida; não conciliar parcela a parcela agora. |
+| 13 | Spreads negativos entram na lista de divergências? | Divergência é quando o lojista pagou diferente; negativo é pendência de contestação, outra natureza. |
+| 14 | Casa: cobrança durante a isenção, estorno pré-isenção, PIX de R$ 18.240, antecipação da Atlas, Orbe abaixo do contrato? | Devolução ao lojista, separada; taxa de agosto no estorno; adiantamento de remessa de outubro; alerta ao financeiro e comercial; também divergência, caso a caso. |
+| 15 | Atlas confirmada: setembro é faturado depois? | Sim, taxa vale desde 10/09; outubro puxa as linhas de setembro. |
+| 16 | Quem avisa Orbe/Ponte de condição nova? Rascunho de contestação serve? | Ninguém tem essa função; Bridge avisada com atraso, Casa e Mundo Aberto não. Rascunho por contraparte serve. |
+| 17 | Quem aprova regra fixa? | Taxa: comercial; regra de fechamento: Helena. |
