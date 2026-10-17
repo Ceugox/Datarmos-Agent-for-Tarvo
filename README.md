@@ -86,3 +86,7 @@ Cobrem os números de setembro, as regras do financeiro (estorno de agosto, isen
 - `saida/`: execução entregue de setembro.
 - `PROMPTS/`, `HIPOTESES.md`, `docs/`: histórico de IA, premissas e respostas do financeiro.
 - `analysis/`: scripts e materiais da investigação inicial.
+
+## Licença
+
+MIT, ver `LICENSE`.
