@@ -175,6 +175,7 @@ def advance_alerts(rows, period, result):
         sales = ZERO
         open_advances = {}
         flagged = []
+        applied = []
         for position, row in enumerate(sequence):
             if row['tipo_lancamento'] in {'VENDA','ESTORNO'}:
                 sales += row['valor_bruto']
@@ -188,6 +189,7 @@ def advance_alerts(rows, period, result):
                     if row['valor_bruto'] >= 0:
                         continue
                 remaining = reverted[1] + row['valor_bruto']
+                applied.append((position, row, reverted[1]))
                 if remaining > 0:
                     open_advances[row['id_referencia']] = (reverted[0], remaining)
                 else:
@@ -201,8 +203,8 @@ def advance_alerts(rows, period, result):
             peak, row, advances, sales, outstanding = max(flagged, key=lambda item: item[2]-item[3])
             first = min(r['date'] for r in events).isoformat()
             ids = {r['id_transacao']:amount for r, amount in outstanding}
-            later = [r for r in sequence[peak+1:] if r['tipo_lancamento'] == 'REVERSAO ANTECIPACAO' and r['id_referencia'] in ids]
-            described = [f"{r['id_referencia']} em {r['date'].isoformat()}" + ('' if -r['valor_bruto'] >= ids[r['id_referencia']] else f' (parcial, {r["valor_bruto"]})') for r in later]
+            described = [f"{r['id_referencia']} em {r['date'].isoformat()}" + ('' if -r['valor_bruto'] >= balance else f' (parcial, {r["valor_bruto"]})')
+                         for position, r, balance in applied if position > peak and r['id_referencia'] in ids]
             note = f' Revertidas depois: {", ".join(described)}; o alerta vale pelo que estava em aberto na data.' if described else ''
             result.pending(f'advance-alert:{ec}', 'ALERTA_ANTECIPACAO', f'{row["nome_estabelecimento"]} começou a transacionar em {first} e tinha {advances} em antecipações em aberto em {row["date"].isoformat()}, com {sales} em vendas até essa data. A antecipação é sobre o que já foi vendido e não há trava.{note} Não muda nenhum número do fechamento. Avisar financeiro e comercial.', 'Helena (financeiro) / Comercial', [source(r,amount,'saldo da antecipação em aberto acima das vendas acumuladas') for r, amount in outstanding], ec)
 

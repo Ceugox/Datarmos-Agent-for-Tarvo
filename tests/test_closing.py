@@ -192,8 +192,23 @@ class SourceAndClosingTests(unittest.TestCase):
         links = re.findall(r'<li><a href="([^"]+)">',html)
         self.assertTrue(links)
         for href in links:
+            self.assertFalse(href.startswith(('/','file:')) or ':' in href.split('/')[0],href)
             target = (ROOT/'saida'/href.replace('%20',' ')).resolve()
+            self.assertTrue(target.is_relative_to(ROOT.resolve()),href)
             self.assertTrue(target.is_file(),href)
+
+    def test_full_same_day_reversal_is_applied_without_pending_items(self):
+        bundle = deepcopy(self.bundle)
+        rows = {r['id_transacao']:r for r in bundle.checkout if r['cod_estabelecimento']=='1076801732'}
+        rows['AN88446030']['date'] = rows['AN88445637']['date']
+        rows['AN88446030']['id_transacao'] = 'AN00000001'
+        result = close_month(bundle,self.policy,'2026-09')
+        kinds = {r['tipo'] for r in result.tables['pendencias']}
+        self.assertFalse({'REVERSAO_SEM_ANTECIPACAO','REVERSAO_IRREGULAR'} & kinds)
+        alert = next(r for r in result.tables['pendencias'] if r['tipo']=='ALERTA_ANTECIPACAO')
+        # Same day: the four advances are processed before the reversal, so the peak keeps all four open.
+        self.assertEqual(alert['valor_brl'],Decimal('179592.82'))
+        self.assertIn('Revertidas depois: AN88445637 em 2026-09-15;',alert['motivo'])
 
     def test_bridge_uses_different_contracts_at_the_date_boundary(self):
         row = deepcopy(next(r for r in self.bundle.checkout if r['cod_estabelecimento']=='1075624862'))
