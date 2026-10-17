@@ -1,5 +1,5 @@
 motivo;ref_origem;lojista;valor_brl;detalhe;id_saida
-OPERACAO_REPETIDA;PC-0926-0162;BAGAGEM LIVRE TURISM;821.88;"Linha repetida (reprocessada) somada no total do relatório; corrigir o relatório.";
+OPERACAO_REPETIDA;PC-0926-0162;Bagagem Livre Turismo Ltda;821.88;"Linha repetida (reprocessada) somada no total do relatório; corrigir o relatório.";
 SPREAD_ACIMA_DO_CONTRATO;PC-0926-0011;Mundo Aberto;29.56;Spread aplicado 1.5007% x contratado 1.200%;DIV-f1e8fc0f852a4cab0d
 SPREAD_ACIMA_DO_CONTRATO;PC-0926-0016;Mundo Aberto;68.33;Spread aplicado 1.5007% x contratado 1.200%;DIV-25b6b623427ae32b82
 SPREAD_ACIMA_DO_CONTRATO;PC-0926-0033;Mundo Aberto;68.19;Spread aplicado 1.5001% x contratado 1.200%;DIV-c347972e1e932c98ae

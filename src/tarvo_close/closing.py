@@ -106,7 +106,7 @@ def validate_policy(policy):
     return policy
 
 
-def resolve_duplicates(rows, key, kind, result):
+def resolve_duplicates(rows, key, kind, result, name_for=None):
     groups = defaultdict(list)
     for row in rows:
         groups[row[key]].append(row)
@@ -125,7 +125,7 @@ def resolve_duplicates(rows, key, kind, result):
             value_key = 'spread' if kind == 'REMESSA' else 'valor_taxa'
             parts = [source(duplicate,duplicate[value_key],f'{value_key} repetido no relatório')]
             if kind == 'REMESSA':
-                result.contests['PONTE'].append({'motivo':'OPERACAO_REPETIDA','ref_origem':identity,'lojista':duplicate['name'],'valor_brl':duplicate[value_key],'detalhe':'Linha repetida (reprocessada) somada no total do relatório; corrigir o relatório.'})
+                result.contests['PONTE'].append({'motivo':'OPERACAO_REPETIDA','ref_origem':identity,'lojista':name_for(duplicate) if name_for else duplicate['name'],'valor_brl':duplicate[value_key],'detalhe':'Linha repetida (reprocessada) somada no total do relatório; corrigir o relatório.'})
             result.pending(f'duplicate:{kind}:{identity}:{duplicate["_source"]["linha_origem"]}', 'OPERACAO_REPETIDA_CONTESTAR', 'Mesmo identificador repetido no relatório. Contado uma vez; incluir na contestação para a fonte corrigir o relatório.', 'Helena (financeiro)', parts, identity)
     return effective
 
@@ -331,7 +331,7 @@ def close_remittances(bundle,policy,period,result):
     evidence = re.search(r'PARTICIPACAO DE\s+(\d+(?:[.,]\d+)?)%',normalize(bundle.email_body))
     if not evidence or decimal(evidence[1].replace(',','.'))/100 != share:
         raise ValueError('Configured remittance share does not match the source email')
-    effective = resolve_duplicates(bundle.remittances,'operation','REMESSA',result)
+    effective = resolve_duplicates(bundle.remittances,'operation','REMESSA',result,lambda row: registered_name(bundle, row['cnpj'], row['name']))
     eligible = []
     contested = []
     unregistered = defaultdict(list)
@@ -438,7 +438,10 @@ def classify_banks(bundle,policy,period,result):
     for entry in own_transfers:
         pairs = [r for r in own_transfers if r['bank'] != entry['bank'] and r['date'] == entry['date'] and r['amount'] == -entry['amount']]
         reverse_count = len([r for r in own_transfers if r['bank'] == entry['bank'] and r['date'] == entry['date'] and r['amount'] == entry['amount']])
-        if len(pairs) != 1 or reverse_count != 1:
+        counterpart_blocked = ('meridiano' if entry['bank'] == 'AURORA' else 'aurora') in bundle.blocked
+        if counterpart_blocked:
+            result.pending(f'transfer:{entry["bank"]}:{entry["_source"]["ref_origem"]}','TRANSFERENCIA_EM_TRANSITO','Transferência própria não verificada: o extrato da outra conta está bloqueado nesta execução. Conferir quando o extrato chegar.','Tesouraria',[source(entry,entry['amount'],'transferência sem contrapartida verificável')])
+        elif len(pairs) != 1 or reverse_count != 1:
             result.pending(f'transfer:{entry["bank"]}:{entry["_source"]["ref_origem"]}','TRANSFERENCIA_EM_TRANSITO','Transferência própria sem contrapartida na outra conta no mesmo dia. Fica em transferências entre contas próprias até conferir o extrato da outra conta (em 09/2026, o financeiro informou que a saída de 30/09 cai no Meridiano em 01/10).','Tesouraria',[source(entry,entry['amount'],'transferência em trânsito')])
     result.metrics.update({'movimentos_bancarios_lidos':len(bundle.bank_entries),'movimentos_bancarios_exportados':len(entries),'saldos_bancarios':bundle.bank_balances})
 
@@ -556,6 +559,8 @@ def run_stages(bundle,policy,period,result):
         for row in getattr(bundle,rows_attr):
             result.cover(kind,row,'BLOQUEADO',reason)
         blocked_stages.append(name)
+    if 'accounts' not in bundle.blocked:
+        blocked_stages.extend(f'bancos:{bank}' for key, bank in [('aurora','AURORA'),('meridiano','MERIDIANO')] if key in bundle.blocked)
     return blocked_stages
 
 
@@ -585,6 +590,12 @@ def close_month(bundle,policy,period):
         'notas':len(result.tables['notas_a_emitir']),'valor_notas':sum((r['valor_brl'] for r in result.tables['notas_a_emitir']),ZERO),
         'pendencias':len(result.tables['pendencias']),
     })
+    # A stage that did not run has unknown amounts, never zero.
+    unknown = {'checkout':['comissao_checkout','diferenca_checkout_brl','devolucao_condicao_comercial','checkout_bruto_nao_faturado'],
+               'remessa':['participacao_remessas','diferenca_remessa_brl','spread_elegivel']}
+    for stage, keys in unknown.items():
+        if stage in blocked_stages:
+            result.metrics.update({key:None for key in keys})
     for rows in result.tables.values():
         rows.sort(key=lambda row:row['id_saida'])
     for items in result.contests.values():

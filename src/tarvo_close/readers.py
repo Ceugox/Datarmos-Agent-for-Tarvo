@@ -218,8 +218,12 @@ def read_folder(folder):
         try:
             bundle.checkout.extend(read_checkout(path))
         except Exception as error:
-            bundle.blocked['checkout_adjustments'] = {'arquivo':path.name, 'motivo':f'arquivo ilegível ou com layout diferente do esperado ({type(error).__name__}: {error})'}
+            previous = bundle.blocked.get('checkout_adjustments')
+            reason = f'{path.name}: arquivo ilegível ou com layout diferente do esperado ({type(error).__name__}: {error})'
+            bundle.blocked['checkout_adjustments'] = {'arquivo':previous['arquivo']+', '+path.name if previous else path.name, 'motivo':previous['motivo']+'; '+reason if previous else reason}
             bundle.sources[path.name]['status'] = 'BLOQUEADO'
+    if not bundle.sources:
+        raise ValueError(f'No source files found in {folder}; check --input')
     return bundle
 
 

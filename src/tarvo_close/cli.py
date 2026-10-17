@@ -23,7 +23,7 @@ def main(argv=None):
     except (OSError,ValueError,KeyError,TypeError) as error:
         print(f'Closing failed: {error}',file=sys.stderr)
         return 1
-    metrics = result.metrics
+    metrics = {key:('BLOCKED' if value is None else value) for key, value in result.metrics.items()}
     print(f'Closing saved: {args.output.resolve()}')
     print(f'Run: {manifest["run_id"]}')
     print(f'Checkout commission: BRL {metrics["comissao_checkout"]}')

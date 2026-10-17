@@ -91,6 +91,47 @@ class SourceAndClosingTests(unittest.TestCase):
         result = close_month(self.bundle,self.policy,'2026-09')
         names = {r['lojista'] for r in result.tables['comissoes_por_lojista'] if r['cnpj']=='95927868000148'}
         self.assertEqual(names,{'Rota Global Intercâmbio Ltda'})
+        self.assertEqual({r['lojista'] for r in result.tables['divergencias_taxa'] if r['linha_negocio']=='REMESSA'},{'Mundo Aberto'})
+        repeated = [c['lojista'] for c in result.contests['PONTE'] if c['motivo']=='OPERACAO_REPETIDA']
+        self.assertTrue(repeated)
+        self.assertNotIn('BAGAGEM LIVRE TURISM',repeated)
+
+    def test_unreadable_late_adjustment_blocks_checkout(self):
+        with TemporaryDirectory() as directory:
+            pack = self.pack_without(directory,replace={'06_*.csv':'a;b\n1;2\n'})
+            result = close_month(read_inputs(pack),self.policy,'2026-09')
+        self.assertEqual(result.metrics['etapas_bloqueadas'],['checkout'])
+        self.assertIsNone(result.metrics['comissao_checkout'])
+        self.assertEqual(result.metrics['participacao_remessas'],Decimal('39543.45'))
+
+    def test_duplicated_source_blocks_its_stage(self):
+        with TemporaryDirectory() as directory:
+            pack = self.pack_without(directory)
+            shutil.copy(next(pack.glob('03_*.eml')),pack/'03_copia.eml')
+            result = close_month(read_inputs(pack),self.policy,'2026-09')
+        self.assertEqual(result.metrics['etapas_bloqueadas'],['remessa'])
+        self.assertIsNone(result.metrics['participacao_remessas'])
+        self.assertEqual(result.metrics['comissao_checkout'],Decimal('203735.34'))
+
+    def test_missing_rates_block_checkout_and_remittance(self):
+        with TemporaryDirectory() as directory:
+            result = close_month(read_inputs(self.pack_without(directory,'02_*.xlsx')),self.policy,'2026-09')
+        self.assertEqual(result.metrics['etapas_bloqueadas'],['checkout','remessa'])
+        self.assertEqual(result.tables['comissoes_por_lojista'],[])
+        self.assertEqual(len(result.tables['lancamentos_classificados']),184)
+
+    def test_missing_statement_is_reported_and_transfers_are_not_guessed(self):
+        with TemporaryDirectory() as directory:
+            result = close_month(read_inputs(self.pack_without(directory,'05b_*.ofx')),self.policy,'2026-09')
+        self.assertEqual(result.metrics['etapas_bloqueadas'],['bancos:MERIDIANO'])
+        transfers = [p for p in result.tables['pendencias'] if p['tipo']=='TRANSFERENCIA_EM_TRANSITO']
+        self.assertTrue(transfers)
+        self.assertTrue(all('bloqueado' in p['motivo'] for p in transfers))
+
+    def test_a_folder_without_sources_fails_instead_of_closing_empty(self):
+        with TemporaryDirectory() as directory:
+            with self.assertRaisesRegex(ValueError,'No source files'):
+                read_inputs(directory)
 
     def pack_without(self, directory, *patterns, replace=None):
         target = Path(directory)/'pack'
