@@ -10,6 +10,9 @@ from .exceptions import ClosingException, classify, source_refs
 ZERO = Decimal(0)
 HUNDRED = Decimal(100)
 RATE_KEYS = ('debit','credit','installment_short','installment_long','pix','advance')
+# Policy rule behind each checkout movement, as a path inside closing-policy.json (rastro.csv column regra).
+CHECKOUT_RULE = {'VENDA':'decisions/checkout-basis','ESTORNO':'decisions/checkout-reversal',
+                 'ANTECIPACAO':'decisions/checkout-advance','REVERSAO ANTECIPACAO':'decisions/checkout-advance'}
 AMOUNT_COLUMNS = {
     'comissoes_por_lojista': 'comissao_brl',
     'divergencias_taxa': 'diferenca_brl',
@@ -128,7 +131,7 @@ def resolve_duplicates(rows, key, kind, result, name_for=None):
         for duplicate in ordered[1:]:
             result.cover(kind,duplicate,'REPETIDO','Número de operação único: contado uma vez; repetição preservada')
             value_key = 'spread' if kind == 'REMESSA' else 'valor_taxa'
-            parts = [source(duplicate,duplicate[value_key],f'{value_key} repetido no relatório')]
+            parts = [source(duplicate,duplicate[value_key],f'{value_key} repetido no relatório; número de operação é único: contado uma vez','decisions/contest')]
             if kind == 'REMESSA':
                 result.contests['PONTE'].append({'motivo':'OPERACAO_REPETIDA','ref_origem':identity,'lojista':name_for(duplicate) if name_for else duplicate['name'],'valor_brl':duplicate[value_key],'detalhe':'Linha repetida (reprocessada) somada no total do relatório; corrigir o relatório.'})
             result.pending(f'duplicate:{kind}:{identity}:{duplicate["_source"]["linha_origem"]}', 'OPERACAO_REPETIDA_CONTESTAR', 'Mesmo identificador repetido no relatório. Contado uma vez; incluir na contestação para a fonte corrigir o relatório.', 'Helena (financeiro)', parts, identity)
@@ -266,9 +269,15 @@ def close_checkout(bundle, policy, period, result):
         rate = decimal(condition['rates'][rate_key]) if condition and rate_key in condition['rates'] else sheet_rate
         fee = quantize(row['valor_bruto']*rate,rounding)
         basis = f'{row["tipo_lancamento"]}: quantize({row["valor_bruto"]}*{rate}); {rounding}; taxa {rate_key} vigente em {event.isoformat()}'
+        rule = CHECKOUT_RULE[row['tipo_lancamento']]
+        if row['data_venda_original'] and event != row['date']:
+            basis += f'; estorno pela taxa da data da venda original ({event.isoformat()}), não da data do estorno'
         if condition:
-            basis += f'; condição comercial {condition["id"]}'
-        commissions[cnpj_value].append(source(row,fee,basis))
+            basis += f'; condição comercial {condition["id"]}: taxa {rate} no lugar da contratada {sheet_rate}'
+            rule += f' + commercial_conditions/{condition["id"]}'
+        else:
+            basis += '; taxa contratada da planilha'
+        commissions[cnpj_value].append(source(row,fee,basis,rule,contract))
         if row['tipo_lancamento'] == 'ESTORNO' and row['id_referencia'] not in tx_ids:
             result.cover('CHECKOUT',row,'INCLUIDO','Estorno de venda anterior ao relatório; taxa da data da venda original')
         else:
@@ -277,11 +286,11 @@ def close_checkout(bundle, policy, period, result):
         applied = row['taxa_aplicada_pct']/HUNDRED
         if condition:
             if row['valor_taxa']:
-                refunds[cnpj_value].append((source(row,row['valor_taxa'],f'valor_taxa cobrado pela Orbe durante {condition["id"]}; devolver ao lojista'),quantize(row['valor_bruto']*applied,rounding)))
+                refunds[cnpj_value].append((source(row,row['valor_taxa'],f'valor_taxa cobrado pela Orbe durante {condition["id"]}; devolver ao lojista o que foi descontado de fato',f'commercial_conditions/{condition["id"]}',contract),quantize(row['valor_bruto']*applied,rounding)))
             continue
         if applied != sheet_rate:
             difference = quantize(row['valor_bruto']*(applied-sheet_rate),rounding)
-            terms = [source(row,difference,f'quantize({row["valor_bruto"]}*({applied}-{sheet_rate})); {rounding}; taxa {rate_key} vigente em {event.isoformat()}')]
+            terms = [source(row,difference,f'quantize({row["valor_bruto"]}*({applied}-{sheet_rate})); {rounding}; taxa aplicada pela Orbe {applied} menos a contratada {sheet_rate} ({rate_key}, vigente em {event.isoformat()})','decisions/checkout-divergence',contract)]
             divergence = result.emit('divergencias_taxa','DIV',row['id_transacao'],{
                 'cnpj':cnpj_value,'linha_negocio':'CHECKOUT','ref_origem':row['id_transacao'],'taxa_contratada_pct':quantize(sheet_rate*HUNDRED),
                 'taxa_aplicada_pct':row['taxa_aplicada_pct'],'diferenca_brl':difference,'status':'A_CONTESTAR',
@@ -292,7 +301,7 @@ def close_checkout(bundle, policy, period, result):
             result.contests['ORBE'].append({'motivo':'TAXA_DIFERENTE_DO_CONTRATO','ref_origem':row['id_transacao'],'lojista':contract['name'],'valor_brl':difference,'detalhe':f'{row["tipo_lancamento"]} de {row["date"].isoformat()}: aplicada {row["taxa_aplicada_pct"]}% x contratada {sheet_rate*HUNDRED}%; bruto {row["valor_bruto"]}','id_saida':divergence['id_saida']})
     advance_alerts(in_period,period,result)
     for ec, rows in sorted(held.items()):
-        result.pending(f'unbilled:{ec}','LOJISTA_NAO_FATURAR',unbilled[ec]['reason'],'Comercial / Helena (financeiro)',[source(r,r['valor_bruto'],'valor bruto a faturar quando a taxa for confirmada') for r in rows],ec)
+        result.pending(f'unbilled:{ec}','LOJISTA_NAO_FATURAR',unbilled[ec]['reason'],'Comercial / Helena (financeiro)',[source(r,r['valor_bruto'],'valor bruto a faturar quando a taxa for confirmada',f'unbilled_merchants/{ec}') for r in rows],ec)
     for kind, groups in [('CADASTRO_OU_CONTRATO_AUSENTE',unresolved),('CONTRATO_AMBIGUO',conflicts)]:
         for ec, rows in sorted(groups.items()):
             result.pending(f'{kind}:{ec}',kind,f'{len(rows)} lançamentos sem contrato único; fora da comissão.','Comercial',[source(r,r['valor_bruto'],'valor bruto afetado') for r in rows],ec)
@@ -363,15 +372,16 @@ def close_remittances(bundle,policy,period,result):
         eligible.append(row)
         result.cover('REMESSA',row,'INCLUIDO','50% do spread realizado; competência pela contratação')
         amount = quantize(row['spread']*share)
-        groups[row['cnpj']].append(source(row,amount,f'quantize({row["spread"]}*{share}); half_up por operação'))
+        groups[row['cnpj']].append(source(row,amount,f'quantize({row["spread"]}*{share}); half_up por operação; {share} do spread realizado, competência pela data de contratação ({row["contracted"].isoformat()})','remittance'))
         names[row['cnpj']] = registered_name(bundle, row['cnpj'], row['name'])
         contracts = [c for c in bundle.contracts if c['cnpj'] == row['cnpj'] and c['start'] <= row['contracted'] <= c['end']]
         if not contracts:
             unregistered[row['cnpj']].append(row)
-            contracted, contract_ref = default_spread, ''
+            contracted, contract_ref, spread_source = default_spread, '', 'spread padrão da política (CNPJ fora da planilha)'
         else:
             contracted = contracts[0]['spread'] if contracts[0]['spread'] is not None else default_spread
             contract_ref = contracts[0]['_source']['ref_origem']
+            spread_source = 'spread contratado da planilha' if contracts[0]['spread'] is not None else 'célula em branco ou padrão: spread padrão da política'
         base = row['foreign_amount']*row['reference_rate']
         if base <= 0:
             result.pending(f'fx-base:{row["operation"]}','BASE_REMESSA_INVALIDA','Valor em moeda ou PTAX zerado: spread aplicado não calculável; comparação com o contrato não feita.','Helena (financeiro)',[source(row,row['spread'],'spread realizado')],row['operation'])
@@ -384,14 +394,14 @@ def close_remittances(bundle,policy,period,result):
                 'taxa_aplicada_pct':quantize(applied*HUNDRED*HUNDRED)/HUNDRED,'diferenca_brl':difference,'status':'A_CONTESTAR',
                 'lojista':registered_name(bundle, row['cnpj'], row['name']),'tipo_lancamento':'REMESSA','data_movimento':row['contracted'],'data_vigencia':row['contracted'],
                 'valor_bruto_brl':base,'ref_contrato':contract_ref,'contraparte':'PONTE',
-            },[source(row,difference,f'quantize({row["spread"]}-{row["foreign_amount"]}*{row["reference_rate"]}*{contracted}); valor cheio pago a mais pelo lojista')])
+            },[source(row,difference,f'quantize({row["spread"]}-{row["foreign_amount"]}*{row["reference_rate"]}*{contracted}); valor cheio pago a mais pelo lojista; {spread_source} {contracted}','decisions/remittance-divergence',contracts[0] if contracts else None)])
             result.contests['PONTE'].append({'motivo':'SPREAD_ACIMA_DO_CONTRATO' if difference > 0 else 'SPREAD_ABAIXO_DO_CONTRATO','ref_origem':row['operation'],'lojista':registered_name(bundle, row['cnpj'], row['name']),'valor_brl':difference,'detalhe':f'Spread aplicado {quantize(applied*HUNDRED*HUNDRED)/HUNDRED}% x contratado {contracted*HUNDRED}%','id_saida':divergence['id_saida']})
     excess = [r for r in result.tables['divergencias_taxa'] if r['linha_negocio'] == 'REMESSA']
     if excess:
         parts = [part for part in result.traces if part['id_saida'] in {r['id_saida'] for r in excess}]
         result.pending('fx:excess','DIVERGENCIA_A_CONTESTAR_PONTE','Spread diferente do contratado, valor cheio (positivo: lojista pagou a mais). A nota de setembro sai pelo realizado; se a Ponte devolver, a participação é ajustada no mês do ajuste.','Helena (financeiro)',[{k:v for k,v in p.items() if k != 'id_saida'} for p in parts],'REMESSA')
     if contested:
-        result.pending('fx:negative','SPREAD_NEGATIVO_CONTESTAR','Spread negativo com trava vencida: fora da comissão e da nota; contestar com a Ponte. Não presumir desconto no repasse.','Helena (financeiro)',[source(r,r['spread'],'spread negativo realizado') for r in contested],'REMESSA')
+        result.pending('fx:negative','SPREAD_NEGATIVO_CONTESTAR','Spread negativo com trava vencida: fora da comissão e da nota; contestar com a Ponte. Não presumir desconto no repasse.','Helena (financeiro)',[source(r,r['spread'],'spread negativo realizado; trava vencida, fora da comissão e da nota','remittance') for r in contested],'REMESSA')
     for cnpj_value, rows in sorted(unregistered.items()):
         result.pending(f'fx-register:{cnpj_value}','CADASTRO_REMESSA_AUSENTE','Operação de CNPJ fora da planilha: participação calculada mesmo assim (a Ponte paga) e spread padrão usado na comparação.','Comercial',[source(r,r['spread'],'spread realizado') for r in rows],cnpj_value)
     for cnpj_value, terms in sorted(groups.items()):
@@ -433,7 +443,7 @@ def classify_banks(bundle,policy,period,result):
             'descricao':entry['description'],'valor':entry['amount'],'conta_codigo':account,'metodo':'REGRA',
             'confianca':rule['confidence'] if rule else '0','status':'SUGERIDO' if rule else 'PENDENTE','regra_id':rule['id'] if rule else '',
             'conta_descricao':bundle.accounts[account]['DESCRICAO'] if account else '',
-        },[source(entry,entry['amount'],'valor do movimento bancário')])
+        },[source(entry,entry['amount'],'valor do movimento bancário'+(f'; contrapartida pela regra {rule["id"]} (padrão {rule["pattern"]})' if rule else '; sem regra de classificação'),f'bank_rules/{rule["id"]}' if rule else '')])
         result.cover('BANCO',entry,'CLASSIFICADO' if rule else 'SEM_CLASSIFICACAO','Contrapartida do movimento por regra configurada')
         entries.append(entry)
         if not rule:
@@ -487,9 +497,25 @@ def propose_invoices(bundle,period,result):
         },terms)
 
 
-def validate_result(bundle,result):
+def policy_rule_exists(policy,path):
+    """A rastro rule is a path inside closing-policy.json: a top-level section or an entry of a list/map by id."""
+    section, _, key = path.partition('/')
+    if section not in policy:
+        return False
+    if not key:
+        return True
+    entries = policy[section]
+    if isinstance(entries,dict):
+        return key in entries
+    return any(str(entry.get('id',entry.get('ec'))) == key for entry in entries)
+
+
+def validate_result(bundle,result,policy):
     by_output = defaultdict(list)
     for trace in result.traces:
+        for rule in filter(None,trace['regra'].split(' + ')):
+            if not policy_rule_exists(policy,rule):
+                raise ValueError(f'Trace cites a rule that is not in the policy: {rule}')
         if trace['arquivo_origem'] not in bundle.sources or not trace['ref_origem'] or trace['linha_origem'] < 1:
             raise ValueError('Trace contains an unknown source reference')
         if not trace['valor'].is_finite():
@@ -518,6 +544,7 @@ def validate_result(bundle,result):
         raise ValueError('Input coverage is missing or duplicates source rows')
     result.checks.extend([
         {'check':'monetary_trace_reconciliation','status':'PASS','outputs':len(ids)},
+        {'check':'trace_rules_in_policy','status':'PASS','reason':'Toda regra citada em rastro.csv existe em closing-policy.json.'},
         {'check':'source_row_coverage','status':'PASS','rows':expected},
         {'check':'unique_output_ids_and_cnpjs','status':'PASS'},
         {'check':'finance_rules_applied','status':'PASS','reason':'Regras respondidas pela Helena no Slack aplicadas; premissas residuais em HIPOTESES.md.'},
@@ -585,7 +612,7 @@ def close_month(bundle,policy,period):
     block_sources(bundle,result)
     blocked_stages = run_stages(bundle,policy,period,result)
     propose_invoices(bundle,period,result)
-    validate_result(bundle,result)
+    validate_result(bundle,result,policy)
     if bundle.blocked:
         result.checks.append({'check':'source_availability','status':'BLOQUEADO','reason':'Fontes indisponíveis: '+', '.join(b['arquivo'] for _, b in sorted(bundle.blocked.items()))+'. Etapas sem fechamento: '+(', '.join(blocked_stages) or 'nenhuma inteira')+'. Resultado provisório; quem libera é a Helena.'})
         result.metrics['fontes_bloqueadas'] = {key:block for key, block in sorted(bundle.blocked.items())}

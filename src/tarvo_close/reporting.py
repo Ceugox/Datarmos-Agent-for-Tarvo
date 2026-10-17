@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime, timezone
 from decimal import Decimal
 from html import escape
 from io import StringIO
@@ -122,7 +122,43 @@ const records=JSON.parse(document.getElementById('records').textContent);const s
 </script><script>selector.value='comissoes_por_lojista';render();</script></body></html>'''
 
 
-def publish_result(bundle,result,policy,period,output,revision=None):
+def lines_read(bundle):
+    """Rows read from each source file (and sheet), for the execution record in manifest.json."""
+    counts = {}
+    for rows in (bundle.checkout, bundle.contracts, bundle.remittances, bundle.bank_entries):
+        for row in rows:
+            name, sheet = row['_source']['arquivo_origem'], row['_source']['aba_origem']
+            entry = counts.setdefault(name,{'linhas_lidas':0})
+            entry['linhas_lidas'] += 1
+            if sheet:
+                entry.setdefault('linhas_por_aba',{})
+                entry['linhas_por_aba'][sheet] = entry['linhas_por_aba'].get(sheet,0)+1
+    for name, meta in bundle.sources.items():
+        if meta.get('kind') == 'accounts' and meta.get('status') != 'BLOQUEADO':
+            counts[name] = {'linhas_lidas':len(bundle.accounts)}
+        elif meta.get('status') == 'BLOQUEADO':
+            counts[name] = {'linhas_lidas':0}
+    return counts
+
+
+def now():
+    return datetime.now(timezone.utc).isoformat(timespec='seconds')
+
+
+def same_manifest(saved,current):
+    """A rerun into the same folder confirms it when everything but the execution timestamps is identical."""
+    try:
+        saved = json.loads(saved)
+    except ValueError:
+        return False
+    for manifest in (saved,current):
+        manifest.get('execucao',{}).pop('iniciada_em',None)
+        manifest.get('execucao',{}).pop('concluida_em',None)
+    return encode_json(saved) == encode_json(current)
+
+
+def publish_result(bundle,result,policy,period,output,revision=None,started_at=None):
+    started_at = started_at or now()
     output = Path(output).resolve()
     engine_digest = hashlib.sha256()
     for path in sorted(Path(__file__).parent.glob('*.py')):
@@ -145,13 +181,20 @@ def publish_result(bundle,result,policy,period,output,revision=None):
         contents[f'contestacoes/rascunho_{slug}.txt'] = contest_draft(counterpart,items,period).encode('utf-8')
     for name,content in bundle.attachments.items():
         contents['anexos/'+name] = content
-    manifest = {'run_id':run_id,'period':period,'status':result.metrics['status'],'engine_version':__version__,'engine_sha256':engine_digest.hexdigest(),'sources':{name:{k:v for k,v in meta.items() if k != 'path'} for name,meta in bundle.sources.items()},'output_sha256':{key:hashlib.sha256(content).hexdigest() for key,content in contents.items()},'rules':policy['status'],'slack_read':True}
+    counts = lines_read(bundle)
+    manifest = {'run_id':run_id,'period':period,'status':result.metrics['status'],'engine_version':__version__,'engine_sha256':engine_digest.hexdigest(),'sources':{name:{**{k:v for k,v in meta.items() if k != 'path'},**counts.get(name,{})} for name,meta in bundle.sources.items()},'output_sha256':{key:hashlib.sha256(content).hexdigest() for key,content in contents.items()},'rules':policy['status'],'slack_read':True}
     if revision:
         manifest['revisao'] = revision
+    manifest['execucao'] = {'iniciada_em':started_at,'concluida_em':now(),'fuso':'UTC',
+                            'linhas_lidas_total':sum(entry['linhas_lidas'] for entry in counts.values())}
     contents['manifest.json'] = encode_json(manifest).encode()
     if output.exists():
         for name,content in contents.items():
             destination = output/name
+            if name == 'manifest.json':
+                if not destination.is_file() or not same_manifest(destination.read_text(encoding='utf-8'),json.loads(content)):
+                    raise ValueError('Output directory differs from this execution; choose a new --output directory. No files were overwritten.')
+                continue
             if not destination.is_file() or destination.read_bytes() != content:
                 raise ValueError('Output directory differs from this execution; choose a new --output directory. No files were overwritten.')
         return manifest

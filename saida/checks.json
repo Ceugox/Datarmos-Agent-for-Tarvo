@@ -5,6 +5,11 @@
     "status": "PASS"
   },
   {
+    "check": "trace_rules_in_policy",
+    "reason": "Toda regra citada em rastro.csv existe em closing-policy.json.",
+    "status": "PASS"
+  },
+  {
     "check": "source_row_coverage",
     "rows": 2374,
     "status": "PASS"

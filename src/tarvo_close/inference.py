@@ -71,6 +71,7 @@ def apply_proposal(result, bundle, inference_policy, excecao, proposal, confianc
         raise ValueError(f'Account {code} is not in the chart of accounts')
     row.update(conta_codigo=code,conta_descricao=bundle.accounts[code]['DESCRICAO'],metodo='IA',status='SUGERIDO',regra_id='',
                confianca=inference_policy['classes'][excecao['classe']].get('confianca') or '' if confianca is None else confianca)
+    trace['regra'] = 'inference-policy/MOVIMENTO_SEM_REGRA'
     trace['formula'] += ''.join(f'; evidência IA: {e["arquivo"]} {e["ref"]} "{e["trecho"]}"' for e in proposal['evidencias'])
     pending['status'] = 'RESOLVIDA'
     return row
