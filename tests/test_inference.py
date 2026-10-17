@@ -73,6 +73,29 @@ class InferenceTests(unittest.TestCase):
         broken = ClosingException('PEN-X','MOVIMENTO_SEM_REGRA','CONCILIACAO_BANCARIA','x','H','m','f',None,[{'arquivo':'nao_existe.csv','aba':'','ref':'L1','linha':1}])
         self.assertEqual(exception_payload(broken,self.bundle)['linhas_citadas'][0]['texto'],'')
 
+    def test_payload_gives_the_movement_description_to_quote(self):
+        """Production, 17/10: told to copy 'from the cited line', the model quoted the whole CSV line or the OFX tag and the
+        validator rejected all 4 proposals. The payload now carries the description and the instruction asks for a part of it."""
+        from tarvo_close.resolver import SYSTEM_INSTRUCTIONS
+        payload = exception_payload(self.synthetic.exceptions[0],self.bundle)
+        self.assertEqual(payload['descricao_movimento'],self.entries[0]['description'])
+        self.assertIn('descricao_movimento',SYSTEM_INSTRUCTIONS)
+        meridiano = next(e for e in self.bundle.bank_entries if e['bank'] == 'MERIDIANO')
+        source = meridiano['_source']
+        item = ClosingException('PEN-OFX','MOVIMENTO_SEM_REGRA','CONCILIACAO_BANCARIA',f'MERIDIANO:{source["ref_origem"]}','H','m','f',None,
+                                [{'arquivo':source['arquivo_origem'],'aba':'','ref':source['ref_origem'],'linha':source['linha_origem']}])
+        payload = exception_payload(item,self.bundle)
+        self.assertEqual(payload['descricao_movimento'],meridiano['description'])
+        self.assertNotIn('<MEMO>',payload['descricao_movimento'])
+
+    def test_quoting_the_whole_line_is_still_rejected(self):
+        line = exception_payload(self.synthetic.exceptions[0],self.bundle)['linhas_citadas'][0]['texto']
+        ref = self.synthetic.exceptions[0].refs[0]
+        whole = self.proposal(0,evidencias=[{'arquivo':ref['arquivo'],'ref':ref['ref'],'trecho':line}])
+        _, _, events = self.run_layer(self.synthetic,{'PEN-SINT0':whole})
+        self.assertEqual((events[0]['resultado'],events[0]['motivo']),('HUMANO','VALIDADOR_REJEITOU'))
+        self.assertIn(('evidencia_descricao','FAIL'),[(c['check'],c['status']) for c in events[0]['verificacoes']])
+
     def test_valid_proposal_in_shadow_is_validated_and_not_applied(self):
         resolver, audit, events = self.run_layer(self.synthetic,{'PEN-SINT0':self.proposal(0)})
         self.assertEqual(resolver.calls,['PEN-SINT0','PEN-SINT1','PEN-SINT2'])

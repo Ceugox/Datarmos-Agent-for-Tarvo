@@ -30,7 +30,13 @@ def exception_payload(excecao, bundle):
         except ValueError:
             text = ''  # the evidence check rejects any proposal that cites this row
         cited.append({'arquivo':ref['arquivo'], 'ref':ref['ref'], 'texto':text})
-    return {**payload, 'linhas_citadas':cited}
+    payload = {**payload, 'linhas_citadas':cited}
+    if payload['classe'] == 'MOVIMENTO_SEM_REGRA':
+        # The validator wants the evidence inside the description, not anywhere in the raw CSV line or OFX block.
+        entry = next((e for e in bundle.bank_entries if f'{e["bank"]}:{e["_source"]["ref_origem"]}' == payload['escopo']),None)
+        if entry is not None:
+            payload['descricao_movimento'] = mask_personal_data(entry['description'])
+    return payload
 
 
 def fixed_context(bundle, policy, period=None):
