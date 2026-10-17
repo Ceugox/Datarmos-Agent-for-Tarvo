@@ -85,9 +85,8 @@ Cobrem os números de setembro, as regras do financeiro (estorno de agosto, isen
 - `Tarvo_Data_Pack_set2026/`: arquivos do case.
 - `saida/`: execução entregue de setembro.
 - `PROMPTS/`, `HIPOTESES.md`, `docs/`: histórico de IA, premissas e respostas do financeiro.
-- `analysis/`: scripts e materiais da investigação inicial.
 - `LICENSE`: licença MIT do código.
 
 ## Licença
 
-O código do Datarmos Agent for Tarvo (`src/`, `run_engine.py`, `config/`, `tests/`, `analysis/`) é MIT, ver `LICENSE`. O data pack `Tarvo_Data_Pack_set2026/`, as saídas derivadas em `saida/` e as transcrições em `docs/` e `PROMPTS/` são material do case Barte AI e não estão cobertos pela licença.
+O código do Datarmos Agent for Tarvo (`src/`, `run_engine.py`, `config/`, `tests/`) é MIT, ver `LICENSE`. O data pack `Tarvo_Data_Pack_set2026/`, as saídas derivadas em `saida/` e as transcrições em `docs/` e `PROMPTS/` são material do case Barte AI e não estão cobertos pela licença.
