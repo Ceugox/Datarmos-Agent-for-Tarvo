@@ -195,6 +195,7 @@ def close_checkout(bundle, policy, period, result):
     conflicts = defaultdict(list)
     differences = defaultdict(list)
     refunds = defaultdict(list)
+    refund_rounded = defaultdict(list)
     tx_ids = {r['id_transacao'] for r in effective}
     in_period = []
     compared = 0
@@ -243,6 +244,7 @@ def close_checkout(bundle, policy, period, result):
         if condition:
             if row['valor_taxa']:
                 refunds[cnpj_value].append(source(row,row['valor_taxa'],f'valor_taxa cobrado pela Orbe durante {condition["id"]}; devolver ao lojista'))
+                refund_rounded[cnpj_value].append((row['valor_taxa'],quantize(row['valor_bruto']*applied,rounding)))
             continue
         if applied != sheet_rate:
             difference = quantize(row['valor_bruto']*(applied-sheet_rate),rounding)
@@ -260,11 +262,20 @@ def close_checkout(bundle, policy, period, result):
         result.pending(f'unbilled:{ec}','LOJISTA_NAO_FATURAR',unbilled[ec]['reason'],'Comercial / Helena (financeiro)',[source(r,r['valor_bruto'],'valor bruto a faturar quando a taxa for confirmada') for r in rows],ec)
     for kind, groups in [('CADASTRO_OU_CONTRATO_AUSENTE',unresolved),('CONTRATO_AMBIGUO',conflicts)]:
         for ec, rows in sorted(groups.items()):
-            result.pending(f'{kind}:{ec}',kind,f'{len(rows)} lançamentos sem contrato único; fora da comissão.','Cadastro / Comercial',[source(r,r['valor_bruto'],'valor bruto afetado') for r in rows],ec)
+            result.pending(f'{kind}:{ec}',kind,f'{len(rows)} lançamentos sem contrato único; fora da comissão.','Comercial',[source(r,r['valor_bruto'],'valor bruto afetado') for r in rows],ec)
     for cnpj_value, terms in sorted(differences.items()):
         result.pending(f'difference:{cnpj_value}','DIVERGENCIA_A_CONTESTAR_ORBE',f'Diferença líquida (vendas e estornos se anulam) de {identities[cnpj_value]} a cobrar da Orbe e devolver ao lojista. Decisão caso a caso.','Helena (financeiro)',terms,cnpj_value)
     for cnpj_value, terms in sorted(refunds.items()):
-        result.pending(f'refund:{cnpj_value}','DEVOLUCAO_CONDICAO_COMERCIAL',f'{identities[cnpj_value]}: a Orbe cobrou pela planilha porque não foi avisada da isenção. Não é divergência de contrato nem cobrança à Orbe: devolver ao lojista.','Helena (financeiro) / Comercial',terms,cnpj_value)
+        charged = sum((r['valor'] for r in terms),ZERO)
+        rounded = sum((pair[1] for pair in refund_rounded[cnpj_value]),ZERO)
+        truncated = sum(1 for pair in refund_rounded[cnpj_value] if pair[0] != pair[1])
+        reason = (f'{identities[cnpj_value]}: a Orbe cobrou pela planilha porque não foi avisada da isenção. Não é divergência de contrato nem cobrança à Orbe: devolver ao lojista. '
+            f'Valor = valor_taxa efetivamente cobrado pela Orbe ({charged}). '
+            f'Alternativa considerada e descartada: valor bruto x taxa aplicada com arredondamento comum = {rounded} ({rounded-charged:+} por truncamento da Orbe em {truncated} de {len(terms)} lançamentos). '
+            'Por que o valor cobrado: a Helena separou este caso das divergências ("É diferente de uma divergência comum. [...] é devolução ao lojista", 17/10) e definiu a base ("O que foi cobrado eu devolvo ao lojista", 16/10 20h49). '
+            'A fórmula bruto x (aplicada - contratada) e o "a gente não trunca" (16/10 21h13) valem para a divergência a cobrar da Orbe e para a comissão da Tarvo; '
+            f'numa devolução, o arredondado devolveria {rounded-charged} que o lojista nunca pagou.')
+        result.pending(f'refund:{cnpj_value}','DEVOLUCAO_CONDICAO_COMERCIAL',reason,'Helena (financeiro) / Comercial',terms,cnpj_value)
     for cnpj_value, terms in sorted(commissions.items()):
         result.emit('comissoes_por_lojista','COM',f'CHECKOUT:{cnpj_value}',{
             'cnpj':cnpj_value,'lojista':identities[cnpj_value],'linha_negocio':'CHECKOUT',

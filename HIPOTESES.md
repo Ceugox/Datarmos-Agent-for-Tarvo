@@ -31,15 +31,20 @@ As regras de negócio vieram das respostas da Helena (financeiro da Tarvo) no ca
 | PIX de R$ 18.240 (Meridiano) | Ponte Aérea Estudantil (lojista) adiantando uma remessa que sai em outubro: recurso de lojista para remessa. | 17/10 9h44 |
 | Transferência de R$ 300.000 | Saiu do Aurora em 30/09 e cai no Meridiano em 01/10. | 16/10 20h49 |
 | Quem aprova | Taxa e condição comercial: comercial aprova, financeiro registra. Regra de fechamento: Helena. | 17/10 9h49 |
+| Granularidade das pendências | Uma pendência por contraparte e por lojista, com o detalhe das transações anexado (é o que vira o rascunho de contestação). | 17/10 11h01 |
+| Cadastro e contrato | Quem decide é o comercial. A Bia mantém a planilha de taxas, mas não decide taxa. | 17/10 11h01 |
+| Parcelamento acima de 12x | A Tarvo não vende acima de 12x; se aparecer, é pendência. Não ocorreu em setembro. | 17/10 11h01 |
+| Repasse à Atlas | O repasse não para: o dinheiro é do lojista. Fica suspenso só o faturamento da taxa da Tarvo. | 17/10 11h03 |
+| Repasse antes da liquidação | Pela regra, o repasse é do que a Orbe já liquidou. Na prática, quando um lojista pressiona, a Bia às vezes paga antes, usando a conta garantida, sem regra escrita e sem limite. | 17/10 10h59 |
 
 ## Decisões do time, onde o financeiro deixou a escolha conosco
 
 | Tema | Decisão | Motivo |
 |---|---|---|
 | Tolerância de remessa | Divergência só acima de 0,01 p.p. entre spread aplicado e contratado. | Os demais lojistas oscilam ±0,002 p.p. por arredondamento da cotação; a Mundo Aberto fica 0,30 p.p. acima. A Helena pediu critério escrito que evite alarme de centavo sem deixar passar diferença real (16/10 20h58). |
-| Spread aplicado | Calculado como `Spread R$ / (valor ME × PTAX de referência)`, sem usar a coluna percentual arredondada. Diferença = `Spread R$ − valor ME × PTAX × contratado`. | Evita erro de centavo introduzido pelo arredondamento da coluna percentual. Total da Mundo Aberto: R$ 1.418,88 (a fórmula com o percentual arredondado dá R$ 1.418,85). |
+| Spread aplicado | Calculado como `Spread R$ / (valor ME × PTAX de referência)`, sem usar a coluna percentual arredondada. Diferença = `Spread R$ − valor ME × PTAX × contratado`. | Evita erro de centavo introduzido pelo arredondamento da coluna percentual. Total da Mundo Aberto: R$ 1.418,88 (a fórmula com o percentual arredondado dá R$ 1.418,85). A Helena deixou a escolha com o time: "São três centavos. Escolham um critério e escrevam qual" (17/10 11h01). |
 | Spreads negativos na lista de divergências | Não entram em `divergencias_taxa`; ficam em `pendencias` e na contestação da Ponte. | Pela definição da Helena, o lojista não pagou a mais; listá-los misturaria naturezas. |
-| Devolução da Casa do Estudante | Valor = `valor_taxa` cobrado pela Orbe durante a isenção (R$ 15.396,77), em pendência separada. | "O que foi cobrado eu devolvo ao lojista." |
+| Devolução da Casa do Estudante | Valor = `valor_taxa` cobrado pela Orbe durante a isenção (R$ 15.396,77), em pendência separada. Alternativa descartada, registrada no motivo da pendência: bruto × taxa aplicada com arredondamento comum = R$ 15.397,42 (+R$ 0,65, truncamento da Orbe em 67 de 118 lançamentos). | A Helena separou o caso das divergências ("É diferente de uma divergência comum [...] é devolução ao lojista", 17/10) e fixou a base: "O que foi cobrado eu devolvo ao lojista" (16/10 20h49). O "a gente não trunca" e a fórmula bruto × (aplicada − contratada) (16/10 21h13) são do cálculo da comissão e da divergência; numa devolução, o arredondado devolveria R$ 0,65 que o lojista nunca pagou. O detalhe por transação está no `rastro.csv` da pendência. As 118 linhas não foram repetidas em `divergencias_taxa`: a Helena aceitou as duas formas, desde que não entrem na cobrança da Orbe (17/10 10h58), e mantê-las fora evita misturar devolução por falha interna com divergência de contrato. |
 | Devolução de PIX da Mundo Aberto (R$ 12.400) | Conta 2.1.01.001 (repasses a lojistas a pagar), com pendência do motivo. | O repasse volta a ser devido; é a mesma conta do pagamento original. A Helena aceitou as duas contas, desde que o critério seja mantido (17/10 9h48). |
 | PIX sem identificação (R$ 7.350) | Conta 1.1.09.002 (créditos não identificados), com pendência. | "Não é receita até alguém identificar." |
 | Transferência de R$ 300.000 | Conta 1.1.09.001 (transferências entre contas próprias), pendência para conferir o crédito no extrato de outubro. | Está em trânsito no fechamento. |
@@ -77,3 +82,7 @@ As perguntas foram feitas no canal compartilhado por vários times; as respostas
 | 15 | Atlas confirmada: setembro é faturado depois? | Sim, taxa vale desde 10/09; outubro puxa as linhas de setembro. |
 | 16 | Quem avisa Orbe/Ponte de condição nova? Rascunho de contestação serve? | Ninguém tem essa função; Bridge avisada com atraso, Casa e Mundo Aberto não. Rascunho por contraparte serve. |
 | 17 | Quem aprova regra fixa? | Taxa: comercial; regra de fechamento: Helena. |
+| 18 | Repasses incluem valores ainda não liquidados pela Orbe? | Pela regra, não; na prática a Bia às vezes antecipa com a conta garantida, sem regra escrita nem limite. |
+| 19 | Casa do Estudante: só pendência ou também em divergências, marcada? | As duas servem; não pode entrar na cobrança da Orbe. |
+| 20 | Pendência por transação ou por lojista? Quem decide cadastro? Mais de 12x? 1.418,85 ou 1.418,88? | Por contraparte e lojista, com detalhe anexo; cadastro é do comercial; acima de 12x é pendência; três centavos, escolher e escrever o critério. |
+| 21 | Repasse à Atlas continua sem faturamento? | Continua; só o faturamento da taxa fica suspenso. |

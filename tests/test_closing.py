@@ -94,6 +94,9 @@ class SourceAndClosingTests(unittest.TestCase):
         kinds = {r['tipo'] for r in result.tables['pendencias'] if r['escopo']==casa}
         self.assertEqual(kinds,{'SALDO_NAO_POSITIVO_SEM_NOTA','DEVOLUCAO_CONDICAO_COMERCIAL'})
         self.assertFalse(any(r['cnpj']==casa for r in result.tables['divergencias_taxa']))
+        refund = next(r for r in result.tables['pendencias'] if r['tipo']=='DEVOLUCAO_CONDICAO_COMERCIAL')
+        self.assertEqual(refund['valor_brl'],Decimal('15396.77'))
+        self.assertIn('= 15397.42 (+0.65 por truncamento da Orbe em 67 de 118 lançamentos)',refund['motivo'])
 
     def test_august_reversal_reduces_september_at_the_original_sale_rate(self):
         result = close_month(self.bundle,self.policy,'2026-09')
