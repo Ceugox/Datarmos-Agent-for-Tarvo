@@ -197,7 +197,8 @@ def publish_result(bundle,result,policy,period,output,revision=None,started_at=N
                 continue
             if not destination.is_file() or destination.read_bytes() != content:
                 raise ValueError('Output directory differs from this execution; choose a new --output directory. No files were overwritten.')
-        return manifest
+        # Confirmed, nothing written: the manifest that describes the folder is the saved one, with its own timestamps.
+        return json.loads((output/'manifest.json').read_text(encoding='utf-8'))
     output.parent.mkdir(parents=True,exist_ok=True)
     staging = Path(tempfile.mkdtemp(prefix='.closing-stage-',dir=output.parent)).resolve()
     if staging.parent != output.parent or staging == output:

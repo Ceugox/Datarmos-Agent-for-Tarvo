@@ -99,6 +99,20 @@ class RastroTests(unittest.TestCase):
 
 
 class ExecutionRecordTests(unittest.TestCase):
+    def test_a_confirmed_rerun_returns_the_saved_manifest_even_in_another_second(self):
+        from unittest import mock
+        from tarvo_close import reporting
+        bundle = read_inputs(ROOT/'Tarvo_Data_Pack_set2026')
+        result = close_month(bundle,POLICY,'2026-09')
+        with TemporaryDirectory() as directory:
+            output = Path(directory)/'out'
+            with mock.patch.object(reporting,'now',return_value='2026-10-17T10:00:00+00:00'):
+                first = reporting.publish_result(bundle,result,POLICY,'2026-09',output)
+            with mock.patch.object(reporting,'now',return_value='2026-10-17T10:00:09+00:00'):
+                second = reporting.publish_result(bundle,result,POLICY,'2026-09',output)
+        self.assertEqual(first,second)
+        self.assertEqual(second['execucao']['iniciada_em'],'2026-10-17T10:00:00+00:00')
+
     def test_manifest_records_files_lines_and_time_and_a_rerun_still_confirms(self):
         with TemporaryDirectory() as directory:
             output = Path(directory)/'out'
