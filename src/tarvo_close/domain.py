@@ -112,6 +112,7 @@ class ClosingInputs:
     attachments: dict = field(default_factory=dict)
     bank_balances: dict = field(default_factory=dict)
     blocked: dict = field(default_factory=dict)
+    block_causes: dict = field(default_factory=dict)
     email_body: str = ''
 
 

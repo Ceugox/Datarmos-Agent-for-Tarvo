@@ -204,6 +204,7 @@ def read_folder(folder):
         matches = sorted(folder.glob(pattern))
         if len(matches) != 1:
             bundle.blocked[key] = {'arquivo':pattern, 'motivo':f'esperado 1 arquivo {pattern}; encontrados {len(matches)}'}
+            bundle.block_causes[key] = 'AUSENTE_OU_DUPLICADO'
             continue
         path = matches[0]
         bundle.sources[path.name] = {'sha256':hashlib.sha256(path.read_bytes()).hexdigest(), 'path':str(path.resolve()), 'kind':key}
@@ -211,6 +212,7 @@ def read_folder(folder):
             load_source(bundle, key, path)
         except Exception as error:  # any reader failure becomes an explicit block, never a silent gap
             bundle.blocked[key] = {'arquivo':path.name, 'motivo':f'arquivo ilegível ou com layout diferente do esperado ({type(error).__name__}: {error})'}
+            bundle.block_causes[key] = 'ILEGIVEL_OU_LAYOUT'
             bundle.sources[path.name]['status'] = 'BLOQUEADO'
     # Late Orbe adjustments (06_*.csv) are optional: same layout as 01, merged into the checkout rows.
     for path in sorted(folder.glob('06_*.csv')):
@@ -220,6 +222,7 @@ def read_folder(folder):
         except Exception as error:
             previous = bundle.blocked.get('checkout_adjustments')
             reason = f'{path.name}: arquivo ilegível ou com layout diferente do esperado ({type(error).__name__}: {error})'
+            bundle.block_causes['checkout_adjustments'] = 'ILEGIVEL_OU_LAYOUT'
             bundle.blocked['checkout_adjustments'] = {'arquivo':previous['arquivo']+', '+path.name if previous else path.name, 'motivo':previous['motivo']+'; '+reason if previous else reason}
             bundle.sources[path.name]['status'] = 'BLOQUEADO'
     if not bundle.sources:

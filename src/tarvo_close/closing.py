@@ -5,6 +5,7 @@ from decimal import Decimal
 import re
 
 from .domain import cnpj, decimal, identifier, normalize, quantize, source
+from .exceptions import ClosingException, classify, source_refs
 
 ZERO = Decimal(0)
 HUNDRED = Decimal(100)
@@ -26,6 +27,7 @@ class ClosingResult:
     metrics: dict = field(default_factory=dict)
     checks: list = field(default_factory=list)
     contests: dict = field(default_factory=lambda: {'ORBE': [], 'PONTE': []})
+    exceptions: list = field(default_factory=list)
 
     def emit(self, name, prefix, key, fields, contributions):
         output_id = identifier(prefix, key)
@@ -36,13 +38,16 @@ class ClosingResult:
         self.traces.extend({'id_saida': output_id, **part} for part in contributions)
         return row
 
-    def pending(self, key, kind, reason, owner, contributions=(), scope=''):
+    def pending(self, key, kind, reason, owner, contributions=(), scope='', block_cause=None):
         contributions = list(contributions)
+        exception_class, missing = classify(kind, block_cause)
         amount = sum((r['valor'] for r in contributions), ZERO) if contributions else None
-        return self.emit('pendencias', 'PEN', key, {
+        row = self.emit('pendencias', 'PEN', key, {
             'tipo':kind, 'ref_origem':';'.join(sorted({r['ref_origem'] for r in contributions})),
             'valor_brl':amount, 'motivo':reason, 'quem_decide':owner, 'status':'PENDENTE', 'escopo':scope,
         }, contributions)
+        self.exceptions.append(ClosingException(row['id_saida'], exception_class, kind, scope, owner, reason, missing, amount, source_refs(contributions)))
+        return row
 
     def cover(self, kind, record, status, reason):
         self.coverage.append({'tipo_origem':kind, **record['_source'], 'status':status, 'motivo':reason})
@@ -545,7 +550,7 @@ def block_sources(bundle,result):
     for key, block in sorted(bundle.blocked.items()):
         result.pending(f'source:{key}','FONTE_BLOQUEADA',
             f'{block["motivo"]}. Bloqueia: {SOURCE_IMPACT[key]}. O que não depende desta fonte foi fechado; o fechamento fica provisório até a fonte ser corrigida e o mês reprocessado.',
-            'Helena (financeiro)',scope=block['arquivo'])
+            'Helena (financeiro)',scope=block['arquivo'],block_cause=bundle.block_causes.get(key))
 
 
 def run_stages(bundle,policy,period,result):
@@ -604,6 +609,7 @@ def close_month(bundle,policy,period):
         result.metrics['totais_parciais'] = blocked_stages
     for rows in result.tables.values():
         rows.sort(key=lambda row:row['id_saida'])
+    result.exceptions.sort(key=lambda item:item.excecao_id)
     for items in result.contests.values():
         items.sort(key=lambda row:(row['motivo'],row['lojista'],row['ref_origem']))
     result.traces.sort(key=lambda row:(row['id_saida'],row['arquivo_origem'],row['aba_origem'],row['linha_origem'],str(row['valor'])))
