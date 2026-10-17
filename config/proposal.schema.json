@@ -1,0 +1,583 @@
+{
+  "description": "Proposta de resolução de uma exceção do fechamento. Não contém campo monetário.",
+  "anyOf": [
+    {
+      "type": "object",
+      "properties": {
+        "excecao_id": {
+          "type": "string",
+          "description": "Id da exceção recebida, sem alteração."
+        },
+        "classe": {
+          "const": "LAYOUT_FONTE",
+          "type": "string"
+        },
+        "acao": {
+          "type": "string",
+          "enum": [
+            "ENCAMINHAR_HUMANO"
+          ]
+        },
+        "parametros": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false,
+          "description": "Sem parâmetros: encaminha para uma pessoa."
+        },
+        "evidencias": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "arquivo": {
+                "type": "string",
+                "description": "Arquivo citado pela exceção."
+              },
+              "ref": {
+                "type": "string",
+                "description": "Referência da linha citada pela exceção."
+              },
+              "trecho": {
+                "type": "string",
+                "description": "Trecho copiado literalmente da linha citada."
+              }
+            },
+            "required": [
+              "arquivo",
+              "ref",
+              "trecho"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "justificativa": {
+          "type": "string",
+          "description": "Justificativa curta, sem calcular valores."
+        },
+        "requer_humano": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "excecao_id",
+        "classe",
+        "acao",
+        "parametros",
+        "evidencias",
+        "justificativa",
+        "requer_humano"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "excecao_id": {
+          "type": "string",
+          "description": "Id da exceção recebida, sem alteração."
+        },
+        "classe": {
+          "const": "CADASTRO",
+          "type": "string"
+        },
+        "acao": {
+          "type": "string",
+          "enum": [
+            "ENCAMINHAR_HUMANO"
+          ]
+        },
+        "parametros": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false,
+          "description": "Sem parâmetros: encaminha para uma pessoa."
+        },
+        "evidencias": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "arquivo": {
+                "type": "string",
+                "description": "Arquivo citado pela exceção."
+              },
+              "ref": {
+                "type": "string",
+                "description": "Referência da linha citada pela exceção."
+              },
+              "trecho": {
+                "type": "string",
+                "description": "Trecho copiado literalmente da linha citada."
+              }
+            },
+            "required": [
+              "arquivo",
+              "ref",
+              "trecho"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "justificativa": {
+          "type": "string",
+          "description": "Justificativa curta, sem calcular valores."
+        },
+        "requer_humano": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "excecao_id",
+        "classe",
+        "acao",
+        "parametros",
+        "evidencias",
+        "justificativa",
+        "requer_humano"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "excecao_id": {
+          "type": "string",
+          "description": "Id da exceção recebida, sem alteração."
+        },
+        "classe": {
+          "const": "MOVIMENTO_SEM_REGRA",
+          "type": "string"
+        },
+        "acao": {
+          "type": "string",
+          "enum": [
+            "CLASSIFICAR_CONTA",
+            "ENCAMINHAR_HUMANO"
+          ]
+        },
+        "parametros": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "conta_codigo": {
+                  "type": "string",
+                  "description": "Código da conta do plano de contas."
+                }
+              },
+              "required": [
+                "conta_codigo"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false,
+              "description": "Sem parâmetros: encaminha para uma pessoa."
+            }
+          ]
+        },
+        "evidencias": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "arquivo": {
+                "type": "string",
+                "description": "Arquivo citado pela exceção."
+              },
+              "ref": {
+                "type": "string",
+                "description": "Referência da linha citada pela exceção."
+              },
+              "trecho": {
+                "type": "string",
+                "description": "Trecho copiado literalmente da linha citada."
+              }
+            },
+            "required": [
+              "arquivo",
+              "ref",
+              "trecho"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "justificativa": {
+          "type": "string",
+          "description": "Justificativa curta, sem calcular valores."
+        },
+        "requer_humano": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "excecao_id",
+        "classe",
+        "acao",
+        "parametros",
+        "evidencias",
+        "justificativa",
+        "requer_humano"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "excecao_id": {
+          "type": "string",
+          "description": "Id da exceção recebida, sem alteração."
+        },
+        "classe": {
+          "const": "ESPERA_DADO",
+          "type": "string"
+        },
+        "acao": {
+          "type": "string",
+          "enum": [
+            "ENCAMINHAR_HUMANO"
+          ]
+        },
+        "parametros": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false,
+          "description": "Sem parâmetros: encaminha para uma pessoa."
+        },
+        "evidencias": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "arquivo": {
+                "type": "string",
+                "description": "Arquivo citado pela exceção."
+              },
+              "ref": {
+                "type": "string",
+                "description": "Referência da linha citada pela exceção."
+              },
+              "trecho": {
+                "type": "string",
+                "description": "Trecho copiado literalmente da linha citada."
+              }
+            },
+            "required": [
+              "arquivo",
+              "ref",
+              "trecho"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "justificativa": {
+          "type": "string",
+          "description": "Justificativa curta, sem calcular valores."
+        },
+        "requer_humano": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "excecao_id",
+        "classe",
+        "acao",
+        "parametros",
+        "evidencias",
+        "justificativa",
+        "requer_humano"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "excecao_id": {
+          "type": "string",
+          "description": "Id da exceção recebida, sem alteração."
+        },
+        "classe": {
+          "const": "ESPERA_EVIDENCIA",
+          "type": "string"
+        },
+        "acao": {
+          "type": "string",
+          "enum": [
+            "ENCAMINHAR_HUMANO"
+          ]
+        },
+        "parametros": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false,
+          "description": "Sem parâmetros: encaminha para uma pessoa."
+        },
+        "evidencias": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "arquivo": {
+                "type": "string",
+                "description": "Arquivo citado pela exceção."
+              },
+              "ref": {
+                "type": "string",
+                "description": "Referência da linha citada pela exceção."
+              },
+              "trecho": {
+                "type": "string",
+                "description": "Trecho copiado literalmente da linha citada."
+              }
+            },
+            "required": [
+              "arquivo",
+              "ref",
+              "trecho"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "justificativa": {
+          "type": "string",
+          "description": "Justificativa curta, sem calcular valores."
+        },
+        "requer_humano": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "excecao_id",
+        "classe",
+        "acao",
+        "parametros",
+        "evidencias",
+        "justificativa",
+        "requer_humano"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "excecao_id": {
+          "type": "string",
+          "description": "Id da exceção recebida, sem alteração."
+        },
+        "classe": {
+          "const": "CONDICAO_COMERCIAL",
+          "type": "string"
+        },
+        "acao": {
+          "type": "string",
+          "enum": [
+            "ENCAMINHAR_HUMANO"
+          ]
+        },
+        "parametros": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false,
+          "description": "Sem parâmetros: encaminha para uma pessoa."
+        },
+        "evidencias": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "arquivo": {
+                "type": "string",
+                "description": "Arquivo citado pela exceção."
+              },
+              "ref": {
+                "type": "string",
+                "description": "Referência da linha citada pela exceção."
+              },
+              "trecho": {
+                "type": "string",
+                "description": "Trecho copiado literalmente da linha citada."
+              }
+            },
+            "required": [
+              "arquivo",
+              "ref",
+              "trecho"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "justificativa": {
+          "type": "string",
+          "description": "Justificativa curta, sem calcular valores."
+        },
+        "requer_humano": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "excecao_id",
+        "classe",
+        "acao",
+        "parametros",
+        "evidencias",
+        "justificativa",
+        "requer_humano"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "excecao_id": {
+          "type": "string",
+          "description": "Id da exceção recebida, sem alteração."
+        },
+        "classe": {
+          "const": "DECISAO",
+          "type": "string"
+        },
+        "acao": {
+          "type": "string",
+          "enum": [
+            "ENCAMINHAR_HUMANO"
+          ]
+        },
+        "parametros": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false,
+          "description": "Sem parâmetros: encaminha para uma pessoa."
+        },
+        "evidencias": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "arquivo": {
+                "type": "string",
+                "description": "Arquivo citado pela exceção."
+              },
+              "ref": {
+                "type": "string",
+                "description": "Referência da linha citada pela exceção."
+              },
+              "trecho": {
+                "type": "string",
+                "description": "Trecho copiado literalmente da linha citada."
+              }
+            },
+            "required": [
+              "arquivo",
+              "ref",
+              "trecho"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "justificativa": {
+          "type": "string",
+          "description": "Justificativa curta, sem calcular valores."
+        },
+        "requer_humano": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "excecao_id",
+        "classe",
+        "acao",
+        "parametros",
+        "evidencias",
+        "justificativa",
+        "requer_humano"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "excecao_id": {
+          "type": "string",
+          "description": "Id da exceção recebida, sem alteração."
+        },
+        "classe": {
+          "const": "DADO_INVALIDO",
+          "type": "string"
+        },
+        "acao": {
+          "type": "string",
+          "enum": [
+            "ENCAMINHAR_HUMANO"
+          ]
+        },
+        "parametros": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false,
+          "description": "Sem parâmetros: encaminha para uma pessoa."
+        },
+        "evidencias": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "arquivo": {
+                "type": "string",
+                "description": "Arquivo citado pela exceção."
+              },
+              "ref": {
+                "type": "string",
+                "description": "Referência da linha citada pela exceção."
+              },
+              "trecho": {
+                "type": "string",
+                "description": "Trecho copiado literalmente da linha citada."
+              }
+            },
+            "required": [
+              "arquivo",
+              "ref",
+              "trecho"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "justificativa": {
+          "type": "string",
+          "description": "Justificativa curta, sem calcular valores."
+        },
+        "requer_humano": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "excecao_id",
+        "classe",
+        "acao",
+        "parametros",
+        "evidencias",
+        "justificativa",
+        "requer_humano"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}

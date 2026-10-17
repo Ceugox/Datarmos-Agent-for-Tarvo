@@ -112,8 +112,12 @@ class ClosingInputs:
     attachments: dict = field(default_factory=dict)
     bank_balances: dict = field(default_factory=dict)
     blocked: dict = field(default_factory=dict)
+    block_causes: dict = field(default_factory=dict)
     email_body: str = ''
 
 
-def source(record, amount, formula):
-    return {**record['_source'], 'valor': amount, 'formula': formula}
+def source(record, amount, formula, rule='', contract=None):
+    """One trace line: the source row, its signed contribution, the computation, the policy rule applied
+    (path inside closing-policy.json) and, when a contracted rate was used, the spreadsheet row it came from."""
+    contract_ref = f"{contract['_source']['arquivo_origem']}!{contract['_source']['ref_origem']}" if contract else ''
+    return {**record['_source'], 'valor': amount, 'formula': formula, 'regra': rule, 'ref_contrato': contract_ref}

@@ -1,0 +1,110 @@
+{
+  "versao": 1,
+  "prompt_version": "2026-10-17.2",
+  "classes": {
+    "LAYOUT_FONTE": {
+      "modo": "desligado",
+      "teto": "automatico",
+      "criterio": {
+        "casos_seguidos_sem_erro": 0,
+        "erros": 0,
+        "backtest_versao": null,
+        "data": null
+      },
+      "confianca": null,
+      "aprovado_por": null,
+      "aprovado_em": null
+    },
+    "CADASTRO": {
+      "modo": "desligado",
+      "teto": "automatico",
+      "criterio": {
+        "casos_seguidos_sem_erro": 0,
+        "erros": 0,
+        "backtest_versao": null,
+        "data": null
+      },
+      "confianca": null,
+      "aprovado_por": null,
+      "aprovado_em": null
+    },
+    "MOVIMENTO_SEM_REGRA": {
+      "modo": "sombra",
+      "teto": "automatico",
+      "criterio": {
+        "casos_seguidos_sem_erro": 0,
+        "erros": 0,
+        "backtest_versao": null,
+        "data": null
+      },
+      "confianca": null,
+      "aprovado_por": null,
+      "aprovado_em": null
+    },
+    "ESPERA_DADO": {
+      "modo": "desligado",
+      "teto": "automatico",
+      "criterio": {
+        "casos_seguidos_sem_erro": 0,
+        "erros": 0,
+        "backtest_versao": null,
+        "data": null
+      },
+      "confianca": null,
+      "aprovado_por": null,
+      "aprovado_em": null
+    },
+    "ESPERA_EVIDENCIA": {
+      "modo": "desligado",
+      "teto": "automatico",
+      "criterio": {
+        "casos_seguidos_sem_erro": 0,
+        "erros": 0,
+        "backtest_versao": null,
+        "data": null
+      },
+      "confianca": null,
+      "aprovado_por": null,
+      "aprovado_em": null
+    },
+    "CONDICAO_COMERCIAL": {
+      "modo": "sugerir",
+      "teto": "sugerir",
+      "criterio": {
+        "casos_seguidos_sem_erro": 0,
+        "erros": 0,
+        "backtest_versao": null,
+        "data": null
+      },
+      "confianca": null,
+      "aprovado_por": null,
+      "aprovado_em": null
+    },
+    "DECISAO": {
+      "modo": "sugerir",
+      "teto": "sugerir",
+      "criterio": {
+        "casos_seguidos_sem_erro": 0,
+        "erros": 0,
+        "backtest_versao": null,
+        "data": null
+      },
+      "confianca": null,
+      "aprovado_por": null,
+      "aprovado_em": null
+    },
+    "DADO_INVALIDO": {
+      "modo": "desligado",
+      "teto": "desligado",
+      "criterio": {
+        "casos_seguidos_sem_erro": 0,
+        "erros": 0,
+        "backtest_versao": null,
+        "data": null
+      },
+      "confianca": null,
+      "aprovado_por": null,
+      "aprovado_em": null
+    }
+  }
+}
