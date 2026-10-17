@@ -48,6 +48,11 @@ class ClosingResult:
         self.coverage.append({'tipo_origem':kind, **record['_source'], 'status':status, 'motivo':reason})
 
 
+def registered_name(bundle, cnpj_value, fallback):
+    contracts = [c for c in bundle.contracts if c['cnpj'] == cnpj_value]
+    return min(contracts, key=lambda c: (c['start'], c['_source']['linha_origem']))['name'] if contracts else fallback
+
+
 def iso_date(value):
     return datetime.strptime(value, '%Y-%m-%d').date()
 
@@ -244,7 +249,7 @@ def close_checkout(bundle, policy, period, result):
             continue
         contract = contracts[0]
         cnpj_value = contract['cnpj']
-        identities[cnpj_value] = min((c for c in bundle.contracts if c['cnpj'] == cnpj_value), key=lambda c: (c['start'], c['_source']['linha_origem']))['name']
+        identities[cnpj_value] = registered_name(bundle, cnpj_value, contract['name'])
         rate_key = rate_key_for(row)
         if not rate_key or contract[rate_key] is None:
             result.cover('CHECKOUT',row,'TAXA_NAO_RESOLVIDA','Modalidade ou taxa contratada sem regra')
@@ -348,13 +353,13 @@ def close_remittances(bundle,policy,period,result):
         if row['spread'] < 0 and config['negative_spread'] == 'exclude_and_contest':
             contested.append(row)
             result.cover('REMESSA',row,'CONTESTAR','Spread negativo: trava vencida; fora da comissão e da nota')
-            result.contests['PONTE'].append({'motivo':'SPREAD_NEGATIVO','ref_origem':row['operation'],'lojista':row['name'],'valor_brl':row['spread'],'detalhe':f'Spread realizado {row["spread"]} ({row["notes"] or "sem observação"}); trava de 2 horas vencida, não aceito pela Tarvo.'})
+            result.contests['PONTE'].append({'motivo':'SPREAD_NEGATIVO','ref_origem':row['operation'],'lojista':registered_name(bundle, row['cnpj'], row['name']),'valor_brl':row['spread'],'detalhe':f'Spread realizado {row["spread"]} ({row["notes"] or "sem observação"}); trava de 2 horas vencida, não aceito pela Tarvo.'})
             continue
         eligible.append(row)
         result.cover('REMESSA',row,'INCLUIDO','50% do spread realizado; competência pela contratação')
         amount = quantize(row['spread']*share)
         groups[row['cnpj']].append(source(row,amount,f'quantize({row["spread"]}*{share}); half_up por operação'))
-        names[row['cnpj']] = row['name']
+        names[row['cnpj']] = registered_name(bundle, row['cnpj'], row['name'])
         contracts = [c for c in bundle.contracts if c['cnpj'] == row['cnpj'] and c['start'] <= row['contracted'] <= c['end']]
         if not contracts:
             unregistered[row['cnpj']].append(row)
@@ -372,10 +377,10 @@ def close_remittances(bundle,policy,period,result):
             divergence = result.emit('divergencias_taxa','DIV',f'REMESSA:{row["operation"]}',{
                 'cnpj':row['cnpj'],'linha_negocio':'REMESSA','ref_origem':row['operation'],'taxa_contratada_pct':quantize(contracted*HUNDRED),
                 'taxa_aplicada_pct':quantize(applied*HUNDRED*HUNDRED)/HUNDRED,'diferenca_brl':difference,'status':'A_CONTESTAR',
-                'lojista':row['name'],'tipo_lancamento':'REMESSA','data_movimento':row['contracted'],'data_vigencia':row['contracted'],
+                'lojista':registered_name(bundle, row['cnpj'], row['name']),'tipo_lancamento':'REMESSA','data_movimento':row['contracted'],'data_vigencia':row['contracted'],
                 'valor_bruto_brl':base,'ref_contrato':contract_ref,'contraparte':'PONTE',
             },[source(row,difference,f'quantize({row["spread"]}-{row["foreign_amount"]}*{row["reference_rate"]}*{contracted}); valor cheio pago a mais pelo lojista')])
-            result.contests['PONTE'].append({'motivo':'SPREAD_ACIMA_DO_CONTRATO' if difference > 0 else 'SPREAD_ABAIXO_DO_CONTRATO','ref_origem':row['operation'],'lojista':row['name'],'valor_brl':difference,'detalhe':f'Spread aplicado {quantize(applied*HUNDRED*HUNDRED)/HUNDRED}% x contratado {contracted*HUNDRED}%','id_saida':divergence['id_saida']})
+            result.contests['PONTE'].append({'motivo':'SPREAD_ACIMA_DO_CONTRATO' if difference > 0 else 'SPREAD_ABAIXO_DO_CONTRATO','ref_origem':row['operation'],'lojista':registered_name(bundle, row['cnpj'], row['name']),'valor_brl':difference,'detalhe':f'Spread aplicado {quantize(applied*HUNDRED*HUNDRED)/HUNDRED}% x contratado {contracted*HUNDRED}%','id_saida':divergence['id_saida']})
     excess = [r for r in result.tables['divergencias_taxa'] if r['linha_negocio'] == 'REMESSA']
     if excess:
         parts = [part for part in result.traces if part['id_saida'] in {r['id_saida'] for r in excess}]
@@ -507,6 +512,53 @@ def validate_result(bundle,result):
     ])
 
 
+SOURCE_IMPACT = {
+    'checkout': 'comissão e notas de checkout, divergências da Orbe, devolução por condição comercial e alerta de antecipação',
+    'checkout_adjustments': 'comissão e notas de checkout, porque os ajustes tardios da Orbe alteram os totais do mês',
+    'contracts': 'todo o checkout e toda a remessa, que dependem das taxas e CNPJs contratados',
+    'email': 'participação em remessas, nota da Ponte e divergências de remessa',
+    'accounts': 'classificação dos lançamentos dos dois extratos',
+    'aurora': 'lançamentos do extrato Aurora',
+    'meridiano': 'lançamentos do extrato Meridiano',
+}
+STAGES = [
+    ('checkout', ('checkout','checkout_adjustments','contracts'), close_checkout, 'checkout', 'CHECKOUT'),
+    ('remessa', ('email','contracts'), close_remittances, 'remittances', 'REMESSA'),
+    ('bancos', ('accounts',), classify_banks, 'bank_entries', 'BANCO'),
+]
+
+
+def metric_defaults(bundle):
+    return {
+        'checkout_lidos':len(bundle.checkout),'checkout_comparados':0,'checkout_sem_contrato':0,'checkout_nao_faturado':0,
+        'checkout_bruto_nao_faturado':ZERO,'devolucao_condicao_comercial':ZERO,
+        'remessas_lidas':len(bundle.remittances),'remessas_distintas_sem_conflito':0,'remessas_elegiveis':0,'remessas_contestadas':0,
+        'spread_elegivel':ZERO,'participacao_remessas':ZERO,'diferenca_remessa_brl':ZERO,
+        'movimentos_bancarios_lidos':len(bundle.bank_entries),'movimentos_bancarios_exportados':0,'saldos_bancarios':bundle.bank_balances,
+    }
+
+
+def block_sources(bundle,result):
+    for key, block in sorted(bundle.blocked.items()):
+        result.pending(f'source:{key}','FONTE_BLOQUEADA',
+            f'{block["motivo"]}. Bloqueia: {SOURCE_IMPACT[key]}. O que não depende desta fonte foi fechado; o fechamento fica provisório até a fonte ser corrigida e o mês reprocessado.',
+            'Helena (financeiro)',scope=block['arquivo'])
+
+
+def run_stages(bundle,policy,period,result):
+    blocked_stages = []
+    for name, needs, stage, rows_attr, kind in STAGES:
+        missing = [key for key in needs if key in bundle.blocked]
+        if not missing:
+            stage(bundle,policy,period,result)
+            continue
+        reason = 'Etapa bloqueada: fonte indisponível ('+', '.join(bundle.blocked[key]['arquivo'] for key in missing)+')'
+        for row in getattr(bundle,rows_attr):
+            result.cover(kind,row,'BLOQUEADO',reason)
+        blocked_stages.append(name)
+    return blocked_stages
+
+
 def close_month(bundle,policy,period):
     validate_policy(policy)
     if not re.fullmatch(r'\d{4}-\d{2}',period):
@@ -515,14 +567,18 @@ def close_month(bundle,policy,period):
     result = ClosingResult()
     for question in policy['open_questions']:
         result.pending('rule:'+question['id'],'DECISAO_DO_FINANCEIRO',question['reason'],question['owner'])
-    close_checkout(bundle,policy,period,result)
-    close_remittances(bundle,policy,period,result)
-    classify_banks(bundle,policy,period,result)
+    result.metrics.update(metric_defaults(bundle))
+    block_sources(bundle,result)
+    blocked_stages = run_stages(bundle,policy,period,result)
     propose_invoices(bundle,period,result)
     validate_result(bundle,result)
+    if bundle.blocked:
+        result.checks.append({'check':'source_availability','status':'BLOQUEADO','reason':'Fontes indisponíveis: '+', '.join(b['arquivo'] for _, b in sorted(bundle.blocked.items()))+'. Etapas sem fechamento: '+(', '.join(blocked_stages) or 'nenhuma inteira')+'. Resultado provisório; quem libera é a Helena.'})
+        result.metrics['fontes_bloqueadas'] = {key:block for key, block in sorted(bundle.blocked.items())}
+        result.metrics['etapas_bloqueadas'] = blocked_stages
     checkout_divergences = [r for r in result.tables['divergencias_taxa'] if r['linha_negocio'] == 'CHECKOUT']
     result.metrics.update({
-        'periodo':period,'status':'CALCULADO','regras':'REGRAS_DO_FINANCEIRO',
+        'periodo':period,'status':'PROVISORIO' if bundle.blocked else 'CALCULADO','regras':'REGRAS_DO_FINANCEIRO',
         'divergencias':len(result.tables['divergencias_taxa']),'divergencias_checkout':len(checkout_divergences),
         'diferenca_checkout_brl':sum((r['diferenca_brl'] for r in checkout_divergences),ZERO),
         'comissao_checkout':sum((r['comissao_brl'] for r in result.tables['comissoes_por_lojista'] if r['linha_negocio']=='CHECKOUT'),ZERO),

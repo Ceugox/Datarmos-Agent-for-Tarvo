@@ -1,6 +1,6 @@
 # Datarmos Agent for Tarvo: motor de fechamento mensal
 
-Motor local para o case Barte AI. Recebe a pasta (ou o ZIP) com os seis arquivos do mês, aplica as regras do financeiro da Tarvo e gera os seis CSVs de `saida/`, um relatório HTML de revisão e rascunhos de contestação para a Orbe e a Ponte. Um único comando, sem limpeza manual dos arquivos.
+Motor local para o case Barte AI. Recebe a pasta (ou o ZIP) com os arquivos do mês, incluindo ajustes tardios da Orbe quando chegam, aplica as regras do financeiro da Tarvo e gera os seis CSVs de `saida/`, um relatório HTML de revisão e rascunhos de contestação para a Orbe e a Ponte. Um único comando, sem limpeza manual dos arquivos.
 
 **Não há chave de API.** O cálculo é determinístico e não chama modelos de IA em execução; a IA foi usada na investigação e no desenvolvimento (ver `PROMPTS/`).
 
@@ -18,12 +18,26 @@ Em Linux/macOS, troque `.\.venv\Scripts\python.exe` por `.venv/bin/python`.
 
 Abra `saida-banca/index.html` no navegador. Os CSVs ficam direto na pasta de saída e devem coincidir com os de `saida/` entregues.
 
-- `--input`: pasta ou `.zip` com os arquivos do mês. Os arquivos são identificados pelos prefixos `01_`, `02_`, `03_`, `04_`, `05a_` e `05b_`; nada é fixo para setembro.
+- `--input`: pasta ou `.zip` com os arquivos do mês. Os arquivos são identificados pelos prefixos `01_`, `02_`, `03_`, `04_`, `05a_` e `05b_`; nada é fixo para setembro. Ajustes tardios da Orbe (`06_*.csv`, mesmo layout do `01`) são opcionais: quando existem, entram no checkout do mês; quando não existem, nada é bloqueado.
 - `--period`: competência `AAAA-MM`.
 - `--output`: pasta nova. Se a pasta já existir com conteúdo diferente, o motor recusa sobrescrever (para não perder um fechamento anterior); com conteúdo idêntico, apenas confirma.
 - `--policy`: regras (padrão `config/closing-policy.json`).
 
 Para outubro: `--input <pasta de outubro> --period 2026-10 --output saida-2026-10`.
+
+### Fonte ausente, atrasada ou com layout diferente
+
+O mês não fica parado por causa de uma fonte (regra da Helena, 17/10 12h31). Se um arquivo falta, vem duplicado ou o leitor não reconhece o layout, o motor fecha o que não depende dele, registra uma pendência `FONTE_BLOQUEADA` para a Helena com o motivo e o que ficou bloqueado, marca o fechamento como `PROVISORIO` (em `metrics.json`, `manifest.json` e no topo do HTML) e sai com **código 3**. Código 0 é fechamento completo; 1 é erro de regra ou configuração, que para tudo.
+
+| Fonte indisponível | Fica sem número | Fecha normalmente |
+|---|---|---|
+| `01_` Orbe ou `06_` ajustes (se presente e ilegível) | Checkout: comissões, notas, divergências da Orbe, devolução, alerta | Remessa e bancos |
+| `02_` Taxas | Checkout e remessa | Bancos |
+| `03_` Ponte | Remessa e nota da Ponte | Checkout e bancos |
+| `04_` Plano de contas | Classificação dos dois extratos | Checkout e remessa |
+| `05a_` ou `05b_` | Lançamentos daquele banco | Todo o resto |
+
+Quando a fonte chegar, roda-se de novo numa pasta nova de saída.
 
 ## Saídas
 
@@ -42,12 +56,12 @@ CSV com `;`, ponto decimal, datas ISO e CNPJ com 14 dígitos em texto. Valor de 
 
 ## Resultado de setembro/2026
 
-- Comissão de checkout: **R$ 207.039,73** (bruto × taxa contratada, linha a linha).
+- Comissão de checkout: **R$ 203.735,34** (bruto × taxa contratada, linha a linha), já com os 14 ajustes tardios da Orbe (`06_`): −R$ 3.304,39 em 10 estornos, 3 reversões de antecipação e 1 venda.
 - Participação em remessas: **R$ 39.543,45** (50% do spread realizado de 228 operações; 4 spreads negativos fora; operação repetida contada uma vez).
-- 21 notas: 20 de checkout e 1 para a Ponte Câmbio, somando R$ 246.588,68. A Casa do Estudante fica sem nota (saldo de −R$ 5,50 por estorno de venda de agosto) e a Atlas não é faturada até o comercial confirmar a taxa.
+- 21 notas: 20 de checkout e 1 para a Ponte Câmbio, somando R$ 243.284,29. A Casa do Estudante fica sem nota (saldo de −R$ 5,50 por estorno de venda de agosto) e a Atlas não é faturada até o comercial confirmar a taxa.
 - 115 divergências: Rota Global (87) e Bridge (5) contra a Orbe, R$ 1.576,23 líquidos; Mundo Aberto (23) contra a Ponte, R$ 1.418,88.
 - Devolução à Casa do Estudante pela isenção não informada à Orbe: R$ 15.396,77.
-- 184 movimentos bancários classificados; 2.360 linhas de origem com destino registrado.
+- 184 movimentos bancários classificados; 2.374 linhas de origem com destino registrado.
 
 ## Chaves e credenciais
 
@@ -59,6 +73,7 @@ Nenhuma. O motor não chama APIs nem modelos de IA, e não há `.env` para confi
 - Atlas Idiomas fica sem faturamento até o comercial confirmar a taxa; o motor ainda não fatura num mês as linhas de meses anteriores (fica manual, com valor e linhas na pendência).
 - Sem conciliação da Orbe contra o banco parcela por parcela (depende da agenda de recebíveis, fora do pacote).
 - O alerta de antecipação só avalia lojistas sem histórico anterior no pacote.
+- O bloqueio é por fonte inteira: com `02_` indisponível, a remessa também para, embora a participação de 50% não dependa da planilha (a divergência de spread depende). Erro na regra ou na configuração continua parando o fechamento inteiro, com mensagem.
 - A confiança da classificação bancária é um escore de regra, não probabilidade calibrada.
 - Detalhes e decisões do time em `HIPOTESES.md`.
 

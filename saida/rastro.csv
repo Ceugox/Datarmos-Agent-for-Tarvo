@@ -332,6 +332,10 @@ COM-1982a56b3e1f6f730e;01_orbe_relatorio_comissoes_set2026.csv;AN88446810;1219.9
 COM-1982a56b3e1f6f730e;01_orbe_relatorio_comissoes_set2026.csv;TX88444183;5.49;;"VENDA: quantize(616.53*0.0089); half_up; taxa pix vigente em 2026-09-30";1919
 COM-1982a56b3e1f6f730e;01_orbe_relatorio_comissoes_set2026.csv;TX88443668;83.85;;"VENDA: quantize(2713.45*0.0309); half_up; taxa installment_short vigente em 2026-09-30";1923
 COM-1982a56b3e1f6f730e;01_orbe_relatorio_comissoes_set2026.csv;TX88443842;321.85;;"VENDA: quantize(8492.14*0.0379); half_up; taxa installment_long vigente em 2026-09-30";1937
+COM-1982a56b3e1f6f730e;06_orbe_ajustes_tardios_set2026.csv;TX88447087;-327.73;;"ESTORNO: quantize(-8647.36*0.0379); half_up; taxa installment_long vigente em 2026-09-11";8
+COM-1982a56b3e1f6f730e;06_orbe_ajustes_tardios_set2026.csv;TX88447140;-61.28;;"ESTORNO: quantize(-2366.18*0.0259); half_up; taxa credit vigente em 2026-09-19";11
+COM-1982a56b3e1f6f730e;06_orbe_ajustes_tardios_set2026.csv;AN88447152;-967.69;;"REVERSAO ANTECIPACAO: quantize(-46080.41*0.021); half_up; taxa advance vigente em 2026-09-22";12
+COM-1982a56b3e1f6f730e;06_orbe_ajustes_tardios_set2026.csv;AN88447178;-875.49;;"REVERSAO ANTECIPACAO: quantize(-41690.09*0.021); half_up; taxa advance vigente em 2026-09-29";13
 COM-22735901943ce6e397;PonteCambio_Relatorio_TARVO_092026.xlsx;PC-0926-0024;171.69;Operações;"quantize(343.37*0.50); half_up por operação";17
 COM-22735901943ce6e397;PonteCambio_Relatorio_TARVO_092026.xlsx;PC-0926-0093;292.86;Operações;"quantize(585.72*0.50); half_up por operação";45
 COM-22735901943ce6e397;PonteCambio_Relatorio_TARVO_092026.xlsx;PC-0926-0123;113.14;Operações;"quantize(226.28*0.50); half_up por operação";59
@@ -635,6 +639,9 @@ COM-508eca9ebf16a93917;01_orbe_relatorio_comissoes_set2026.csv;TX88443793;227.03
 COM-508eca9ebf16a93917;01_orbe_relatorio_comissoes_set2026.csv;TX88444370;7.51;;"VENDA: quantize(843.52*0.0089); half_up; taxa pix vigente em 2026-09-30";1902
 COM-508eca9ebf16a93917;01_orbe_relatorio_comissoes_set2026.csv;TX88443743;235.50;;"VENDA: quantize(6213.73*0.0379); half_up; taxa installment_long vigente em 2026-09-30";1921
 COM-508eca9ebf16a93917;01_orbe_relatorio_comissoes_set2026.csv;TX88444468;205.64;;"VENDA: quantize(6446.33*0.0319); half_up; taxa installment_short vigente em 2026-09-30";1927
+COM-508eca9ebf16a93917;06_orbe_ajustes_tardios_set2026.csv;TX88447011;-6.27;;"ESTORNO: quantize(-420.77*0.0149); half_up; taxa debit vigente em 2026-09-03";3
+COM-508eca9ebf16a93917;06_orbe_ajustes_tardios_set2026.csv;TX88447093;-70.49;;"ESTORNO: quantize(-2620.34*0.0269); half_up; taxa credit vigente em 2026-09-06";9
+COM-508eca9ebf16a93917;06_orbe_ajustes_tardios_set2026.csv;AN88447194;-768.25;;"REVERSAO ANTECIPACAO: quantize(-36583.37*0.021); half_up; taxa advance vigente em 2026-09-24";14
 COM-53110e03dafaffb0c2;01_orbe_relatorio_comissoes_set2026.csv;TX88410056;44.92;;"VENDA: quantize(1670.01*0.0269); half_up; taxa credit vigente em 2026-09-01";25
 COM-53110e03dafaffb0c2;01_orbe_relatorio_comissoes_set2026.csv;TX88410691;113.38;;"VENDA: quantize(3554.09*0.0319); half_up; taxa installment_short vigente em 2026-09-01";45
 COM-53110e03dafaffb0c2;01_orbe_relatorio_comissoes_set2026.csv;TX88411155;90.48;;"VENDA: quantize(3363.53*0.0269); half_up; taxa credit vigente em 2026-09-01";58
@@ -735,6 +742,8 @@ COM-53110e03dafaffb0c2;01_orbe_relatorio_comissoes_set2026.csv;TX88442867;36.96;
 COM-53110e03dafaffb0c2;01_orbe_relatorio_comissoes_set2026.csv;TX88443192;93.11;;"VENDA: quantize(2918.89*0.0319); half_up; taxa installment_short vigente em 2026-09-29";1852
 COM-53110e03dafaffb0c2;01_orbe_relatorio_comissoes_set2026.csv;TX88442588;176.13;;"VENDA: quantize(5521.46*0.0319); half_up; taxa installment_short vigente em 2026-09-29";1869
 COM-53110e03dafaffb0c2;01_orbe_relatorio_comissoes_set2026.csv;TX88443797;5.34;;"VENDA: quantize(600.31*0.0089); half_up; taxa pix vigente em 2026-09-30";1901
+COM-53110e03dafaffb0c2;06_orbe_ajustes_tardios_set2026.csv;TX88447057;-124.36;;"ESTORNO: quantize(-3898.29*0.0319); half_up; taxa installment_short vigente em 2026-09-18";6
+COM-53110e03dafaffb0c2;06_orbe_ajustes_tardios_set2026.csv;TX88447109;-87.65;;"ESTORNO: quantize(-2747.67*0.0319); half_up; taxa installment_short vigente em 2026-09-16";10
 COM-712e85948047c04b61;01_orbe_relatorio_comissoes_set2026.csv;TX88410144;163.77;;"VENDA: quantize(5477.32*0.0299); half_up; taxa installment_short vigente em 2026-09-01";42
 COM-712e85948047c04b61;01_orbe_relatorio_comissoes_set2026.csv;TX88410966;135.52;;"VENDA: quantize(4532.50*0.0299); half_up; taxa installment_short vigente em 2026-09-01";43
 COM-712e85948047c04b61;01_orbe_relatorio_comissoes_set2026.csv;TX88410462;2.65;;"VENDA: quantize(177.93*0.0149); half_up; taxa debit vigente em 2026-09-01";57
@@ -1145,6 +1154,7 @@ COM-8452a0a639a149600f;01_orbe_relatorio_comissoes_set2026.csv;TX88444082;98.62;
 COM-8452a0a639a149600f;01_orbe_relatorio_comissoes_set2026.csv;TX88446943;-694.95;;"ESTORNO: quantize(-18336.29*0.0379); half_up; taxa installment_long vigente em 2026-09-28";1926
 COM-8452a0a639a149600f;01_orbe_relatorio_comissoes_set2026.csv;TX88443765;90.74;;"VENDA: quantize(3034.85*0.0299); half_up; taxa installment_short vigente em 2026-09-30";1933
 COM-8452a0a639a149600f;01_orbe_relatorio_comissoes_set2026.csv;TX88444056;192.47;;"VENDA: quantize(6437.24*0.0299); half_up; taxa installment_short vigente em 2026-09-30";1935
+COM-8452a0a639a149600f;06_orbe_ajustes_tardios_set2026.csv;TX88447030;-14.00;;"ESTORNO: quantize(-562.44*0.0249); half_up; taxa credit vigente em 2026-09-25";4
 COM-84f37fc0b99e9d4997;01_orbe_relatorio_comissoes_set2026.csv;TX88410932;0.00;;"VENDA: quantize(608.88*0); half_up; taxa credit vigente em 2026-09-01; condição comercial casa-estudante-isencao-2026";2
 COM-84f37fc0b99e9d4997;01_orbe_relatorio_comissoes_set2026.csv;TX88410975;0.00;;"VENDA: quantize(614.86*0); half_up; taxa credit vigente em 2026-09-01; condição comercial casa-estudante-isencao-2026";3
 COM-84f37fc0b99e9d4997;01_orbe_relatorio_comissoes_set2026.csv;TX88410128;0.00;;"VENDA: quantize(5773.57*0); half_up; taxa installment_long vigente em 2026-09-01; condição comercial casa-estudante-isencao-2026";5
@@ -1417,6 +1427,7 @@ COM-a62c617e9dd2c25e45;01_orbe_relatorio_comissoes_set2026.csv;TX88443984;4.52;;
 COM-a62c617e9dd2c25e45;01_orbe_relatorio_comissoes_set2026.csv;TX88444363;68.37;;"VENDA: quantize(2143.25*0.0319); half_up; taxa installment_short vigente em 2026-09-30";1916
 COM-a62c617e9dd2c25e45;01_orbe_relatorio_comissoes_set2026.csv;TX88444149;193.30;;"VENDA: quantize(6059.44*0.0319); half_up; taxa installment_short vigente em 2026-09-30";1939
 COM-a62c617e9dd2c25e45;01_orbe_relatorio_comissoes_set2026.csv;TX88443603;10.88;;"VENDA: quantize(1222.71*0.0089); half_up; taxa pix vigente em 2026-09-30";1940
+COM-a62c617e9dd2c25e45;06_orbe_ajustes_tardios_set2026.csv;TX88446992;-29.71;;"ESTORNO: quantize(-1147.05*0.0259); half_up; taxa credit vigente em 2026-09-18";2
 COM-a6666b3eee60ca19ff;01_orbe_relatorio_comissoes_set2026.csv;TX88410344;56.77;;"VENDA: quantize(1779.65*0.0319); half_up; taxa installment_short vigente em 2026-09-01";20
 COM-a6666b3eee60ca19ff;01_orbe_relatorio_comissoes_set2026.csv;TX88412386;7.65;;"VENDA: quantize(513.51*0.0149); half_up; taxa debit vigente em 2026-09-02";75
 COM-a6666b3eee60ca19ff;01_orbe_relatorio_comissoes_set2026.csv;TX88412804;6.37;;"VENDA: quantize(427.47*0.0149); half_up; taxa debit vigente em 2026-09-03";147
@@ -2166,6 +2177,7 @@ COM-e1de4703ca97b6d805;01_orbe_relatorio_comissoes_set2026.csv;TX88440395;180.35
 COM-e1de4703ca97b6d805;01_orbe_relatorio_comissoes_set2026.csv;TX88440659;92.04;;"VENDA: quantize(3553.83*0.0259); half_up; taxa credit vigente em 2026-09-27";1706
 COM-e1de4703ca97b6d805;01_orbe_relatorio_comissoes_set2026.csv;TX88441111;84.30;;"VENDA: quantize(2642.54*0.0319); half_up; taxa installment_short vigente em 2026-09-27";1722
 COM-e1de4703ca97b6d805;01_orbe_relatorio_comissoes_set2026.csv;TX88442772;5.13;;"VENDA: quantize(344.51*0.0149); half_up; taxa debit vigente em 2026-09-29";1862
+COM-e1de4703ca97b6d805;06_orbe_ajustes_tardios_set2026.csv;TX88447225;174.81;;"VENDA: quantize(5480.00*0.0319); half_up; taxa installment_short vigente em 2026-09-30";15
 COM-e6b9ff9605f6ba3660;PonteCambio_Relatorio_TARVO_092026.xlsx;PC-0926-0395;117.74;Operações;"quantize(235.48*0.50); half_up por operação";169
 COM-e6b9ff9605f6ba3660;PonteCambio_Relatorio_TARVO_092026.xlsx;PC-0926-0489;245.48;Operações;"quantize(490.96*0.50); half_up por operação";204
 COM-f5e81ed9d97cbe23e0;01_orbe_relatorio_comissoes_set2026.csv;TX88411252;123.86;;"VENDA: quantize(3882.89*0.0319); half_up; taxa installment_short vigente em 2026-09-01";11
@@ -2275,6 +2287,8 @@ COM-f5e81ed9d97cbe23e0;01_orbe_relatorio_comissoes_set2026.csv;TX88442753;3.60;;
 COM-f5e81ed9d97cbe23e0;01_orbe_relatorio_comissoes_set2026.csv;TX88444329;15.52;;"VENDA: quantize(708.46*0.0219); half_up; taxa credit vigente em 2026-09-30";1915
 COM-f5e81ed9d97cbe23e0;01_orbe_relatorio_comissoes_set2026.csv;TX88443632;3.64;;"VENDA: quantize(408.68*0.0089); half_up; taxa pix vigente em 2026-09-30";1931
 COM-f5e81ed9d97cbe23e0;01_orbe_relatorio_comissoes_set2026.csv;TX88443575;6.16;;"VENDA: quantize(692.31*0.0089); half_up; taxa pix vigente em 2026-09-30";1938
+COM-f5e81ed9d97cbe23e0;06_orbe_ajustes_tardios_set2026.csv;TX88447044;-63.23;;"ESTORNO: quantize(-1982.10*0.0319); half_up; taxa installment_short vigente em 2026-09-13";5
+COM-f5e81ed9d97cbe23e0;06_orbe_ajustes_tardios_set2026.csv;TX88447070;-83.05;;"ESTORNO: quantize(-2603.31*0.0319); half_up; taxa installment_short vigente em 2026-09-12";7
 COM-fe6345bce45f13fee1;PonteCambio_Relatorio_TARVO_092026.xlsx;PC-0926-0013;140.76;Operações;"quantize(281.51*0.50); half_up por operação";12
 COM-fe6345bce45f13fee1;PonteCambio_Relatorio_TARVO_092026.xlsx;PC-0926-0041;132.21;Operações;"quantize(264.42*0.50); half_up por operação";27
 COM-fe6345bce45f13fee1;PonteCambio_Relatorio_TARVO_092026.xlsx;PC-0926-0060;208.22;Operações;"quantize(416.44*0.50); half_up por operação";35
@@ -2811,6 +2825,8 @@ NFC-2df1f200e7a8c67a5e;01_orbe_relatorio_comissoes_set2026.csv;TX88442867;36.96;
 NFC-2df1f200e7a8c67a5e;01_orbe_relatorio_comissoes_set2026.csv;TX88443192;93.11;;"VENDA: quantize(2918.89*0.0319); half_up; taxa installment_short vigente em 2026-09-29";1852
 NFC-2df1f200e7a8c67a5e;01_orbe_relatorio_comissoes_set2026.csv;TX88442588;176.13;;"VENDA: quantize(5521.46*0.0319); half_up; taxa installment_short vigente em 2026-09-29";1869
 NFC-2df1f200e7a8c67a5e;01_orbe_relatorio_comissoes_set2026.csv;TX88443797;5.34;;"VENDA: quantize(600.31*0.0089); half_up; taxa pix vigente em 2026-09-30";1901
+NFC-2df1f200e7a8c67a5e;06_orbe_ajustes_tardios_set2026.csv;TX88447057;-124.36;;"ESTORNO: quantize(-3898.29*0.0319); half_up; taxa installment_short vigente em 2026-09-18";6
+NFC-2df1f200e7a8c67a5e;06_orbe_ajustes_tardios_set2026.csv;TX88447109;-87.65;;"ESTORNO: quantize(-2747.67*0.0319); half_up; taxa installment_short vigente em 2026-09-16";10
 NFC-45ee0c661106069164;01_orbe_relatorio_comissoes_set2026.csv;TX88411343;154.48;;"VENDA: quantize(4842.71*0.0319); half_up; taxa installment_short vigente em 2026-09-01";7
 NFC-45ee0c661106069164;01_orbe_relatorio_comissoes_set2026.csv;TX88411173;116.47;;"VENDA: quantize(3651.00*0.0319); half_up; taxa installment_short vigente em 2026-09-01";29
 NFC-45ee0c661106069164;01_orbe_relatorio_comissoes_set2026.csv;TX88411289;53.63;;"VENDA: quantize(2070.82*0.0259); half_up; taxa credit vigente em 2026-09-01";53
@@ -2896,6 +2912,7 @@ NFC-45ee0c661106069164;01_orbe_relatorio_comissoes_set2026.csv;TX88440395;180.35
 NFC-45ee0c661106069164;01_orbe_relatorio_comissoes_set2026.csv;TX88440659;92.04;;"VENDA: quantize(3553.83*0.0259); half_up; taxa credit vigente em 2026-09-27";1706
 NFC-45ee0c661106069164;01_orbe_relatorio_comissoes_set2026.csv;TX88441111;84.30;;"VENDA: quantize(2642.54*0.0319); half_up; taxa installment_short vigente em 2026-09-27";1722
 NFC-45ee0c661106069164;01_orbe_relatorio_comissoes_set2026.csv;TX88442772;5.13;;"VENDA: quantize(344.51*0.0149); half_up; taxa debit vigente em 2026-09-29";1862
+NFC-45ee0c661106069164;06_orbe_ajustes_tardios_set2026.csv;TX88447225;174.81;;"VENDA: quantize(5480.00*0.0319); half_up; taxa installment_short vigente em 2026-09-30";15
 NFC-52125199f1152e20a4;01_orbe_relatorio_comissoes_set2026.csv;TX88410754;173.38;;"VENDA: quantize(4574.57*0.0379); half_up; taxa installment_long vigente em 2026-09-01";8
 NFC-52125199f1152e20a4;01_orbe_relatorio_comissoes_set2026.csv;TX88410095;40.56;;"VENDA: quantize(1507.71*0.0269); half_up; taxa credit vigente em 2026-09-01";41
 NFC-52125199f1152e20a4;01_orbe_relatorio_comissoes_set2026.csv;TX88411079;22.77;;"VENDA: quantize(846.58*0.0269); half_up; taxa credit vigente em 2026-09-01";73
@@ -3076,6 +3093,10 @@ NFC-57592b476875f6b716;01_orbe_relatorio_comissoes_set2026.csv;AN88446810;1219.9
 NFC-57592b476875f6b716;01_orbe_relatorio_comissoes_set2026.csv;TX88444183;5.49;;"VENDA: quantize(616.53*0.0089); half_up; taxa pix vigente em 2026-09-30";1919
 NFC-57592b476875f6b716;01_orbe_relatorio_comissoes_set2026.csv;TX88443668;83.85;;"VENDA: quantize(2713.45*0.0309); half_up; taxa installment_short vigente em 2026-09-30";1923
 NFC-57592b476875f6b716;01_orbe_relatorio_comissoes_set2026.csv;TX88443842;321.85;;"VENDA: quantize(8492.14*0.0379); half_up; taxa installment_long vigente em 2026-09-30";1937
+NFC-57592b476875f6b716;06_orbe_ajustes_tardios_set2026.csv;TX88447087;-327.73;;"ESTORNO: quantize(-8647.36*0.0379); half_up; taxa installment_long vigente em 2026-09-11";8
+NFC-57592b476875f6b716;06_orbe_ajustes_tardios_set2026.csv;TX88447140;-61.28;;"ESTORNO: quantize(-2366.18*0.0259); half_up; taxa credit vigente em 2026-09-19";11
+NFC-57592b476875f6b716;06_orbe_ajustes_tardios_set2026.csv;AN88447152;-967.69;;"REVERSAO ANTECIPACAO: quantize(-46080.41*0.021); half_up; taxa advance vigente em 2026-09-22";12
+NFC-57592b476875f6b716;06_orbe_ajustes_tardios_set2026.csv;AN88447178;-875.49;;"REVERSAO ANTECIPACAO: quantize(-41690.09*0.021); half_up; taxa advance vigente em 2026-09-29";13
 NFC-58cf8d910382cd8359;01_orbe_relatorio_comissoes_set2026.csv;TX88410230;43.61;;"VENDA: quantize(1367.14*0.0319); half_up; taxa installment_short vigente em 2026-09-01";9
 NFC-58cf8d910382cd8359;01_orbe_relatorio_comissoes_set2026.csv;TX88411534;334.59;;"VENDA: quantize(8828.28*0.0379); half_up; taxa installment_long vigente em 2026-09-02";79
 NFC-58cf8d910382cd8359;01_orbe_relatorio_comissoes_set2026.csv;TX88411825;7.01;;"VENDA: quantize(470.79*0.0149); half_up; taxa debit vigente em 2026-09-02";90
@@ -3187,6 +3208,7 @@ NFC-58cf8d910382cd8359;01_orbe_relatorio_comissoes_set2026.csv;TX88443984;4.52;;
 NFC-58cf8d910382cd8359;01_orbe_relatorio_comissoes_set2026.csv;TX88444363;68.37;;"VENDA: quantize(2143.25*0.0319); half_up; taxa installment_short vigente em 2026-09-30";1916
 NFC-58cf8d910382cd8359;01_orbe_relatorio_comissoes_set2026.csv;TX88444149;193.30;;"VENDA: quantize(6059.44*0.0319); half_up; taxa installment_short vigente em 2026-09-30";1939
 NFC-58cf8d910382cd8359;01_orbe_relatorio_comissoes_set2026.csv;TX88443603;10.88;;"VENDA: quantize(1222.71*0.0089); half_up; taxa pix vigente em 2026-09-30";1940
+NFC-58cf8d910382cd8359;06_orbe_ajustes_tardios_set2026.csv;TX88446992;-29.71;;"ESTORNO: quantize(-1147.05*0.0259); half_up; taxa credit vigente em 2026-09-18";2
 NFC-684e668f25609f9baf;01_orbe_relatorio_comissoes_set2026.csv;TX88410344;56.77;;"VENDA: quantize(1779.65*0.0319); half_up; taxa installment_short vigente em 2026-09-01";20
 NFC-684e668f25609f9baf;01_orbe_relatorio_comissoes_set2026.csv;TX88412386;7.65;;"VENDA: quantize(513.51*0.0149); half_up; taxa debit vigente em 2026-09-02";75
 NFC-684e668f25609f9baf;01_orbe_relatorio_comissoes_set2026.csv;TX88412804;6.37;;"VENDA: quantize(427.47*0.0149); half_up; taxa debit vigente em 2026-09-03";147
@@ -3354,6 +3376,8 @@ NFC-6ff19e65e597c61df8;01_orbe_relatorio_comissoes_set2026.csv;TX88442753;3.60;;
 NFC-6ff19e65e597c61df8;01_orbe_relatorio_comissoes_set2026.csv;TX88444329;15.52;;"VENDA: quantize(708.46*0.0219); half_up; taxa credit vigente em 2026-09-30";1915
 NFC-6ff19e65e597c61df8;01_orbe_relatorio_comissoes_set2026.csv;TX88443632;3.64;;"VENDA: quantize(408.68*0.0089); half_up; taxa pix vigente em 2026-09-30";1931
 NFC-6ff19e65e597c61df8;01_orbe_relatorio_comissoes_set2026.csv;TX88443575;6.16;;"VENDA: quantize(692.31*0.0089); half_up; taxa pix vigente em 2026-09-30";1938
+NFC-6ff19e65e597c61df8;06_orbe_ajustes_tardios_set2026.csv;TX88447044;-63.23;;"ESTORNO: quantize(-1982.10*0.0319); half_up; taxa installment_short vigente em 2026-09-13";5
+NFC-6ff19e65e597c61df8;06_orbe_ajustes_tardios_set2026.csv;TX88447070;-83.05;;"ESTORNO: quantize(-2603.31*0.0319); half_up; taxa installment_short vigente em 2026-09-12";7
 NFC-72344070a2d1b2c5b6;01_orbe_relatorio_comissoes_set2026.csv;TX88412281;396.18;;"VENDA: quantize(10453.25*0.0379); half_up; taxa installment_long vigente em 2026-09-02";80
 NFC-72344070a2d1b2c5b6;01_orbe_relatorio_comissoes_set2026.csv;TX88412026;41.10;;"VENDA: quantize(1288.32*0.0319); half_up; taxa installment_short vigente em 2026-09-02";95
 NFC-72344070a2d1b2c5b6;01_orbe_relatorio_comissoes_set2026.csv;TX88412495;126.57;;"VENDA: quantize(3967.70*0.0319); half_up; taxa installment_short vigente em 2026-09-02";123
@@ -3533,6 +3557,9 @@ NFC-75f737a2e80711338a;01_orbe_relatorio_comissoes_set2026.csv;TX88443793;227.03
 NFC-75f737a2e80711338a;01_orbe_relatorio_comissoes_set2026.csv;TX88444370;7.51;;"VENDA: quantize(843.52*0.0089); half_up; taxa pix vigente em 2026-09-30";1902
 NFC-75f737a2e80711338a;01_orbe_relatorio_comissoes_set2026.csv;TX88443743;235.50;;"VENDA: quantize(6213.73*0.0379); half_up; taxa installment_long vigente em 2026-09-30";1921
 NFC-75f737a2e80711338a;01_orbe_relatorio_comissoes_set2026.csv;TX88444468;205.64;;"VENDA: quantize(6446.33*0.0319); half_up; taxa installment_short vigente em 2026-09-30";1927
+NFC-75f737a2e80711338a;06_orbe_ajustes_tardios_set2026.csv;TX88447011;-6.27;;"ESTORNO: quantize(-420.77*0.0149); half_up; taxa debit vigente em 2026-09-03";3
+NFC-75f737a2e80711338a;06_orbe_ajustes_tardios_set2026.csv;TX88447093;-70.49;;"ESTORNO: quantize(-2620.34*0.0269); half_up; taxa credit vigente em 2026-09-06";9
+NFC-75f737a2e80711338a;06_orbe_ajustes_tardios_set2026.csv;AN88447194;-768.25;;"REVERSAO ANTECIPACAO: quantize(-36583.37*0.021); half_up; taxa advance vigente em 2026-09-24";14
 NFC-85b6466a0cc62d65bc;01_orbe_relatorio_comissoes_set2026.csv;TX88410106;61.70;;"VENDA: quantize(1934.10*0.0319); half_up; taxa installment_short vigente em 2026-09-01";10
 NFC-85b6466a0cc62d65bc;01_orbe_relatorio_comissoes_set2026.csv;AN88444882;667.07;;"ANTECIPACAO: quantize(31765.12*0.021); half_up; taxa advance vigente em 2026-09-01";60
 NFC-85b6466a0cc62d65bc;01_orbe_relatorio_comissoes_set2026.csv;TX88411723;31.08;;"VENDA: quantize(1155.32*0.0269); half_up; taxa credit vigente em 2026-09-02";77
@@ -4024,6 +4051,7 @@ NFC-b419820d3173af01a2;01_orbe_relatorio_comissoes_set2026.csv;TX88444082;98.62;
 NFC-b419820d3173af01a2;01_orbe_relatorio_comissoes_set2026.csv;TX88446943;-694.95;;"ESTORNO: quantize(-18336.29*0.0379); half_up; taxa installment_long vigente em 2026-09-28";1926
 NFC-b419820d3173af01a2;01_orbe_relatorio_comissoes_set2026.csv;TX88443765;90.74;;"VENDA: quantize(3034.85*0.0299); half_up; taxa installment_short vigente em 2026-09-30";1933
 NFC-b419820d3173af01a2;01_orbe_relatorio_comissoes_set2026.csv;TX88444056;192.47;;"VENDA: quantize(6437.24*0.0299); half_up; taxa installment_short vigente em 2026-09-30";1935
+NFC-b419820d3173af01a2;06_orbe_ajustes_tardios_set2026.csv;TX88447030;-14.00;;"ESTORNO: quantize(-562.44*0.0249); half_up; taxa credit vigente em 2026-09-25";4
 NFC-bdb5da2bf3bb55194c;01_orbe_relatorio_comissoes_set2026.csv;TX88410667;658.68;;"VENDA: quantize(17379.29*0.0379); half_up; taxa installment_long vigente em 2026-09-01";12
 NFC-bdb5da2bf3bb55194c;01_orbe_relatorio_comissoes_set2026.csv;TX88410045;41.21;;"VENDA: quantize(1532.07*0.0269); half_up; taxa credit vigente em 2026-09-01";69
 NFC-bdb5da2bf3bb55194c;01_orbe_relatorio_comissoes_set2026.csv;TX88412086;15.51;;"VENDA: quantize(576.51*0.0269); half_up; taxa credit vigente em 2026-09-02";84

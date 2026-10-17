@@ -6,6 +6,7 @@ from zipfile import ZipFile
 import csv
 import hashlib
 import json
+import shutil
 import subprocess
 import sys
 import unittest
@@ -56,11 +57,13 @@ class SourceAndClosingTests(unittest.TestCase):
     def test_the_supplied_pack_follows_the_finance_rules(self):
         result = close_month(self.bundle,self.policy,'2026-09')
         metrics = result.metrics
-        self.assertEqual(metrics['checkout_lidos'],1943)
+        self.assertEqual(metrics['checkout_lidos'],1957)
         self.assertEqual(metrics['checkout_sem_contrato'],0)
         self.assertEqual(metrics['checkout_nao_faturado'],57)
         self.assertEqual(metrics['checkout_bruto_nao_faturado'],Decimal('262138.61'))
-        self.assertEqual(metrics['comissao_checkout'],Decimal('207039.73'))
+        self.assertEqual(metrics['comissao_checkout'],Decimal('203735.34'))
+        self.assertEqual(metrics['valor_notas'],Decimal('243284.29'))
+        self.assertEqual(metrics['status'],'CALCULADO')
         self.assertEqual(metrics['divergencias_checkout'],92)
         self.assertEqual(metrics['diferenca_checkout_brl'],Decimal('1576.23'))
         self.assertEqual(metrics['remessas_elegiveis'],228)
@@ -70,10 +73,71 @@ class SourceAndClosingTests(unittest.TestCase):
         self.assertEqual(metrics['devolucao_condicao_comercial'],Decimal('15396.77'))
         self.assertEqual(len(result.tables['notas_a_emitir']),21)
         self.assertEqual(len(result.tables['lancamentos_classificados']),184)
-        self.assertEqual(len(result.coverage),2360)
+        self.assertEqual(len(result.coverage),2374)
         self.assertFalse(any(r['confianca']=='0' for r in result.tables['lancamentos_classificados']))
         lojistas = {(r['cnpj'],r['linha_negocio']) for r in result.tables['divergencias_taxa']}
         self.assertEqual({cnpj for cnpj,_ in lojistas},{'95927868000148','22224579000109','17217888000111'})
+
+    def test_late_orbe_adjustments_enter_september_at_the_original_rates(self):
+        result = close_month(self.bundle,self.policy,'2026-09')
+        traces = {(t['arquivo_origem'],t['ref_origem']):t for t in result.traces if t['id_saida'].startswith('COM-')}
+        late = {ref:t for (name,ref),t in traces.items() if name=='06_orbe_ajustes_tardios_set2026.csv'}
+        self.assertEqual(len(late),14)
+        self.assertEqual(sum((t['valor'] for t in late.values()),Decimal(0)),Decimal('-3304.39'))
+        self.assertEqual(late['AN88447152']['valor'],Decimal('-967.69'))
+        self.assertEqual(late['TX88447225']['valor'],Decimal('174.81'))
+
+    def test_registered_name_is_used_on_both_business_lines(self):
+        result = close_month(self.bundle,self.policy,'2026-09')
+        names = {r['lojista'] for r in result.tables['comissoes_por_lojista'] if r['cnpj']=='95927868000148'}
+        self.assertEqual(names,{'Rota Global Intercâmbio Ltda'})
+
+    def pack_without(self, directory, *patterns, replace=None):
+        target = Path(directory)/'pack'
+        shutil.copytree(ROOT/'Tarvo_Data_Pack_set2026',target)
+        for pattern in patterns:
+            for path in target.glob(pattern):
+                path.unlink()
+        for pattern, content in (replace or {}).items():
+            next(target.glob(pattern)).write_text(content,encoding='utf-8')
+        return target
+
+    def test_missing_orbe_report_blocks_only_checkout(self):
+        with TemporaryDirectory() as directory:
+            result = close_month(read_inputs(self.pack_without(directory,'01_*.csv')),self.policy,'2026-09')
+        self.assertEqual(result.metrics['status'],'PROVISORIO')
+        self.assertEqual(result.metrics['etapas_bloqueadas'],['checkout'])
+        blocks = [p for p in result.tables['pendencias'] if p['tipo']=='FONTE_BLOQUEADA']
+        self.assertEqual([(p['escopo'],p['quem_decide']) for p in blocks],[('01_*.csv','Helena (financeiro)')])
+        self.assertFalse(any(r['linha_negocio']=='CHECKOUT' for r in result.tables['comissoes_por_lojista']))
+        self.assertEqual(result.metrics['participacao_remessas'],Decimal('39543.45'))
+        self.assertEqual([r['linha_negocio'] for r in result.tables['notas_a_emitir']],['REMESSA'])
+        self.assertEqual(len(result.tables['lancamentos_classificados']),184)
+        self.assertTrue(all(c['status']=='BLOQUEADO' for c in result.coverage if c['tipo_origem']=='CHECKOUT'))
+
+    def test_changed_chart_layout_blocks_only_bank_classification(self):
+        with TemporaryDirectory() as directory:
+            pack = self.pack_without(directory,replace={'04_*.csv':'CONTA;NOME\n1;Caixa\n'})
+            result = close_month(read_inputs(pack),self.policy,'2026-09')
+        self.assertEqual(result.metrics['etapas_bloqueadas'],['bancos'])
+        self.assertIn('layout diferente',next(p['motivo'] for p in result.tables['pendencias'] if p['tipo']=='FONTE_BLOQUEADA'))
+        self.assertEqual(result.tables['lancamentos_classificados'],[])
+        self.assertEqual(result.metrics['comissao_checkout'],Decimal('203735.34'))
+        self.assertEqual(sum(1 for c in result.coverage if c['status']=='BLOQUEADO'),184)
+
+    def test_late_adjustments_are_optional(self):
+        with TemporaryDirectory() as directory:
+            result = close_month(read_inputs(self.pack_without(directory,'06_*.csv')),self.policy,'2026-09')
+        self.assertEqual(result.metrics['status'],'CALCULADO')
+        self.assertEqual(result.metrics['comissao_checkout'],Decimal('207039.73'))
+
+    def test_the_command_signals_a_provisional_closing(self):
+        with TemporaryDirectory() as directory:
+            pack = self.pack_without(directory,'05b_*.ofx')
+            completed = subprocess.run([sys.executable,str(ROOT/'run_engine.py'),'--input',str(pack),'--policy',str(ROOT/'config/closing-policy.json'),'--period','2026-09','--output',str(Path(directory)/'out')],cwd=ROOT,capture_output=True,text=True)
+            self.assertEqual(completed.returncode,3,completed.stderr)
+            self.assertIn('BLOCKED SOURCE 05b_*.ofx',completed.stderr)
+            self.assertIn('Fechamento provisório',(Path(directory)/'out'/'index.html').read_text(encoding='utf-8'))
 
     def test_one_remittance_invoice_goes_to_ponte_and_checkout_invoices_are_per_merchant(self):
         result = close_month(self.bundle,self.policy,'2026-09')

@@ -161,33 +161,65 @@ def read_meridiano(path):
     return rows, {'opening':opening, 'closing':closing, 'opening_status':'INFERIDO'}
 
 
-def read_folder(folder):
-    folder = Path(folder)
-    bundle = ClosingInputs()
-    paths = {}
-    for key, pattern in [('checkout','01_*.csv'),('contracts','02_*.xlsx'),('email','03_*.eml'),('accounts','04_*.csv'),('aurora','05a_*.csv'),('meridiano','05b_*.ofx')]:
-        matches = sorted(folder.glob(pattern))
-        if len(matches) != 1:
-            raise ValueError(f'Expected one input for {key}: {pattern}; found {len(matches)}')
-        path = paths[key] = matches[0]
-        bundle.sources[path.name] = {'sha256':hashlib.sha256(path.read_bytes()).hexdigest(), 'path':str(path.resolve()), 'kind':key}
-    bundle.checkout = read_checkout(paths['checkout'])
-    bundle.contracts = read_contracts(paths['contracts'])
-    bundle.remittances, bundle.email_body, bundle.attachments = read_remittance_email(paths['email'])
-    for name, content in bundle.attachments.items():
-        bundle.sources[name] = {'sha256':hashlib.sha256(content).hexdigest(), 'parent':paths['email'].name, 'kind':'attachment'}
-    for name, reader in [('AURORA',read_aurora),('MERIDIANO',read_meridiano)]:
-        rows, balances = reader(paths['aurora' if name == 'AURORA' else 'meridiano'])
-        bundle.bank_entries.extend(rows)
-        bundle.bank_balances[name] = balances
-    accounts = csv.DictReader(StringIO(decode(paths['accounts'].read_bytes())), delimiter=';')
+SOURCE_PATTERNS = [('checkout','01_*.csv'),('contracts','02_*.xlsx'),('email','03_*.eml'),('accounts','04_*.csv'),('aurora','05a_*.csv'),('meridiano','05b_*.ofx')]
+
+
+def read_accounts(path):
+    accounts = csv.DictReader(StringIO(decode(path.read_bytes())), delimiter=';')
     expected = {'COD_CONTA','DESCRICAO','TIPO','NATUREZA','ACEITA_LANCTO','COD_SUPERIOR','DT_CRIACAO'}
     if set(accounts.fieldnames or []) != expected:
         raise ValueError('Unexpected chart of accounts columns')
+    result = {}
     for row in accounts:
-        if row['COD_CONTA'] in bundle.accounts:
+        if row['COD_CONTA'] in result:
             raise ValueError('Duplicate chart account')
-        bundle.accounts[row['COD_CONTA']] = row
+        result[row['COD_CONTA']] = row
+    return result
+
+
+def load_source(bundle, key, path):
+    if key == 'checkout':
+        bundle.checkout = read_checkout(path)
+    elif key == 'contracts':
+        bundle.contracts = read_contracts(path)
+    elif key == 'email':
+        remittances, body, attachments = read_remittance_email(path)
+        bundle.remittances, bundle.email_body, bundle.attachments = remittances, body, attachments
+        for name, content in attachments.items():
+            bundle.sources[name] = {'sha256':hashlib.sha256(content).hexdigest(), 'parent':path.name, 'kind':'attachment'}
+    elif key == 'accounts':
+        bundle.accounts = read_accounts(path)
+    else:
+        bank = 'AURORA' if key == 'aurora' else 'MERIDIANO'
+        rows, balances = (read_aurora if key == 'aurora' else read_meridiano)(path)
+        bundle.bank_entries.extend(rows)
+        bundle.bank_balances[bank] = balances
+
+
+def read_folder(folder):
+    """Read each source independently: a missing, duplicated or unreadable file blocks only what depends on it."""
+    folder = Path(folder)
+    bundle = ClosingInputs()
+    for key, pattern in SOURCE_PATTERNS:
+        matches = sorted(folder.glob(pattern))
+        if len(matches) != 1:
+            bundle.blocked[key] = {'arquivo':pattern, 'motivo':f'esperado 1 arquivo {pattern}; encontrados {len(matches)}'}
+            continue
+        path = matches[0]
+        bundle.sources[path.name] = {'sha256':hashlib.sha256(path.read_bytes()).hexdigest(), 'path':str(path.resolve()), 'kind':key}
+        try:
+            load_source(bundle, key, path)
+        except Exception as error:  # any reader failure becomes an explicit block, never a silent gap
+            bundle.blocked[key] = {'arquivo':path.name, 'motivo':f'arquivo ilegível ou com layout diferente do esperado ({type(error).__name__}: {error})'}
+            bundle.sources[path.name]['status'] = 'BLOQUEADO'
+    # Late Orbe adjustments (06_*.csv) are optional: same layout as 01, merged into the checkout rows.
+    for path in sorted(folder.glob('06_*.csv')):
+        bundle.sources[path.name] = {'sha256':hashlib.sha256(path.read_bytes()).hexdigest(), 'path':str(path.resolve()), 'kind':'checkout_adjustments'}
+        try:
+            bundle.checkout.extend(read_checkout(path))
+        except Exception as error:
+            bundle.blocked['checkout_adjustments'] = {'arquivo':path.name, 'motivo':f'arquivo ilegível ou com layout diferente do esperado ({type(error).__name__}: {error})'}
+            bundle.sources[path.name]['status'] = 'BLOQUEADO'
     return bundle
 
 

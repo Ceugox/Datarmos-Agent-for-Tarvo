@@ -1,6 +1,6 @@
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tarvo — Fechamento mensal</title><style>
 *{box-sizing:border-box}body{margin:0;font:16px/1.6 'Segoe UI',Arial,sans-serif;background:#f2f5fa;color:#19324f}header{background:#173451;color:white;padding:32px max(24px,calc((100vw - 1200px)/2))}header h1{font-size:38px;line-height:1.2;max-width:900px;margin:10px 0 20px}main{max-width:1250px;padding:30px 24px 70px;margin:auto}p{max-width:880px}.warning{background:#fff0d7;color:#714100;border-left:4px solid #b77b19;padding:18px 22px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:25px 0}.cards article{padding:22px;background:white;border:1px solid #c9d7e7;border-radius:7px}.cards h2{font-size:16px;margin:0 0 8px}.cards strong{font-size:27px}.cards p{font-size:13px}h2{margin-top:32px}a{color:#225f9f}header a{color:#bde8ff}.downloads{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0}.downloads a{background:white;padding:8px 12px;border:1px solid #bdccde;border-radius:4px;font-size:13px}.controls{display:flex;flex-wrap:wrap;gap:14px}.controls label{display:flex;flex-direction:column;flex:1;min-width:230px}input,select,button{font:inherit;padding:9px 12px;border:1px solid #9fb2ca;border-radius:4px;background:white;color:#19324f}button{cursor:pointer}button:disabled{opacity:.4}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #078b95;outline-offset:3px}.scroll{overflow:auto;background:white;margin:15px 0;border:1px solid #ccd9e8;border-radius:5px}table{border-collapse:collapse;min-width:100%;font-size:13px}th,td{padding:11px 14px;text-align:left;border-bottom:1px solid #e1e8f2;vertical-align:top;max-width:340px;min-width:120px;overflow-wrap:anywhere}th{background:#e5edf7;white-space:nowrap}tr:last-child td{border:0}.pager{display:flex;justify-content:space-between;gap:10px}.pager div{display:flex;gap:8px}small{font-size:12px;color:#536b83;overflow-wrap:anywhere}li{margin:9px 0}details{margin:20px 0;padding:18px;background:white;border:1px solid #cbd7e5;border-radius:5px}summary{cursor:pointer;font-weight:650}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px}footer{margin-top:35px;border-top:1px solid #cad7e7;padding-top:20px}code{font-size:13px}.policy{max-height:500px;overflow:auto}@media(max-width:800px){.cards{grid-template-columns:1fr}header h1{font-size:30px}header{padding:25px 22px}.pager{flex-wrap:wrap}}@media print{header{background:white;color:#19324f;padding:0}main{padding:0}.controls,.scroll,.pager,.downloads,button{display:none}.cards{grid-template-columns:repeat(3,1fr)}.cards article{padding:10px}.cards strong{font-size:18px}body{background:white}a{color:inherit;text-decoration:none}details{break-inside:avoid}@page{size:A4;margin:15mm}}
-</style></head><body><header><p>Tarvo / Motor local 0.2.0 / 2026-09</p><h1>Fechamento calculado com as regras do financeiro.</h1><p>Execução <code>2026-09-994681bcc3357253</code>. Cálculos e rastros verificados; notas e contestações aguardam revisão da Helena.</p></header><main><div class="warning"><strong>Regras aplicadas:</strong> respostas da Helena (financeiro) no canal #duvidas-hackathon-ai, 16 e 17/10. Nada é emitido, pago ou contestado automaticamente: o motor entrega notas a emitir, pendências e rascunhos de contestação para revisão.</div><div class="cards"><article><h2>Comissão de checkout</h2><strong>R$ 207.039,73</strong><p>Valor bruto x taxa contratada, linha a linha; estornos pela taxa da venda original.</p></article><article><h2>Participação em remessas</h2><strong>R$ 39.543,45</strong><p>50% do spread realizado por operação, pela data de contratação; spreads negativos fora.</p></article><article><h2>Divergências a contestar</h2><strong>R$ 2.995,11</strong><p>115 lançamentos: Orbe R$ 1.576,23; Ponte R$ 1.418,88.</p></article></div><p>1943 lançamentos de checkout; 233 linhas de remessa; 184 movimentos bancários exportados; 13 pendências.</p><p><strong>Fora da comissão de checkout:</strong> 57 lançamentos de lojista sem contrato assinado (R$ 262.138,61 brutos), a faturar quando o comercial confirmar a taxa, e 0 sem cadastro resolvido. Devolução por condição comercial não informada à Orbe: R$ 15.396,77. 21 notas a emitir somam R$ 246.588,68.</p><h2>Verificações</h2><ul><li><b>PASS</b> monetary_trace_reconciliation </li><li><b>PASS</b> source_row_coverage </li><li><b>PASS</b> unique_output_ids_and_cnpjs </li><li><b>PASS</b> finance_rules_applied Regras respondidas pela Helena no Slack aplicadas; premissas residuais em HIPOTESES.md.</li></ul><p>PASS significa consistência e cobertura do cálculo: cada valor é recomposto pelo rastro e cada linha de origem tem destino. O motor não executa emissões, repasses, contestações ou lançamentos no ERP.</p><h2>Consultar e rastrear resultados</h2><p>Selecione uma saída e pesquise um ID, CNPJ ou referência. Copie um id_saida e escolha rastro para conferir suas contribuições. A soma de valor em rastro reproduz o valor monetário dessa saída.</p><div class="controls"><label>Saída<select id="dataset"></select></label><label>Pesquisa<input id="search" type="search" placeholder="ID, CNPJ, histórico ou referência"></label></div><p id="count" aria-live="polite"></p><div id="table" class="scroll"></div><div class="pager"><span id="page"></span><div><button id="previous">Anterior</button><button id="next">Próxima</button></div></div><noscript><p>A pesquisa requer JavaScript. Os CSVs e o resumo permanecem disponíveis sem ele.</p></noscript><h2>Arquivos para revisão</h2><div class="downloads"><a href="comissoes_por_lojista.csv">comissoes_por_lojista.csv</a> <a href="divergencias_taxa.csv">divergencias_taxa.csv</a> <a href="notas_a_emitir.csv">notas_a_emitir.csv</a> <a href="lancamentos_classificados.csv">lancamentos_classificados.csv</a> <a href="pendencias.csv">pendencias.csv</a> <a href="rastro.csv">rastro.csv</a> <a href="cobertura.csv">cobertura.csv</a> <a href="contestacoes/rascunho_orbe.txt">contestação Orbe</a> <a href="contestacoes/rascunho_ponte.txt">contestação Ponte</a> <a href="manifest.json">manifest.json</a> <a href="policy.json">policy.json</a> <a href="checks.json">checks.json</a></div><p>CSV com ponto e vírgula, ponto decimal, datas ISO e CNPJ textual. Campos extras registram status, regra e memória de cálculo. Valor de pendência desconhecido fica vazio; não é convertido em zero. Valores de pendências sobrepostas não devem ser somados como exposição total.</p><details><summary>Regras e decisões desta execução</summary><pre class="policy">{
+</style></head><body><header><p>Tarvo / Motor local 0.2.0 / 2026-09</p><h1>Fechamento calculado com as regras do financeiro.</h1><p>Execução <code>2026-09-1e770a2849ad70af</code>. Cálculos e rastros verificados; notas e contestações aguardam revisão da Helena.</p></header><main><div class="warning"><strong>Regras aplicadas:</strong> respostas da Helena (financeiro) no canal #duvidas-hackathon-ai, 16 e 17/10. Nada é emitido, pago ou contestado automaticamente: o motor entrega notas a emitir, pendências e rascunhos de contestação para revisão.</div><div class="cards"><article><h2>Comissão de checkout</h2><strong>R$ 203.735,34</strong><p>Valor bruto x taxa contratada, linha a linha; estornos pela taxa da venda original.</p></article><article><h2>Participação em remessas</h2><strong>R$ 39.543,45</strong><p>50% do spread realizado por operação, pela data de contratação; spreads negativos fora.</p></article><article><h2>Divergências a contestar</h2><strong>R$ 2.995,11</strong><p>115 lançamentos: Orbe R$ 1.576,23; Ponte R$ 1.418,88.</p></article></div><p>1957 lançamentos de checkout; 233 linhas de remessa; 184 movimentos bancários exportados; 13 pendências.</p><p><strong>Fora da comissão de checkout:</strong> 57 lançamentos de lojista sem contrato assinado (R$ 262.138,61 brutos), a faturar quando o comercial confirmar a taxa, e 0 sem cadastro resolvido. Devolução por condição comercial não informada à Orbe: R$ 15.396,77. 21 notas a emitir somam R$ 243.284,29.</p><h2>Verificações</h2><ul><li><b>PASS</b> monetary_trace_reconciliation </li><li><b>PASS</b> source_row_coverage </li><li><b>PASS</b> unique_output_ids_and_cnpjs </li><li><b>PASS</b> finance_rules_applied Regras respondidas pela Helena no Slack aplicadas; premissas residuais em HIPOTESES.md.</li></ul><p>PASS significa consistência e cobertura do cálculo: cada valor é recomposto pelo rastro e cada linha de origem tem destino. O motor não executa emissões, repasses, contestações ou lançamentos no ERP.</p><h2>Consultar e rastrear resultados</h2><p>Selecione uma saída e pesquise um ID, CNPJ ou referência. Copie um id_saida e escolha rastro para conferir suas contribuições. A soma de valor em rastro reproduz o valor monetário dessa saída.</p><div class="controls"><label>Saída<select id="dataset"></select></label><label>Pesquisa<input id="search" type="search" placeholder="ID, CNPJ, histórico ou referência"></label></div><p id="count" aria-live="polite"></p><div id="table" class="scroll"></div><div class="pager"><span id="page"></span><div><button id="previous">Anterior</button><button id="next">Próxima</button></div></div><noscript><p>A pesquisa requer JavaScript. Os CSVs e o resumo permanecem disponíveis sem ele.</p></noscript><h2>Arquivos para revisão</h2><div class="downloads"><a href="comissoes_por_lojista.csv">comissoes_por_lojista.csv</a> <a href="divergencias_taxa.csv">divergencias_taxa.csv</a> <a href="notas_a_emitir.csv">notas_a_emitir.csv</a> <a href="lancamentos_classificados.csv">lancamentos_classificados.csv</a> <a href="pendencias.csv">pendencias.csv</a> <a href="rastro.csv">rastro.csv</a> <a href="cobertura.csv">cobertura.csv</a> <a href="contestacoes/rascunho_orbe.txt">contestação Orbe</a> <a href="contestacoes/rascunho_ponte.txt">contestação Ponte</a> <a href="manifest.json">manifest.json</a> <a href="policy.json">policy.json</a> <a href="checks.json">checks.json</a></div><p>CSV com ponto e vírgula, ponto decimal, datas ISO e CNPJ textual. Campos extras registram status, regra e memória de cálculo. Valor de pendência desconhecido fica vazio; não é convertido em zero. Valores de pendências sobrepostas não devem ser somados como exposição total.</p><details><summary>Regras e decisões desta execução</summary><pre class="policy">{
   &quot;bank_rules&quot;: [
     {
       &quot;account&quot;: &quot;1.1.09.002&quot;,
@@ -322,7 +322,7 @@
     }
   ]
 }
-</pre></details><details><summary>Fontes preservadas e integridade</summary><ul><li><a href="../Tarvo_Data_Pack_set2026/01_orbe_relatorio_comissoes_set2026.csv">01_orbe_relatorio_comissoes_set2026.csv</a><small> SHA-256 1d9891971da84f11fb1f25e0d30b0b8633865653bb93545dacab5904c43522ef</small></li><li><a href="../Tarvo_Data_Pack_set2026/02_tabela_taxas_contratadas.xlsx">02_tabela_taxas_contratadas.xlsx</a><small> SHA-256 d0c7d2b13ac41c2a036a40362eb26c341666feef74d7199284742c255885dfc4</small></li><li><a href="../Tarvo_Data_Pack_set2026/03_email_ponte_cambio_relatorio_set2026.eml">03_email_ponte_cambio_relatorio_set2026.eml</a><small> SHA-256 e36808cab907df4b598d0022ae92af99c9b7c281a5d619d91e64d163f42e6f8f</small></li><li><a href="../Tarvo_Data_Pack_set2026/04_plano_de_contas_fenix_erp.csv">04_plano_de_contas_fenix_erp.csv</a><small> SHA-256 8f7c8c0abe1599ba434a7e99fb2997447f4a11142fee7c131babd79820175e43</small></li><li><a href="../Tarvo_Data_Pack_set2026/05a_extrato_banco_aurora_cc4471_set2026.csv">05a_extrato_banco_aurora_cc4471_set2026.csv</a><small> SHA-256 7303b72fa76d227a863279a36726411605d93fb63237f0cae638c111a70d2d92</small></li><li><a href="../Tarvo_Data_Pack_set2026/05b_extrato_banco_meridiano_cc90233_set2026.ofx">05b_extrato_banco_meridiano_cc90233_set2026.ofx</a><small> SHA-256 771a9297c0fa802a677af061fa88a5d30ea5fbe39226a122f87cebdb69f17e9f</small></li><li><a href="anexos/PonteCambio_Relatorio_TARVO_092026.xlsx">PonteCambio_Relatorio_TARVO_092026.xlsx</a><small> SHA-256 c7d4e137fe7ee00ae5838cc229bfed87b34aca3e3495518921f6bc19c607fc26</small></li></ul></details><footer><p><button onclick="window.print()">Imprimir / salvar PDF</button></p><p>O motor lê os arquivos locais e usa regras determinísticas. A IA foi usada no desenvolvimento e na investigação; não há chamadas de IA em execução e nenhuma chave de API é necessária.</p></footer></main><script type="application/json" id="records">{
+</pre></details><details><summary>Fontes preservadas e integridade</summary><ul><li><a href="../Tarvo_Data_Pack_set2026/01_orbe_relatorio_comissoes_set2026.csv">01_orbe_relatorio_comissoes_set2026.csv</a><small> SHA-256 1d9891971da84f11fb1f25e0d30b0b8633865653bb93545dacab5904c43522ef</small></li><li><a href="../Tarvo_Data_Pack_set2026/02_tabela_taxas_contratadas.xlsx">02_tabela_taxas_contratadas.xlsx</a><small> SHA-256 d0c7d2b13ac41c2a036a40362eb26c341666feef74d7199284742c255885dfc4</small></li><li><a href="../Tarvo_Data_Pack_set2026/03_email_ponte_cambio_relatorio_set2026.eml">03_email_ponte_cambio_relatorio_set2026.eml</a><small> SHA-256 e36808cab907df4b598d0022ae92af99c9b7c281a5d619d91e64d163f42e6f8f</small></li><li><a href="../Tarvo_Data_Pack_set2026/04_plano_de_contas_fenix_erp.csv">04_plano_de_contas_fenix_erp.csv</a><small> SHA-256 8f7c8c0abe1599ba434a7e99fb2997447f4a11142fee7c131babd79820175e43</small></li><li><a href="../Tarvo_Data_Pack_set2026/05a_extrato_banco_aurora_cc4471_set2026.csv">05a_extrato_banco_aurora_cc4471_set2026.csv</a><small> SHA-256 7303b72fa76d227a863279a36726411605d93fb63237f0cae638c111a70d2d92</small></li><li><a href="../Tarvo_Data_Pack_set2026/05b_extrato_banco_meridiano_cc90233_set2026.ofx">05b_extrato_banco_meridiano_cc90233_set2026.ofx</a><small> SHA-256 771a9297c0fa802a677af061fa88a5d30ea5fbe39226a122f87cebdb69f17e9f</small></li><li><a href="../Tarvo_Data_Pack_set2026/06_orbe_ajustes_tardios_set2026.csv">06_orbe_ajustes_tardios_set2026.csv</a><small> SHA-256 b1cfd183945fb194e05cfbe9455ab364c31b676427e6653562f6821f57240292</small></li><li><a href="anexos/PonteCambio_Relatorio_TARVO_092026.xlsx">PonteCambio_Relatorio_TARVO_092026.xlsx</a><small> SHA-256 c7d4e137fe7ee00ae5838cc229bfed87b34aca3e3495518921f6bc19c607fc26</small></li></ul></details><footer><p><button onclick="window.print()">Imprimir / salvar PDF</button></p><p>O motor lê os arquivos locais e usa regras determinísticas. A IA foi usada no desenvolvimento e na investigação; não há chamadas de IA em execução e nenhuma chave de API é necessária.</p></footer></main><script type="application/json" id="records">{
   "cobertura": [
     {
       "aba_origem": "",
@@ -19468,6 +19468,132 @@
       "tipo_origem": "BANCO"
     },
     {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "linha_origem": 2,
+      "motivo": "Comissão pela taxa contratada",
+      "ref_origem": "TX88446992",
+      "status": "INCLUIDO",
+      "tipo_origem": "CHECKOUT"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "linha_origem": 3,
+      "motivo": "Comissão pela taxa contratada",
+      "ref_origem": "TX88447011",
+      "status": "INCLUIDO",
+      "tipo_origem": "CHECKOUT"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "linha_origem": 4,
+      "motivo": "Comissão pela taxa contratada",
+      "ref_origem": "TX88447030",
+      "status": "INCLUIDO",
+      "tipo_origem": "CHECKOUT"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "linha_origem": 5,
+      "motivo": "Comissão pela taxa contratada",
+      "ref_origem": "TX88447044",
+      "status": "INCLUIDO",
+      "tipo_origem": "CHECKOUT"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "linha_origem": 6,
+      "motivo": "Comissão pela taxa contratada",
+      "ref_origem": "TX88447057",
+      "status": "INCLUIDO",
+      "tipo_origem": "CHECKOUT"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "linha_origem": 7,
+      "motivo": "Comissão pela taxa contratada",
+      "ref_origem": "TX88447070",
+      "status": "INCLUIDO",
+      "tipo_origem": "CHECKOUT"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "linha_origem": 8,
+      "motivo": "Comissão pela taxa contratada",
+      "ref_origem": "TX88447087",
+      "status": "INCLUIDO",
+      "tipo_origem": "CHECKOUT"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "linha_origem": 9,
+      "motivo": "Comissão pela taxa contratada",
+      "ref_origem": "TX88447093",
+      "status": "INCLUIDO",
+      "tipo_origem": "CHECKOUT"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "linha_origem": 10,
+      "motivo": "Comissão pela taxa contratada",
+      "ref_origem": "TX88447109",
+      "status": "INCLUIDO",
+      "tipo_origem": "CHECKOUT"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "linha_origem": 11,
+      "motivo": "Comissão pela taxa contratada",
+      "ref_origem": "TX88447140",
+      "status": "INCLUIDO",
+      "tipo_origem": "CHECKOUT"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "linha_origem": 12,
+      "motivo": "Comissão pela taxa contratada",
+      "ref_origem": "AN88447152",
+      "status": "INCLUIDO",
+      "tipo_origem": "CHECKOUT"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "linha_origem": 13,
+      "motivo": "Comissão pela taxa contratada",
+      "ref_origem": "AN88447178",
+      "status": "INCLUIDO",
+      "tipo_origem": "CHECKOUT"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "linha_origem": 14,
+      "motivo": "Comissão pela taxa contratada",
+      "ref_origem": "AN88447194",
+      "status": "INCLUIDO",
+      "tipo_origem": "CHECKOUT"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "linha_origem": 15,
+      "motivo": "Comissão pela taxa contratada",
+      "ref_origem": "TX88447225",
+      "status": "INCLUIDO",
+      "tipo_origem": "CHECKOUT"
+    },
+    {
       "aba_origem": "Operações",
       "arquivo_origem": "PonteCambio_Relatorio_TARVO_092026.xlsx",
       "linha_origem": 6,
@@ -21578,7 +21704,7 @@
     {
       "base_calculo": "valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original",
       "cnpj": "23109187000161",
-      "comissao_brl": "16077.90",
+      "comissao_brl": "13845.71",
       "id_saida": "COM-1982a56b3e1f6f730e",
       "linha_negocio": "CHECKOUT",
       "lojista": "Oxford Prep Cursos Ltda",
@@ -21590,7 +21716,7 @@
       "comissao_brl": "1772.61",
       "id_saida": "COM-22735901943ce6e397",
       "linha_negocio": "REMESSA",
-      "lojista": "DUBLIN HUB INTERCÂMB",
+      "lojista": "Dublin Hub Intercâmbio Ltda",
       "status": "CALCULADO"
     },
     {
@@ -21599,7 +21725,7 @@
       "comissao_brl": "3547.69",
       "id_saida": "COM-22a7740ed09573a966",
       "linha_negocio": "REMESSA",
-      "lojista": "MUNDO ABERTO INTERCÂ",
+      "lojista": "Mundo Aberto",
       "status": "CALCULADO"
     },
     {
@@ -21608,7 +21734,7 @@
       "comissao_brl": "4918.34",
       "id_saida": "COM-2c5c21387a9a8c6988",
       "linha_negocio": "REMESSA",
-      "lojista": "ROTA GLOBAL INTERCÂM",
+      "lojista": "Rota Global Intercâmbio Ltda",
       "status": "CALCULADO"
     },
     {
@@ -21617,7 +21743,7 @@
       "comissao_brl": "4295.03",
       "id_saida": "COM-2db5cfc2fbeb656ab8",
       "linha_negocio": "REMESSA",
-      "lojista": "MAPLE STUDY ASSESSOR",
+      "lojista": "Maple Study Assessoria Educacional Ltda",
       "status": "CALCULADO"
     },
     {
@@ -21626,7 +21752,7 @@
       "comissao_brl": "2520.25",
       "id_saida": "COM-3a3040fb7ceb1ff215",
       "linha_negocio": "REMESSA",
-      "lojista": "EDU ABROAD CONSULTOR",
+      "lojista": "EduAbroad",
       "status": "CALCULADO"
     },
     {
@@ -21635,7 +21761,7 @@
       "comissao_brl": "3007.30",
       "id_saida": "COM-452ebcbf89fc320b03",
       "linha_negocio": "REMESSA",
-      "lojista": "PONTE AÉREA ESTUDANT",
+      "lojista": "Ponte Aérea Estudantil Ltda",
       "status": "CALCULADO"
     },
     {
@@ -21650,7 +21776,7 @@
     {
       "base_calculo": "valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original",
       "cnpj": "34671260000100",
-      "comissao_brl": "15010.78",
+      "comissao_brl": "14165.77",
       "id_saida": "COM-508eca9ebf16a93917",
       "linha_negocio": "CHECKOUT",
       "lojista": "Maple Study Assessoria Educacional Ltda",
@@ -21659,7 +21785,7 @@
     {
       "base_calculo": "valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original",
       "cnpj": "16181276000153",
-      "comissao_brl": "12070.17",
+      "comissao_brl": "11858.16",
       "id_saida": "COM-53110e03dafaffb0c2",
       "linha_negocio": "CHECKOUT",
       "lojista": "EduAbroad",
@@ -21689,13 +21815,13 @@
       "comissao_brl": "2207.48",
       "id_saida": "COM-7dcc879cfa92cd218b",
       "linha_negocio": "REMESSA",
-      "lojista": "NOVO HORIZONTE INTER",
+      "lojista": "Novo Horizonte Intercambio",
       "status": "CALCULADO"
     },
     {
       "base_calculo": "valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original",
       "cnpj": "17217888000111",
-      "comissao_brl": "18522.09",
+      "comissao_brl": "18508.09",
       "id_saida": "COM-8452a0a639a149600f",
       "linha_negocio": "CHECKOUT",
       "lojista": "Mundo Aberto",
@@ -21716,7 +21842,7 @@
       "comissao_brl": "1292.67",
       "id_saida": "COM-8b0fd69e610a6785cf",
       "linha_negocio": "REMESSA",
-      "lojista": "BAGAGEM LIVRE TURISM",
+      "lojista": "Bagagem Livre Turismo Ltda",
       "status": "CALCULADO"
     },
     {
@@ -21725,7 +21851,7 @@
       "comissao_brl": "3196.36",
       "id_saida": "COM-9753037c1db01c0e49",
       "linha_negocio": "REMESSA",
-      "lojista": "LISBOA CURSOS E VIAG",
+      "lojista": "Lisboa Cursos e Viagens Ltda",
       "status": "CALCULADO"
     },
     {
@@ -21734,13 +21860,13 @@
       "comissao_brl": "3075.91",
       "id_saida": "COM-9fdd1994423851eb35",
       "linha_negocio": "REMESSA",
-      "lojista": "CASA DO ESTUDANTE VI",
+      "lojista": "Casa do Estudante Viagens Ltda",
       "status": "CALCULADO"
     },
     {
       "base_calculo": "valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original",
       "cnpj": "68567965000102",
-      "comissao_brl": "11906.08",
+      "comissao_brl": "11876.37",
       "id_saida": "COM-a62c617e9dd2c25e45",
       "linha_negocio": "CHECKOUT",
       "lojista": "Dublin Hub Intercâmbio Ltda",
@@ -21770,7 +21896,7 @@
       "comissao_brl": "2914.18",
       "id_saida": "COM-afe3eb11c51765225f",
       "linha_negocio": "REMESSA",
-      "lojista": "NÓRDICA EDUCAÇÃO INT",
+      "lojista": "Nórdica Educação Internacional Ltda",
       "status": "CALCULADO"
     },
     {
@@ -21833,7 +21959,7 @@
       "comissao_brl": "2668.36",
       "id_saida": "COM-de5cc4ddad1016bf72",
       "linha_negocio": "REMESSA",
-      "lojista": "KIWI EXPERIENCE TURI",
+      "lojista": "Kiwi Experience",
       "status": "CALCULADO"
     },
     {
@@ -21848,7 +21974,7 @@
     {
       "base_calculo": "valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original",
       "cnpj": "07752116000126",
-      "comissao_brl": "10711.41",
+      "comissao_brl": "10886.22",
       "id_saida": "COM-e1de4703ca97b6d805",
       "linha_negocio": "CHECKOUT",
       "lojista": "Kiwi Experience",
@@ -21860,13 +21986,13 @@
       "comissao_brl": "363.22",
       "id_saida": "COM-e6b9ff9605f6ba3660",
       "linha_negocio": "REMESSA",
-      "lojista": "BEM-VINDO EXCHANGE L",
+      "lojista": "Bem-Vindo Exchange Ltda",
       "status": "CALCULADO"
     },
     {
       "base_calculo": "valor_bruto x taxa contratada por linha; estornos e reversões pela taxa da data original",
       "cnpj": "22224579000109",
-      "comissao_brl": "11916.02",
+      "comissao_brl": "11769.74",
       "id_saida": "COM-f5e81ed9d97cbe23e0",
       "linha_negocio": "CHECKOUT",
       "lojista": "Escola Bridge de Idiomas Ltda",
@@ -21878,7 +22004,7 @@
       "comissao_brl": "3764.05",
       "id_saida": "COM-fe6345bce45f13fee1",
       "linha_negocio": "REMESSA",
-      "lojista": "CANGURU INTERCÂMBIOS",
+      "lojista": "Canguru",
       "status": "CALCULADO"
     }
   ],
@@ -21925,7 +22051,7 @@
       "diferenca_brl": "113.43",
       "id_saida": "DIV-02d1ce6f53b8cbb653",
       "linha_negocio": "REMESSA",
-      "lojista": "MUNDO ABERTO INTERCÂ",
+      "lojista": "Mundo Aberto",
       "ref_contrato": "Taxas vigentes!L15",
       "ref_origem": "PC-0926-0373",
       "status": "A_CONTESTAR",
@@ -21976,7 +22102,7 @@
       "diferenca_brl": "19.89",
       "id_saida": "DIV-11c8c1fb11c79f471d",
       "linha_negocio": "REMESSA",
-      "lojista": "MUNDO ABERTO INTERCÂ",
+      "lojista": "Mundo Aberto",
       "ref_contrato": "Taxas vigentes!L15",
       "ref_origem": "PC-0926-0409",
       "status": "A_CONTESTAR",
@@ -21993,7 +22119,7 @@
       "diferenca_brl": "76.76",
       "id_saida": "DIV-1222f356fe866249f7",
       "linha_negocio": "REMESSA",
-      "lojista": "MUNDO ABERTO INTERCÂ",
+      "lojista": "Mundo Aberto",
       "ref_contrato": "Taxas vigentes!L15",
       "ref_origem": "PC-0926-0566",
       "status": "A_CONTESTAR",
@@ -22044,7 +22170,7 @@
       "diferenca_brl": "63.60",
       "id_saida": "DIV-1daebf6b066be7cc99",
       "linha_negocio": "REMESSA",
-      "lojista": "MUNDO ABERTO INTERCÂ",
+      "lojista": "Mundo Aberto",
       "ref_contrato": "Taxas vigentes!L15",
       "ref_origem": "PC-0926-0039",
       "status": "A_CONTESTAR",
@@ -22129,7 +22255,7 @@
       "diferenca_brl": "68.33",
       "id_saida": "DIV-25b6b623427ae32b82",
       "linha_negocio": "REMESSA",
-      "lojista": "MUNDO ABERTO INTERCÂ",
+      "lojista": "Mundo Aberto",
       "ref_contrato": "Taxas vigentes!L15",
       "ref_origem": "PC-0926-0016",
       "status": "A_CONTESTAR",
@@ -22146,7 +22272,7 @@
       "diferenca_brl": "65.01",
       "id_saida": "DIV-26635376dbd40a21b8",
       "linha_negocio": "REMESSA",
-      "lojista": "MUNDO ABERTO INTERCÂ",
+      "lojista": "Mundo Aberto",
       "ref_contrato": "Taxas vigentes!L15",
       "ref_origem": "PC-0926-0487",
       "status": "A_CONTESTAR",
@@ -22214,7 +22340,7 @@
       "diferenca_brl": "43.42",
       "id_saida": "DIV-2cf27fedbbce97e54e",
       "linha_negocio": "REMESSA",
-      "lojista": "MUNDO ABERTO INTERCÂ",
+      "lojista": "Mundo Aberto",
       "ref_contrato": "Taxas vigentes!L15",
       "ref_origem": "PC-0926-0364",
       "status": "A_CONTESTAR",
@@ -22316,7 +22442,7 @@
       "diferenca_brl": "18.59",
       "id_saida": "DIV-46ab574ab81a19e129",
       "linha_negocio": "REMESSA",
-      "lojista": "MUNDO ABERTO INTERCÂ",
+      "lojista": "Mundo Aberto",
       "ref_contrato": "Taxas vigentes!L15",
       "ref_origem": "PC-0926-0098",
       "status": "A_CONTESTAR",
@@ -22503,7 +22629,7 @@
       "diferenca_brl": "75.39",
       "id_saida": "DIV-55fb427ca645d2f36f",
       "linha_negocio": "REMESSA",
-      "lojista": "MUNDO ABERTO INTERCÂ",
+      "lojista": "Mundo Aberto",
       "ref_contrato": "Taxas vigentes!L15",
       "ref_origem": "PC-0926-0075",
       "status": "A_CONTESTAR",
@@ -22809,7 +22935,7 @@
       "diferenca_brl": "23.28",
       "id_saida": "DIV-7d369c30a999612cdd",
       "linha_negocio": "REMESSA",
-      "lojista": "MUNDO ABERTO INTERCÂ",
+      "lojista": "Mundo Aberto",
       "ref_contrato": "Taxas vigentes!L15",
       "ref_origem": "PC-0926-0516",
       "status": "A_CONTESTAR",
@@ -22945,7 +23071,7 @@
       "diferenca_brl": "16.72",
       "id_saida": "DIV-90766da0eb6968ecb2",
       "linha_negocio": "REMESSA",
-      "lojista": "MUNDO ABERTO INTERCÂ",
+      "lojista": "Mundo Aberto",
       "ref_contrato": "Taxas vigentes!L15",
       "ref_origem": "PC-0926-0240",
       "status": "A_CONTESTAR",
@@ -22979,7 +23105,7 @@
       "diferenca_brl": "65.77",
       "id_saida": "DIV-954380f856e62a575d",
       "linha_negocio": "REMESSA",
-      "lojista": "MUNDO ABERTO INTERCÂ",
+      "lojista": "Mundo Aberto",
       "ref_contrato": "Taxas vigentes!L15",
       "ref_origem": "PC-0926-0266",
       "status": "A_CONTESTAR",
@@ -23115,7 +23241,7 @@
       "diferenca_brl": "69.13",
       "id_saida": "DIV-a8d3c6f8f14d2a723b",
       "linha_negocio": "REMESSA",
-      "lojista": "MUNDO ABERTO INTERCÂ",
+      "lojista": "Mundo Aberto",
       "ref_contrato": "Taxas vigentes!L15",
       "ref_origem": "PC-0926-0180",
       "status": "A_CONTESTAR",
@@ -23251,7 +23377,7 @@
       "diferenca_brl": "45.66",
       "id_saida": "DIV-b551f5d77b984b18fd",
       "linha_negocio": "REMESSA",
-      "lojista": "MUNDO ABERTO INTERCÂ",
+      "lojista": "Mundo Aberto",
       "ref_contrato": "Taxas vigentes!L15",
       "ref_origem": "PC-0926-0045",
       "status": "A_CONTESTAR",
@@ -23302,7 +23428,7 @@
       "diferenca_brl": "44.40",
       "id_saida": "DIV-b8f07bb8352ed5a812",
       "linha_negocio": "REMESSA",
-      "lojista": "MUNDO ABERTO INTERCÂ",
+      "lojista": "Mundo Aberto",
       "ref_contrato": "Taxas vigentes!L15",
       "ref_origem": "PC-0926-0141",
       "status": "A_CONTESTAR",
@@ -23336,7 +23462,7 @@
       "diferenca_brl": "65.71",
       "id_saida": "DIV-bbcc4947ad8af9173c",
       "linha_negocio": "REMESSA",
-      "lojista": "MUNDO ABERTO INTERCÂ",
+      "lojista": "Mundo Aberto",
       "ref_contrato": "Taxas vigentes!L15",
       "ref_origem": "PC-0926-0145",
       "status": "A_CONTESTAR",
@@ -23353,7 +23479,7 @@
       "diferenca_brl": "40.38",
       "id_saida": "DIV-be42e0e3194df19d17",
       "linha_negocio": "REMESSA",
-      "lojista": "MUNDO ABERTO INTERCÂ",
+      "lojista": "Mundo Aberto",
       "ref_contrato": "Taxas vigentes!L15",
       "ref_origem": "PC-0926-0188",
       "status": "A_CONTESTAR",
@@ -23404,7 +23530,7 @@
       "diferenca_brl": "68.19",
       "id_saida": "DIV-c347972e1e932c98ae",
       "linha_negocio": "REMESSA",
-      "lojista": "MUNDO ABERTO INTERCÂ",
+      "lojista": "Mundo Aberto",
       "ref_contrato": "Taxas vigentes!L15",
       "ref_origem": "PC-0926-0033",
       "status": "A_CONTESTAR",
@@ -23421,7 +23547,7 @@
       "diferenca_brl": "71.36",
       "id_saida": "DIV-c6967b5c53466176fb",
       "linha_negocio": "REMESSA",
-      "lojista": "MUNDO ABERTO INTERCÂ",
+      "lojista": "Mundo Aberto",
       "ref_contrato": "Taxas vigentes!L15",
       "ref_origem": "PC-0926-0236",
       "status": "A_CONTESTAR",
@@ -23693,7 +23819,7 @@
       "diferenca_brl": "36.13",
       "id_saida": "DIV-ed835ee2e4dca6d605",
       "linha_negocio": "REMESSA",
-      "lojista": "MUNDO ABERTO INTERCÂ",
+      "lojista": "Mundo Aberto",
       "ref_contrato": "Taxas vigentes!L15",
       "ref_origem": "PC-0926-0492",
       "status": "A_CONTESTAR",
@@ -23727,7 +23853,7 @@
       "diferenca_brl": "235.76",
       "id_saida": "DIV-f0b91c2d7b7244f2db",
       "linha_negocio": "REMESSA",
-      "lojista": "MUNDO ABERTO INTERCÂ",
+      "lojista": "Mundo Aberto",
       "ref_contrato": "Taxas vigentes!L15",
       "ref_origem": "PC-0926-0434",
       "status": "A_CONTESTAR",
@@ -23761,7 +23887,7 @@
       "diferenca_brl": "29.56",
       "id_saida": "DIV-f1e8fc0f852a4cab0d",
       "linha_negocio": "REMESSA",
-      "lojista": "MUNDO ABERTO INTERCÂ",
+      "lojista": "Mundo Aberto",
       "ref_contrato": "Taxas vigentes!L15",
       "ref_origem": "PC-0926-0011",
       "status": "A_CONTESTAR",
@@ -23829,7 +23955,7 @@
       "diferenca_brl": "62.41",
       "id_saida": "DIV-fc5e030b9406f8b240",
       "linha_negocio": "REMESSA",
-      "lojista": "MUNDO ABERTO INTERCÂ",
+      "lojista": "Mundo Aberto",
       "ref_contrato": "Taxas vigentes!L15",
       "ref_origem": "PC-0926-0388",
       "status": "A_CONTESTAR",
@@ -26456,7 +26582,7 @@
       "status": "A_EMITIR_APOS_REVISAO",
       "tomador": "EduAbroad",
       "tomador_cnpj": "16181276000153",
-      "valor_brl": "12070.17"
+      "valor_brl": "11858.16"
     },
     {
       "comissoes_origem": "COM-e1de4703ca97b6d805",
@@ -26466,7 +26592,7 @@
       "status": "A_EMITIR_APOS_REVISAO",
       "tomador": "Kiwi Experience",
       "tomador_cnpj": "07752116000126",
-      "valor_brl": "10711.41"
+      "valor_brl": "10886.22"
     },
     {
       "comissoes_origem": "COM-e1d774670b7cd0a025",
@@ -26486,7 +26612,7 @@
       "status": "A_EMITIR_APOS_REVISAO",
       "tomador": "Oxford Prep Cursos Ltda",
       "tomador_cnpj": "23109187000161",
-      "valor_brl": "16077.90"
+      "valor_brl": "13845.71"
     },
     {
       "comissoes_origem": "COM-a62c617e9dd2c25e45",
@@ -26496,7 +26622,7 @@
       "status": "A_EMITIR_APOS_REVISAO",
       "tomador": "Dublin Hub Intercâmbio Ltda",
       "tomador_cnpj": "68567965000102",
-      "valor_brl": "11906.08"
+      "valor_brl": "11876.37"
     },
     {
       "comissoes_origem": "COM-a6666b3eee60ca19ff",
@@ -26516,7 +26642,7 @@
       "status": "A_EMITIR_APOS_REVISAO",
       "tomador": "Escola Bridge de Idiomas Ltda",
       "tomador_cnpj": "22224579000109",
-      "valor_brl": "11916.02"
+      "valor_brl": "11769.74"
     },
     {
       "comissoes_origem": "COM-d4fe20a946581a60cc",
@@ -26536,7 +26662,7 @@
       "status": "A_EMITIR_APOS_REVISAO",
       "tomador": "Maple Study Assessoria Educacional Ltda",
       "tomador_cnpj": "34671260000100",
-      "valor_brl": "15010.78"
+      "valor_brl": "14165.77"
     },
     {
       "comissoes_origem": "COM-b3df4e0a16bf5351e3",
@@ -26596,7 +26722,7 @@
       "status": "A_EMITIR_APOS_REVISAO",
       "tomador": "Mundo Aberto",
       "tomador_cnpj": "17217888000111",
-      "valor_brl": "18522.09"
+      "valor_brl": "18508.09"
     },
     {
       "comissoes_origem": "COM-454bdba89bc901e9d5",
@@ -29760,6 +29886,42 @@
       "valor": "321.85"
     },
     {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "ESTORNO: quantize(-8647.36*0.0379); half_up; taxa installment_long vigente em 2026-09-11",
+      "id_saida": "COM-1982a56b3e1f6f730e",
+      "linha_origem": 8,
+      "ref_origem": "TX88447087",
+      "valor": "-327.73"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "ESTORNO: quantize(-2366.18*0.0259); half_up; taxa credit vigente em 2026-09-19",
+      "id_saida": "COM-1982a56b3e1f6f730e",
+      "linha_origem": 11,
+      "ref_origem": "TX88447140",
+      "valor": "-61.28"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "REVERSAO ANTECIPACAO: quantize(-46080.41*0.021); half_up; taxa advance vigente em 2026-09-22",
+      "id_saida": "COM-1982a56b3e1f6f730e",
+      "linha_origem": 12,
+      "ref_origem": "AN88447152",
+      "valor": "-967.69"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "REVERSAO ANTECIPACAO: quantize(-41690.09*0.021); half_up; taxa advance vigente em 2026-09-29",
+      "id_saida": "COM-1982a56b3e1f6f730e",
+      "linha_origem": 13,
+      "ref_origem": "AN88447178",
+      "valor": "-875.49"
+    },
+    {
       "aba_origem": "Operações",
       "arquivo_origem": "PonteCambio_Relatorio_TARVO_092026.xlsx",
       "formula": "quantize(343.37*0.50); half_up por operação",
@@ -32488,6 +32650,33 @@
     },
     {
       "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "ESTORNO: quantize(-420.77*0.0149); half_up; taxa debit vigente em 2026-09-03",
+      "id_saida": "COM-508eca9ebf16a93917",
+      "linha_origem": 3,
+      "ref_origem": "TX88447011",
+      "valor": "-6.27"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "ESTORNO: quantize(-2620.34*0.0269); half_up; taxa credit vigente em 2026-09-06",
+      "id_saida": "COM-508eca9ebf16a93917",
+      "linha_origem": 9,
+      "ref_origem": "TX88447093",
+      "valor": "-70.49"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "REVERSAO ANTECIPACAO: quantize(-36583.37*0.021); half_up; taxa advance vigente em 2026-09-24",
+      "id_saida": "COM-508eca9ebf16a93917",
+      "linha_origem": 14,
+      "ref_origem": "AN88447194",
+      "valor": "-768.25"
+    },
+    {
+      "aba_origem": "",
       "arquivo_origem": "01_orbe_relatorio_comissoes_set2026.csv",
       "formula": "VENDA: quantize(1670.01*0.0269); half_up; taxa credit vigente em 2026-09-01",
       "id_saida": "COM-53110e03dafaffb0c2",
@@ -33385,6 +33574,24 @@
       "linha_origem": 1901,
       "ref_origem": "TX88443797",
       "valor": "5.34"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "ESTORNO: quantize(-3898.29*0.0319); half_up; taxa installment_short vigente em 2026-09-18",
+      "id_saida": "COM-53110e03dafaffb0c2",
+      "linha_origem": 6,
+      "ref_origem": "TX88447057",
+      "valor": "-124.36"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "ESTORNO: quantize(-2747.67*0.0319); half_up; taxa installment_short vigente em 2026-09-16",
+      "id_saida": "COM-53110e03dafaffb0c2",
+      "linha_origem": 10,
+      "ref_origem": "TX88447109",
+      "valor": "-87.65"
     },
     {
       "aba_origem": "",
@@ -37078,6 +37285,15 @@
     },
     {
       "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "ESTORNO: quantize(-562.44*0.0249); half_up; taxa credit vigente em 2026-09-25",
+      "id_saida": "COM-8452a0a639a149600f",
+      "linha_origem": 4,
+      "ref_origem": "TX88447030",
+      "valor": "-14.00"
+    },
+    {
+      "aba_origem": "",
       "arquivo_origem": "01_orbe_relatorio_comissoes_set2026.csv",
       "formula": "VENDA: quantize(608.88*0); half_up; taxa credit vigente em 2026-09-01; condição comercial casa-estudante-isencao-2026",
       "id_saida": "COM-84f37fc0b99e9d4997",
@@ -39523,6 +39739,15 @@
       "linha_origem": 1940,
       "ref_origem": "TX88443603",
       "valor": "10.88"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "ESTORNO: quantize(-1147.05*0.0259); half_up; taxa credit vigente em 2026-09-18",
+      "id_saida": "COM-a62c617e9dd2c25e45",
+      "linha_origem": 2,
+      "ref_origem": "TX88446992",
+      "valor": "-29.71"
     },
     {
       "aba_origem": "",
@@ -46266,6 +46491,15 @@
       "valor": "5.13"
     },
     {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "VENDA: quantize(5480.00*0.0319); half_up; taxa installment_short vigente em 2026-09-30",
+      "id_saida": "COM-e1de4703ca97b6d805",
+      "linha_origem": 15,
+      "ref_origem": "TX88447225",
+      "valor": "174.81"
+    },
+    {
       "aba_origem": "Operações",
       "arquivo_origem": "PonteCambio_Relatorio_TARVO_092026.xlsx",
       "formula": "quantize(235.48*0.50); half_up por operação",
@@ -47245,6 +47479,24 @@
       "linha_origem": 1938,
       "ref_origem": "TX88443575",
       "valor": "6.16"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "ESTORNO: quantize(-1982.10*0.0319); half_up; taxa installment_short vigente em 2026-09-13",
+      "id_saida": "COM-f5e81ed9d97cbe23e0",
+      "linha_origem": 5,
+      "ref_origem": "TX88447044",
+      "valor": "-63.23"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "ESTORNO: quantize(-2603.31*0.0319); half_up; taxa installment_short vigente em 2026-09-12",
+      "id_saida": "COM-f5e81ed9d97cbe23e0",
+      "linha_origem": 7,
+      "ref_origem": "TX88447070",
+      "valor": "-83.05"
     },
     {
       "aba_origem": "Operações",
@@ -52072,6 +52324,24 @@
     },
     {
       "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "ESTORNO: quantize(-3898.29*0.0319); half_up; taxa installment_short vigente em 2026-09-18",
+      "id_saida": "NFC-2df1f200e7a8c67a5e",
+      "linha_origem": 6,
+      "ref_origem": "TX88447057",
+      "valor": "-124.36"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "ESTORNO: quantize(-2747.67*0.0319); half_up; taxa installment_short vigente em 2026-09-16",
+      "id_saida": "NFC-2df1f200e7a8c67a5e",
+      "linha_origem": 10,
+      "ref_origem": "TX88447109",
+      "valor": "-87.65"
+    },
+    {
+      "aba_origem": "",
       "arquivo_origem": "01_orbe_relatorio_comissoes_set2026.csv",
       "formula": "VENDA: quantize(4842.71*0.0319); half_up; taxa installment_short vigente em 2026-09-01",
       "id_saida": "NFC-45ee0c661106069164",
@@ -52834,6 +53104,15 @@
       "linha_origem": 1862,
       "ref_origem": "TX88442772",
       "valor": "5.13"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "VENDA: quantize(5480.00*0.0319); half_up; taxa installment_short vigente em 2026-09-30",
+      "id_saida": "NFC-45ee0c661106069164",
+      "linha_origem": 15,
+      "ref_origem": "TX88447225",
+      "valor": "174.81"
     },
     {
       "aba_origem": "",
@@ -54457,6 +54736,42 @@
     },
     {
       "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "ESTORNO: quantize(-8647.36*0.0379); half_up; taxa installment_long vigente em 2026-09-11",
+      "id_saida": "NFC-57592b476875f6b716",
+      "linha_origem": 8,
+      "ref_origem": "TX88447087",
+      "valor": "-327.73"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "ESTORNO: quantize(-2366.18*0.0259); half_up; taxa credit vigente em 2026-09-19",
+      "id_saida": "NFC-57592b476875f6b716",
+      "linha_origem": 11,
+      "ref_origem": "TX88447140",
+      "valor": "-61.28"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "REVERSAO ANTECIPACAO: quantize(-46080.41*0.021); half_up; taxa advance vigente em 2026-09-22",
+      "id_saida": "NFC-57592b476875f6b716",
+      "linha_origem": 12,
+      "ref_origem": "AN88447152",
+      "valor": "-967.69"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "REVERSAO ANTECIPACAO: quantize(-41690.09*0.021); half_up; taxa advance vigente em 2026-09-29",
+      "id_saida": "NFC-57592b476875f6b716",
+      "linha_origem": 13,
+      "ref_origem": "AN88447178",
+      "valor": "-875.49"
+    },
+    {
+      "aba_origem": "",
       "arquivo_origem": "01_orbe_relatorio_comissoes_set2026.csv",
       "formula": "VENDA: quantize(1367.14*0.0319); half_up; taxa installment_short vigente em 2026-09-01",
       "id_saida": "NFC-58cf8d910382cd8359",
@@ -55453,6 +55768,15 @@
       "linha_origem": 1940,
       "ref_origem": "TX88443603",
       "valor": "10.88"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "ESTORNO: quantize(-1147.05*0.0259); half_up; taxa credit vigente em 2026-09-18",
+      "id_saida": "NFC-58cf8d910382cd8359",
+      "linha_origem": 2,
+      "ref_origem": "TX88446992",
+      "valor": "-29.71"
     },
     {
       "aba_origem": "",
@@ -56956,6 +57280,24 @@
       "linha_origem": 1938,
       "ref_origem": "TX88443575",
       "valor": "6.16"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "ESTORNO: quantize(-1982.10*0.0319); half_up; taxa installment_short vigente em 2026-09-13",
+      "id_saida": "NFC-6ff19e65e597c61df8",
+      "linha_origem": 5,
+      "ref_origem": "TX88447044",
+      "valor": "-63.23"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "ESTORNO: quantize(-2603.31*0.0319); half_up; taxa installment_short vigente em 2026-09-12",
+      "id_saida": "NFC-6ff19e65e597c61df8",
+      "linha_origem": 7,
+      "ref_origem": "TX88447070",
+      "valor": "-83.05"
     },
     {
       "aba_origem": "",
@@ -58567,6 +58909,33 @@
       "linha_origem": 1927,
       "ref_origem": "TX88444468",
       "valor": "205.64"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "ESTORNO: quantize(-420.77*0.0149); half_up; taxa debit vigente em 2026-09-03",
+      "id_saida": "NFC-75f737a2e80711338a",
+      "linha_origem": 3,
+      "ref_origem": "TX88447011",
+      "valor": "-6.27"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "ESTORNO: quantize(-2620.34*0.0269); half_up; taxa credit vigente em 2026-09-06",
+      "id_saida": "NFC-75f737a2e80711338a",
+      "linha_origem": 9,
+      "ref_origem": "TX88447093",
+      "valor": "-70.49"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "REVERSAO ANTECIPACAO: quantize(-36583.37*0.021); half_up; taxa advance vigente em 2026-09-24",
+      "id_saida": "NFC-75f737a2e80711338a",
+      "linha_origem": 14,
+      "ref_origem": "AN88447194",
+      "valor": "-768.25"
     },
     {
       "aba_origem": "",
@@ -62986,6 +63355,15 @@
       "linha_origem": 1935,
       "ref_origem": "TX88444056",
       "valor": "192.47"
+    },
+    {
+      "aba_origem": "",
+      "arquivo_origem": "06_orbe_ajustes_tardios_set2026.csv",
+      "formula": "ESTORNO: quantize(-562.44*0.0249); half_up; taxa credit vigente em 2026-09-25",
+      "id_saida": "NFC-b419820d3173af01a2",
+      "linha_origem": 4,
+      "ref_origem": "TX88447030",
+      "valor": "-14.00"
     },
     {
       "aba_origem": "",

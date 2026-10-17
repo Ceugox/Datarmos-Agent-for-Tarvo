@@ -31,4 +31,9 @@ def main(argv=None):
     print(f'Invoices to issue after review: {metrics["notas"]}; BRL {metrics["valor_notas"]}')
     print(f'Rate divergences: {metrics["divergencias"]}; Orbe BRL {metrics["diferenca_checkout_brl"]}; Ponte BRL {metrics["diferenca_remessa_brl"]}')
     print(f'Pending items: {metrics["pendencias"]}. Open {args.output / "index.html"} to review.')
+    if metrics['status'] == 'PROVISORIO':
+        for block in metrics['fontes_bloqueadas'].values():
+            print(f'BLOCKED SOURCE {block["arquivo"]}: {block["motivo"]}',file=sys.stderr)
+        print(f'PROVISIONAL closing: blocked stages {", ".join(metrics["etapas_bloqueadas"]) or "none in full"}; release decided by Helena.',file=sys.stderr)
+        return 3
     return 0

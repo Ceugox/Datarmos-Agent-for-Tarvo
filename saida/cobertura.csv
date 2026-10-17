@@ -2126,6 +2126,20 @@ BANCO;05b_extrato_banco_meridiano_cc90233_set2026.ofx;MRD2026090674;808;;CLASSIF
 BANCO;05b_extrato_banco_meridiano_cc90233_set2026.ofx;MRD2026090680;816;;CLASSIFICADO;Contrapartida do movimento por regra configurada
 BANCO;05b_extrato_banco_meridiano_cc90233_set2026.ofx;MRD2026090688;824;;CLASSIFICADO;Contrapartida do movimento por regra configurada
 BANCO;05b_extrato_banco_meridiano_cc90233_set2026.ofx;MRD2026090696;832;;CLASSIFICADO;Contrapartida do movimento por regra configurada
+CHECKOUT;06_orbe_ajustes_tardios_set2026.csv;TX88446992;2;;INCLUIDO;Comissão pela taxa contratada
+CHECKOUT;06_orbe_ajustes_tardios_set2026.csv;TX88447011;3;;INCLUIDO;Comissão pela taxa contratada
+CHECKOUT;06_orbe_ajustes_tardios_set2026.csv;TX88447030;4;;INCLUIDO;Comissão pela taxa contratada
+CHECKOUT;06_orbe_ajustes_tardios_set2026.csv;TX88447044;5;;INCLUIDO;Comissão pela taxa contratada
+CHECKOUT;06_orbe_ajustes_tardios_set2026.csv;TX88447057;6;;INCLUIDO;Comissão pela taxa contratada
+CHECKOUT;06_orbe_ajustes_tardios_set2026.csv;TX88447070;7;;INCLUIDO;Comissão pela taxa contratada
+CHECKOUT;06_orbe_ajustes_tardios_set2026.csv;TX88447087;8;;INCLUIDO;Comissão pela taxa contratada
+CHECKOUT;06_orbe_ajustes_tardios_set2026.csv;TX88447093;9;;INCLUIDO;Comissão pela taxa contratada
+CHECKOUT;06_orbe_ajustes_tardios_set2026.csv;TX88447109;10;;INCLUIDO;Comissão pela taxa contratada
+CHECKOUT;06_orbe_ajustes_tardios_set2026.csv;TX88447140;11;;INCLUIDO;Comissão pela taxa contratada
+CHECKOUT;06_orbe_ajustes_tardios_set2026.csv;AN88447152;12;;INCLUIDO;Comissão pela taxa contratada
+CHECKOUT;06_orbe_ajustes_tardios_set2026.csv;AN88447178;13;;INCLUIDO;Comissão pela taxa contratada
+CHECKOUT;06_orbe_ajustes_tardios_set2026.csv;AN88447194;14;;INCLUIDO;Comissão pela taxa contratada
+CHECKOUT;06_orbe_ajustes_tardios_set2026.csv;TX88447225;15;;INCLUIDO;Comissão pela taxa contratada
 REMESSA;PonteCambio_Relatorio_TARVO_092026.xlsx;PC-0926-0002;6;Operações;INCLUIDO;"50% do spread realizado; competência pela contratação"
 REMESSA;PonteCambio_Relatorio_TARVO_092026.xlsx;PC-0926-0003;7;Operações;INCLUIDO;"50% do spread realizado; competência pela contratação"
 REMESSA;PonteCambio_Relatorio_TARVO_092026.xlsx;PC-0926-0004;8;Operações;INCLUIDO;"50% do spread realizado; competência pela contratação"

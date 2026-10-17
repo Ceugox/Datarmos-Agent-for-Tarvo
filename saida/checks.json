@@ -6,7 +6,7 @@
   },
   {
     "check": "source_row_coverage",
-    "rows": 2360,
+    "rows": 2374,
     "status": "PASS"
   },
   {
