@@ -149,7 +149,22 @@ class SourceAndClosingTests(unittest.TestCase):
         alert = next(r for r in result.tables['pendencias'] if r['tipo']=='ALERTA_ANTECIPACAO')
         self.assertEqual(alert['valor_brl'],Decimal('179592.82'))
         self.assertEqual(alert['ref_origem'].split(';'),['AN88445637','AN88445646','AN88445703','AN88445766'])
-        self.assertIn('179592.82',alert['motivo'])
+        self.assertIn(str(alert['valor_brl']),alert['motivo'])
+        self.assertIn('Revertidas depois: AN88445637 em 2026-09-17',alert['motivo'])
+
+    def test_partial_and_orphan_reversals_adjust_the_open_advances(self):
+        bundle = deepcopy(self.bundle)
+        rows = {r['id_transacao']:r for r in bundle.checkout if r['cod_estabelecimento']=='1076801732'}
+        rows['AN88446030']['valor_bruto'] = Decimal('-10000.00')
+        rows['AN88446517']['valor_bruto'] = Decimal('200000.00')
+        rows['AN88446660']['id_referencia'] = 'AN00000000'
+        result = close_month(bundle,self.policy,'2026-09')
+        alert = next(r for r in result.tables['pendencias'] if r['tipo']=='ALERTA_ANTECIPACAO')
+        parts = {t['ref_origem']:t['valor'] for t in result.traces if t['id_saida']==alert['id_saida']}
+        self.assertEqual(parts['AN88445637'],Decimal('42361.86'))
+        self.assertEqual(parts['AN88446517'],Decimal('200000.00'))
+        self.assertEqual(alert['valor_brl'],sum(parts.values()))
+        self.assertTrue(any(r['tipo']=='REVERSAO_SEM_ANTECIPACAO' and 'AN00000000' in r['motivo'] for r in result.tables['pendencias']))
 
     def test_bridge_uses_different_contracts_at_the_date_boundary(self):
         row = deepcopy(next(r for r in self.bundle.checkout if r['cod_estabelecimento']=='1075624862'))

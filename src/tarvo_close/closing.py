@@ -172,24 +172,35 @@ def advance_alerts(rows, period, result):
         sales = ZERO
         open_advances = {}
         flagged = []
+        orphans = []
         for row in sorted(events, key=lambda r: (r['date'], r['tipo_lancamento'] != 'VENDA', r['id_transacao'])):
             if row['tipo_lancamento'] in {'VENDA','ESTORNO'}:
                 sales += row['valor_bruto']
             elif row['tipo_lancamento'] == 'REVERSAO ANTECIPACAO':
-                open_advances.pop(row['id_referencia'], None)
+                reverted = open_advances.get(row['id_referencia'])
+                if reverted is None:
+                    orphans.append(row)
+                    continue
+                remaining = reverted[1] + row['valor_bruto']
+                if remaining > 0:
+                    open_advances[row['id_referencia']] = (reverted[0], remaining)
+                else:
+                    del open_advances[row['id_referencia']]
             elif row['tipo_lancamento'] == 'ANTECIPACAO':
-                open_advances[row['id_transacao']] = row
-                advances = sum((r['valor_bruto'] for r in open_advances.values()), ZERO)
+                open_advances[row['id_transacao']] = (row, row['valor_bruto'])
+                advances = sum((amount for _, amount in open_advances.values()), ZERO)
                 if advances > sales:
                     flagged.append((row, advances, sales, list(open_advances.values())))
+        for row in orphans:
+            result.pending(f'advance-orphan:{row["id_transacao"]}', 'REVERSAO_SEM_ANTECIPACAO', f'Reversão de antecipação sem antecipação correspondente aberta no mês (referência {row["id_referencia"] or "vazia"}).', 'Helena (financeiro)', [source(row,row['valor_bruto'],'reversão sem antecipação correspondente')], ec)
         if flagged:
             row, advances, sales, outstanding = max(flagged, key=lambda item: item[1]-item[2])
             first = min(r['date'] for r in events).isoformat()
-            ids = {r['id_transacao'] for r in outstanding}
+            ids = {r['id_transacao'] for r, _ in outstanding}
             later = sorted(f"{r['id_referencia']} em {r['date'].isoformat()}" for r in events
                            if r['tipo_lancamento'] == 'REVERSAO ANTECIPACAO' and r['id_referencia'] in ids)
             note = f' Revertidas depois: {", ".join(later)}; o alerta vale pelo que estava em aberto na data.' if later else ''
-            result.pending(f'advance-alert:{ec}', 'ALERTA_ANTECIPACAO', f'{row["nome_estabelecimento"]} começou a transacionar em {first} e tinha {advances} em antecipações em aberto em {row["date"].isoformat()}, com {sales} em vendas até essa data. A antecipação é sobre o que já foi vendido e não há trava.{note} Não muda nenhum número do fechamento. Avisar financeiro e comercial.', 'Helena (financeiro) / Comercial', [source(r,r['valor_bruto'],'antecipação em aberto acima das vendas acumuladas') for r in outstanding], ec)
+            result.pending(f'advance-alert:{ec}', 'ALERTA_ANTECIPACAO', f'{row["nome_estabelecimento"]} começou a transacionar em {first} e tinha {advances} em antecipações em aberto em {row["date"].isoformat()}, com {sales} em vendas até essa data. A antecipação é sobre o que já foi vendido e não há trava.{note} Não muda nenhum número do fechamento. Avisar financeiro e comercial.', 'Helena (financeiro) / Comercial', [source(r,amount,'saldo da antecipação em aberto acima das vendas acumuladas') for r, amount in outstanding], ec)
 
 
 def close_checkout(bundle, policy, period, result):

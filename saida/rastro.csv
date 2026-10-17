@@ -4637,10 +4637,10 @@ PEN-59854359596a33609e;01_orbe_relatorio_comissoes_set2026.csv;TX88442710;13.31;
 PEN-59854359596a33609e;01_orbe_relatorio_comissoes_set2026.csv;TX88442632;5.18;;"quantize(1036.71*(0.0299-0.0249)); half_up; taxa credit vigente em 2026-09-29";1849
 PEN-59854359596a33609e;01_orbe_relatorio_comissoes_set2026.csv;TX88443503;11.40;;"quantize(2279.88*(0.0349-0.0299)); half_up; taxa installment_short vigente em 2026-09-29";1863
 PEN-59854359596a33609e;01_orbe_relatorio_comissoes_set2026.csv;TX88444545;64.41;;"quantize(12882.23*(0.0409-0.0359)); half_up; taxa installment_long vigente em 2026-09-30";1888
-PEN-59c52abf4fa83d8f51;01_orbe_relatorio_comissoes_set2026.csv;AN88445637;52361.86;;antecipação em aberto acima das vendas acumuladas;949
-PEN-59c52abf4fa83d8f51;01_orbe_relatorio_comissoes_set2026.csv;AN88445646;22223.80;;antecipação em aberto acima das vendas acumuladas;951
-PEN-59c52abf4fa83d8f51;01_orbe_relatorio_comissoes_set2026.csv;AN88445703;51942.03;;antecipação em aberto acima das vendas acumuladas;971
-PEN-59c52abf4fa83d8f51;01_orbe_relatorio_comissoes_set2026.csv;AN88445766;53065.13;;antecipação em aberto acima das vendas acumuladas;976
+PEN-59c52abf4fa83d8f51;01_orbe_relatorio_comissoes_set2026.csv;AN88445637;52361.86;;saldo da antecipação em aberto acima das vendas acumuladas;949
+PEN-59c52abf4fa83d8f51;01_orbe_relatorio_comissoes_set2026.csv;AN88445646;22223.80;;saldo da antecipação em aberto acima das vendas acumuladas;951
+PEN-59c52abf4fa83d8f51;01_orbe_relatorio_comissoes_set2026.csv;AN88445703;51942.03;;saldo da antecipação em aberto acima das vendas acumuladas;971
+PEN-59c52abf4fa83d8f51;01_orbe_relatorio_comissoes_set2026.csv;AN88445766;53065.13;;saldo da antecipação em aberto acima das vendas acumuladas;976
 PEN-60e646bff4033a6b5e;01_orbe_relatorio_comissoes_set2026.csv;TX88428053;4.50;;"quantize(1124.71*(0.0259-0.0219)); half_up; taxa credit vigente em 2026-09-15";938
 PEN-60e646bff4033a6b5e;01_orbe_relatorio_comissoes_set2026.csv;TX88429199;2.86;;"quantize(715.68*(0.0259-0.0219)); half_up; taxa credit vigente em 2026-09-16";1006
 PEN-60e646bff4033a6b5e;01_orbe_relatorio_comissoes_set2026.csv;TX88428930;3.44;;"quantize(859.57*(0.0259-0.0219)); half_up; taxa credit vigente em 2026-09-16";1046
