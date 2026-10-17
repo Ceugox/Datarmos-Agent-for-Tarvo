@@ -1,10 +1,14 @@
 {
-  "engine_sha256": "1c7958b9fb7754ba146f51e5b5f73b5e60d629b35e6d3d8a91970573dcb05bc6",
+  "camada": {
+    "auditoria": false,
+    "ligada": false
+  },
+  "engine_sha256": "f955dc536b5ce26d415f8ab7117c4366d9d092260065c9eb4f23f5b0a55108a6",
   "engine_version": "0.2.0",
   "execucao": {
-    "concluida_em": "2026-10-17T18:51:29+00:00",
+    "concluida_em": "2026-10-17T19:34:02+00:00",
     "fuso": "UTC",
-    "iniciada_em": "2026-10-17T18:51:29+00:00",
+    "iniciada_em": "2026-10-17T19:34:02+00:00",
     "linhas_lidas_total": 2450
   },
   "output_sha256": {
@@ -17,7 +21,7 @@
     "contestacoes/rascunho_orbe.txt": "fd04a0cb551c8a790760624f32fc58fdfcaea380d1b5c1d171ff502eeadc91f7",
     "contestacoes/rascunho_ponte.txt": "86f1c9c7f6e8eb68ab582a421c7d2f5529f4f390bae034441bc8715a5a894d0e",
     "divergencias_taxa.csv": "f3e069dea9ff4c7affe2c6f43557adf51e2bdb8157827743694b7ee0fa433e8d",
-    "index.html": "14706825d044a057d7e8f21ac5f280a0286105a10e7825350be490d9d217b0a4",
+    "index.html": "a68a79b02138dfa478ac19e27dedd3517b920d9e34eac30cd02b7aed082cd70a",
     "lancamentos_classificados.csv": "cffc110f1bd9e347eaf830f5518364fbf60d07f217d1793aa88b689a6505d05b",
     "metrics.json": "4a0fb13f5c802cf44d8ef8a90a4fbc27d15e10166e984421a19dc1888e08f157",
     "notas_a_emitir.csv": "fec5e6085121900d05812c4417a067013eaf93af64a5f3aa909fdfba08c49707",
@@ -27,7 +31,7 @@
   },
   "period": "2026-09",
   "rules": "REGRAS_DO_FINANCEIRO",
-  "run_id": "2026-09-36fe5698a2359143",
+  "run_id": "2026-09-61ea715c902c9df9",
   "slack_read": true,
   "sources": {
     "01_orbe_relatorio_comissoes_set2026.csv": {
