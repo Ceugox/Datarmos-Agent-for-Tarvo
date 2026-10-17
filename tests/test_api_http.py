@@ -3,6 +3,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import mock
 from zipfile import ZipFile
+import json
 import os
 import sys
 import time
@@ -19,7 +20,7 @@ from tarvo_close.resolver import FakeResolver
 
 try:  # the engine CI job installs only requirements.txt
     from fastapi.testclient import TestClient
-    from api import db, jobs, keys, worker
+    from api import db, jobs, keys, policies, worker
     from api.app import ARQUIVOS_SAIDA, create_app
     from api.settings import Settings
     HAS_DEPS = True
@@ -130,7 +131,7 @@ class ApiHttpTest(unittest.TestCase):
         self.assertEqual(info['status'],'PROVISORIO' if info['metrics']['status'] == 'PROVISORIO' else 'CONCLUIDO')
         self.assertEqual((info['periodo'],info['usar_llm'],info['numero_revisao'],info['pai_id'],info['revisoes'],info['aviso'],info['erro']),('2026-09',False,0,None,[],None,None))
         self.assertTrue(info['run_id'].startswith('2026-09-'))
-        self.assertEqual(info['excecoes'],{'por_classe':{},'por_modo':{}})  # no layer, no audit rows
+        self.assertEqual(info['excecoes']['por_classe'],{'DECISAO':8,'ESPERA_EVIDENCIA':2,'CONDICAO_COMERCIAL':2,'ESPERA_DADO':1})  # the queue exists without the layer
         self.assertEqual(self.get_file(fid,'auditoria.jsonl').status_code,404)
         self.check_csvs(fid,self.cli)
         for name in ('checks.json','metrics.json','policy.json'):
@@ -286,14 +287,77 @@ class ApiHttpTest(unittest.TestCase):
         self.assertIn('already decided',failed['erro'])
         self.assertNotIn('Traceback',failed['erro'])
 
-    def test_decision_without_audit_is_409(self):
+    def test_queue_exists_without_the_layer(self):
         fid, _ = self.closing()
-        with self.factory() as conn:
-            conn.execute("INSERT INTO excecoes (fechamento_id, excecao_id, classe, tipo, modo, resultado) VALUES (%s,'PEN-x','DECISAO','T','sugerir','HUMANO')",(fid,))
-            conn.commit()
-        eid = self.conn.execute('SELECT id FROM excecoes').fetchone()['id']
-        response = self.client.post(f'/v1/excecoes/{eid}/decisao',headers=self.auth(),json={'decisao':'aprovar','decidido_por':'H','motivo':'m'})
+        rows = self.client.get(f'/v1/fechamentos/{fid}/excecoes',headers=self.auth()).json()
+        self.assertEqual(len(rows),13)
+        for row in rows:
+            self.assertEqual((row['resultado'],row['pendencia_status'],row['motivo'],row['proposta'],row['verificacoes'],row['aplicada']),('SEM_CAMADA','PENDENTE',None,None,[],False),row)
+            self.assertTrue(all(row[k] for k in ('classe','tipo','modo','quem_decide','motivo_pendencia')),row)
+            self.assertIsInstance(row['escopo'],str)  # may be empty for a class without scope
+            self.assertTrue(row['valor_brl'] is None or isinstance(row['valor_brl'],str),row)
+        self.assertEqual({r['modo'] for r in rows if r['classe'] in ('DECISAO','CONDICAO_COMERCIAL')},{'sugerir'})
+        self.assertEqual(self.client.get(f'/v1/fechamentos/{fid}/auditoria',headers=self.auth()).json()['eventos'],[])
+
+    def test_decision_on_a_closing_without_the_layer_creates_a_revision(self):
+        fid, _ = self.closing()
+        exc = self.exception_of(fid)
+        body = {'decisao':'aprovar','decidido_por':'Helena','motivo':'Conferido com o comercial'}
+        response = self.client.post(f'/v1/excecoes/{exc["id"]}/decisao',headers=self.auth(),json=body)
+        self.assertEqual(response.status_code,202,response.text)
+        rev = response.json()['revisao_id']
+        self.work()
+        revision = self.client.get(f'/v1/fechamentos/{rev}',headers=self.auth()).json()
+        self.assertIn(revision['status'],('CONCLUIDO','PROVISORIO'),revision['erro'])
+        self.assertEqual(sum(revision['excecoes']['por_classe'].values()),13)
+        rows = self.client.get(f'/v1/fechamentos/{rev}/excecoes',headers=self.auth()).json()
+        self.assertEqual([r['pendencia_status'] for r in rows if r['excecao_id'] == exc['excecao_id']],['APROVADA'])
+        self.assertEqual(sum(r['pendencia_status'] == 'PENDENTE' for r in rows),12)
+        self.assertIn('APROVADA',self.get_file(rev,'pendencias.csv').content.decode('utf-8'))
+        events = self.client.get(f'/v1/fechamentos/{rev}/auditoria',headers=self.auth()).json()['eventos']
+        decided = [e for e in events if e['evento'] == 'DECISAO_APLICADA' and not e.get('herdado')]
+        self.assertEqual([(e['excecao_id'],e['decidido_por'],e['motivo'],e['resultado']) for e in decided],[(exc['excecao_id'],'Helena','Conferido com o comercial','REGISTRADA')])
+        for name in ('lancamentos_classificados.csv','comissoes_por_lojista.csv'):
+            self.assertEqual(self.get_file(rev,name).content,self.get_file(fid,name).content,name)
+        self.check_csvs(rev)
+
+    def test_approve_without_proposal_is_refused_and_recorded(self):
+        policy = json.loads((ROOT/'config'/'closing-policy.json').read_text(encoding='utf-8'))
+        policy['bank_rules'] = [r for r in policy['bank_rules'] if r['id'] != 'bank-fees']
+        policies.seed_tarvo(self.conn,self.id_a)
+        self.conn.execute("INSERT INTO politicas (cliente_id, tipo, versao, conteudo) VALUES (%s,'closing',2,%s)",(self.id_a,json.dumps(policy)))
+        self.conn.commit()
+        fid, _ = self.closing()
+        rows = self.client.get(f'/v1/fechamentos/{fid}/excecoes',headers=self.auth()).json()
+        movements = [r for r in rows if r['classe'] == 'MOVIMENTO_SEM_REGRA']
+        self.assertEqual((len(movements),{r['tipo'] for r in movements}),(4,{'CONCILIACAO_BANCARIA'}))
+        exc = movements[0]
+        response = self.client.post(f'/v1/excecoes/{exc["id"]}/decisao',headers=self.auth(),json={'decisao':'aprovar','decidido_por':'Helena','motivo':'Conferido'})
+        self.assertEqual(response.status_code,202,response.text)
+        rev = response.json()['revisao_id']
+        self.work()
+        revision = self.client.get(f'/v1/fechamentos/{rev}',headers=self.auth()).json()
+        self.assertIn(revision['status'],('CONCLUIDO','PROVISORIO'),revision['erro'])
+        events = self.client.get(f'/v1/fechamentos/{rev}/auditoria',headers=self.auth()).json()['eventos']
+        decided = [e for e in events if e['evento'] == 'DECISAO_APLICADA' and not e.get('herdado')]
+        self.assertEqual([(e['excecao_id'],e['resultado']) for e in decided],[(exc['excecao_id'],'RECUSADA')])
+        self.assertTrue(decided[0].get('motivo_recusa'))
+        mine = [r for r in self.client.get(f'/v1/fechamentos/{rev}/excecoes',headers=self.auth()).json() if r['excecao_id'] == exc['excecao_id']]
+        self.assertEqual([r['pendencia_status'] for r in mine],['PENDENTE'])
+        for name in ('lancamentos_classificados.csv','comissoes_por_lojista.csv'):
+            self.assertEqual(self.get_file(rev,name).content,self.get_file(fid,name).content,name)
+        self.check_csvs(rev)
+
+    def test_decision_on_a_parent_without_marker_is_409(self):
+        fid, _ = self.closing()
+        exc = self.exception_of(fid)
+        manifest = worker.result_dir(self.settings,self.id_a,fid,0)/'manifest.json'
+        data = json.loads(manifest.read_text(encoding='utf-8'))
+        del data['camada']  # an old run: no marker and no auditoria.jsonl
+        manifest.write_text(json.dumps(data),encoding='utf-8')
+        response = self.client.post(f'/v1/excecoes/{exc["id"]}/decisao',headers=self.auth(),json={'decisao':'aprovar','decidido_por':'H','motivo':'m'})
         self.assertEqual(response.status_code,409)
+        self.assertEqual(self.conn.execute('SELECT count(*) AS n FROM decisoes').fetchone()['n'],0)
 
     def test_worker_error_marks_the_closing_as_error(self):
         response = self.post(uploads=[('arquivos',('pacote.zip',b'isto nao e um zip','application/zip'))])

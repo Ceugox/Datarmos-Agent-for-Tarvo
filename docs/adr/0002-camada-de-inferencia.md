@@ -1,6 +1,14 @@
 # 0002 — Camada de inferência (LLM) sobre o motor determinístico, exposta como API
 
-Status: proposta em 2026-10-17, aguardando aprovação. Complementa o ADR 0001 sem revogá-lo: o núcleo continua determinístico, local e sem rede; o que muda é que ele passa a ter uma camada opcional por cima e um serviço HTTP fino em volta.
+Status: aceito e implementado em 2026-10-17. Complementa o ADR 0001 sem revogá-lo: o núcleo continua determinístico, local e sem rede; o que muda é que ele passa a ter uma camada opcional por cima e um serviço HTTP fino em volta.
+
+## Diferenças em relação ao plano
+
+- **A fila existe sem a camada, e decisões também (Fase 5).** Com `usar_llm=false` a API listava 0 exceções e `DECISAO`/`CONDICAO_COMERCIAL` ficavam sem como fechar. Agora `/excecoes` lista todas as exceções do fechamento (`resultado=SEM_CAMADA` sem a camada), `manifest.json` traz `camada` (`ligada`, `auditoria`) e a revisão aceita um pai sem `auditoria.jsonl` quando o marcador diz que a camada não rodou. Pai antigo, sem marcador, segue recusado.
+- **`aprovar` sem proposta vira `RECUSADA`.** Em `MOVIMENTO_SEM_REGRA`, aprovar sem proposta validada no pai não é mais erro: a revisão existe, registra `DECISAO_APLICADA` com `resultado=RECUSADA` e o motivo, e nada muda.
+- **Rastro com `regra` e `ref_contrato`.** Fora do plano: `rastro.csv` ganhou as colunas `regra` (caminho da regra em `closing-policy.json`) e `ref_contrato` (linha da planilha de taxas), e o `manifest.json` ganhou `execucao` (horário em UTC) e as linhas lidas por fonte, a pedido da organização, para que cada número seja refeito sem perguntar.
+- **Deploy feito no Railway, a pedido do usuário.** O plano dizia "sem deploy e sem criar recursos"; o projeto `tarvo-fechamento` (serviços `api` e `Postgres`, volume `/data`) foi criado depois, em https://api-production-0e0e3.up.railway.app.
+- **Schema embrulhado em `{proposta}` no tool.** O `input_schema` do tool `propor_resolucao` é um objeto com a única propriedade `proposta`, que carrega o schema de `config/proposal.schema.json`; o schema do arquivo tem `anyOf` na raiz e o embrulho mantém o `input_schema` do tool um objeto simples. O resolvedor lê `input['proposta']`. A primeira chamada real, em produção, falhou: `400 invalid_request_error: "tools.0.custom: For 'anyOf', 'type' is not supported"`, porque a raiz do schema tinha `type: object` junto do `anyOf`. A correção tira o `type` da raiz (os 8 ramos mantêm o deles) e sobe `prompt_version` para `2026-10-17.2`, para não reaproveitar o cache antigo. Os erros da API passam a ser classificados: `ERRO_REDE` só para conexão, timeout, 429 e status 500 ou mais; `ERRO_API` para os demais 4xx, com `detalhe` (tipo, status, mensagem, `request_id`) na auditoria.
 
 ## Contexto
 

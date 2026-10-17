@@ -1,5 +1,4 @@
 {
-  "type": "object",
   "description": "Proposta de resolução de uma exceção do fechamento. Não contém campo monetário.",
   "anyOf": [
     {

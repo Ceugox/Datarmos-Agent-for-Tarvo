@@ -2,6 +2,7 @@
 from collections import deque
 from contextlib import asynccontextmanager
 from pathlib import Path
+import json
 import logging
 import math
 import re
@@ -96,6 +97,16 @@ def validate_names(uploads):
         prefix = next((p for p in EXTENSIONS if name.startswith(p)),None)
         if prefix is None or not name.lower().endswith(EXTENSIONS[prefix]):
             raise HTTPException(422,f'arquivo fora do padrão do pacote: {name}')
+
+
+def has_layer_marker(folder):
+    """A parent that ran without the layer says so in its manifest (camada.auditoria == false); an old run has no marker."""
+    try:
+        manifest = json.loads((folder/'manifest.json').read_text(encoding='utf-8'))
+    except (OSError, ValueError):
+        return False
+    layer = manifest.get('camada') if isinstance(manifest,dict) else None
+    return isinstance(layer,dict) and layer.get('auditoria') is False
 
 
 def create_app(settings=None):
@@ -248,7 +259,7 @@ def create_app(settings=None):
     @app.get('/v1/fechamentos/{fid}/excecoes')
     def list_excecoes(fid: str, client=Depends(current_client), conn=Depends(get_conn)):
         row = own_fechamento(conn,client,fid)
-        return conn.execute('SELECT id, excecao_id, classe, tipo, modo, resultado, motivo, proposta, verificacoes, aplicada, pendencia_status FROM excecoes WHERE fechamento_id=%s ORDER BY id',(row['id'],)).fetchall()
+        return conn.execute('SELECT id, excecao_id, classe, tipo, escopo, valor_brl, quem_decide, motivo_pendencia, modo, resultado, motivo, proposta, verificacoes, aplicada, pendencia_status FROM excecoes WHERE fechamento_id=%s ORDER BY id',(row['id'],)).fetchall()
 
     @app.get('/v1/fechamentos/{fid}/auditoria')
     def get_auditoria(fid: str, client=Depends(current_client), conn=Depends(get_conn)):
@@ -273,9 +284,10 @@ def create_app(settings=None):
         if parent is None:
             conn.rollback()
             raise HTTPException(409,'fechamento ainda não concluído')
-        if not (worker.result_dir(settings,client['id'],root,parent['numero_revisao'])/'auditoria.jsonl').is_file():
+        parent_dir = worker.result_dir(settings,client['id'],root,parent['numero_revisao'])
+        if not (parent_dir/'auditoria.jsonl').is_file() and not has_layer_marker(parent_dir):
             conn.rollback()
-            raise HTTPException(409,'a execução não tem auditoria: decisões exigem uma execução com a camada de inferência (usar_llm)')
+            raise HTTPException(409,'a execução é anterior ao marcador da camada e não tem auditoria: refaça o fechamento para decidir')
         child = uuid.uuid4()
         conn.execute("INSERT INTO fechamentos (id, cliente_id, periodo, status, usar_llm, numero_revisao, pai_id, politica_closing_id, politica_inference_id) VALUES (%s,%s,%s,'NA_FILA',%s,%s,%s,%s,%s)",
                      (child,client['id'],parent['periodo'],parent['usar_llm'],parent['numero_revisao']+1,parent['id'],parent['politica_closing_id'],parent['politica_inference_id']))

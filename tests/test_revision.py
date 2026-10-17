@@ -59,6 +59,7 @@ class RevisionTests(unittest.TestCase):
         result = close_month(cls.bundle,NO_FEES,'2026-09')
         cls.movements = [e.as_dict() for e in result.exceptions if e.classe == MSR]
         cls.others = [e.as_dict() for e in result.exceptions if e.classe == 'DECISAO']
+        cls.bundle_exceptions = [e.as_dict() for e in result.exceptions]
         entries = {f'{e["bank"]}:{e["_source"]["ref_origem"]}':e for e in cls.bundle.bank_entries}
         cls.responses = {m['excecao_id']:cls.proposal(m,entries[m['escopo']]['description']) for m in cls.movements}
         cls.base = cls.root/'base'
@@ -281,11 +282,68 @@ class RevisionTests(unittest.TestCase):
         code, _, err = run(self.path('no-decisions'),'--policy',str(self.policy_path),'--revisao-de',str(self.path('p-parent')))
         self.assertEqual((code,'Closing failed' in err),(1,True))
 
-    def test_parent_without_audit_fails(self):
-        code, _, err = run(self.path('rev-no-audit'),'--policy',str(self.policy_path),'--decisoes',self.decisions('na',self.decision(self.movements[0])),'--revisao-de',str(self.base))
+    def test_old_parent_without_audit_and_without_marker_fails(self):
+        old = self.path('old-parent')
+        shutil.copytree(self.base,old)
+        manifest = json.loads((old/'manifest.json').read_text(encoding='utf-8'))
+        del manifest['camada']
+        (old/'manifest.json').write_text(json.dumps(manifest),encoding='utf-8')
+        code, _, err = run(self.path('rev-no-audit'),'--policy',str(self.policy_path),'--decisoes',self.decisions('na',self.decision(self.movements[0])),'--revisao-de',str(old))
         self.assertEqual(code,1)
         self.assertIn('Closing failed',err)
         self.assertIn('auditoria',err)
+
+    def test_camada_marker_in_the_manifest(self):
+        marker = lambda name: json.loads((self.path(name)/'manifest.json').read_text(encoding='utf-8'))['camada']
+        self.assertEqual(marker('base'),{'ligada':False,'auditoria':False})
+        self.layer('mark-layer','sugerir')
+        self.assertEqual(marker('mark-layer'),{'ligada':True,'auditoria':True})
+        self.revise('mark-rev','mark-layer','sugerir',None,self.decision(self.others[0]))
+        self.assertEqual(marker('mark-rev'),{'ligada':False,'auditoria':True})
+
+    def test_decisions_on_a_parent_without_the_layer(self):
+        first, second = self.others[0], next(e for e in self.bundle_exceptions if e['classe'] == 'CONDICAO_COMERCIAL')
+        self.revise('nl-ok','base','sugerir',None,self.decision(first),self.decision(second))
+        statuses = {r['id_saida']:r['status'] for r in read_csv(self.path('nl-ok'),'pendencias')}
+        self.assertEqual((statuses[first['excecao_id']],statuses[second['excecao_id']]),('APROVADA','APROVADA'))
+        self.assert_numbers_unchanged('nl-ok')
+        self.assertEqual((self.base/'lancamentos_classificados.csv').read_bytes(),(self.path('nl-ok')/'lancamentos_classificados.csv').read_bytes())
+        events = read_audit(self.path('nl-ok'))
+        self.assertEqual(events[0]['evento'],'REVISAO')
+        applied = [e for e in events if e['evento'] == 'DECISAO_APLICADA']
+        self.assertEqual([(e['resultado'],e['decidido_por'],e['motivo']) for e in applied],[('REGISTRADA','Helena','confere com o extrato')]*2)
+        manifest = json.loads((self.path('nl-ok')/'manifest.json').read_text(encoding='utf-8'))
+        self.assertEqual((manifest['camada'],manifest['revisao']['run_id_pai']),({'ligada':False,'auditoria':True},json.loads((self.base/'manifest.json').read_text(encoding='utf-8'))['run_id']))
+        self.revise('nl-rej','base','sugerir',None,self.decision(first,'rejeitar'),self.decision(second,'rejeitar'))
+        statuses = {r['id_saida']:r['status'] for r in read_csv(self.path('nl-rej'),'pendencias')}
+        self.assertEqual((statuses[first['excecao_id']],statuses[second['excecao_id']]),('REJEITADA','REJEITADA'))
+        self.assert_numbers_unchanged('nl-rej')
+
+    def test_editar_on_a_parent_without_the_layer_uses_the_movement_description(self):
+        movement = self.movements[0]
+        ban = identifier('BAN',movement['escopo'])
+        self.revise('nl-edit','base','sugerir',None,self.decision(movement,'editar',parametros={'conta_codigo':'4.2.01'}))
+        line = self.row(self.path('nl-edit'),'lancamentos_classificados',ban)
+        self.assertEqual((line['metodo'],line['conta_codigo'],line['confianca']),('IA','4.2.01',''))
+        self.assertEqual(self.row(self.path('nl-edit'),'pendencias',movement['excecao_id'])['status'],'RESOLVIDA')
+        self.assertIn('evidência IA',self.row(self.path('nl-edit'),'rastro',ban)['formula'])
+        event = next(e for e in read_audit(self.path('nl-edit')) if e['evento'] == 'DECISAO_APLICADA')
+        self.assertEqual(event['resultado'],'APLICADA')
+        self.revise('nl-edit-bad','base','sugerir',None,self.decision(movement,'editar',parametros={'conta_codigo':'2.1.03.001'}))
+        event = next(e for e in read_audit(self.path('nl-edit-bad')) if e['evento'] == 'DECISAO_APLICADA')
+        self.assertEqual(event['resultado'],'RECUSADA')
+        self.assertEqual(self.row(self.path('nl-edit-bad'),'lancamentos_classificados',ban)['metodo'],'REGRA')
+        self.assert_numbers_unchanged('nl-edit-bad')
+
+    def test_approving_a_movement_on_a_parent_without_the_layer_is_refused(self):
+        movement = self.movements[0]
+        out, err = self.revise('nl-msr','base','sugerir',None,self.decision(movement))
+        self.assertIn('sem proposta validada na execução pai',err)
+        event = next(e for e in read_audit(self.path('nl-msr')) if e['evento'] == 'DECISAO_APLICADA')
+        self.assertEqual((event['resultado'],event['decidido_por'],event['motivo_recusa']),('RECUSADA','Helena','sem proposta validada na execução pai'))
+        self.assertEqual(self.row(self.path('nl-msr'),'pendencias',movement['excecao_id'])['status'],'PENDENTE')
+        self.assertIn('0 applied, 0 recorded, 1 refused',out)
+        self.assert_numbers_unchanged('nl-msr')
 
     def test_revision_on_other_sources_fails(self):
         self.layer('src-parent','sugerir')
@@ -340,10 +398,13 @@ class RevisionTests(unittest.TestCase):
         self.assertIn('Closing failed',err)
         self.assertIn('sombra',err)
 
-    def test_approve_without_a_validated_proposal_fails(self):
+    def test_approve_without_a_validated_proposal_is_refused(self):
         self.layer('empty-parent','sugerir',None,FakeResolver({}))
-        out, err = self.revise('empty-rev','empty-parent','sugerir',None,self.decision(self.movements[0]),expected=1)
-        self.assertIn('Closing failed',err)
+        movement = self.movements[0]
+        out, err = self.revise('empty-rev','empty-parent','sugerir',None,self.decision(movement))
+        self.assertIn('sem proposta validada',err)
+        self.assertEqual([e['resultado'] for e in read_audit(self.path('empty-rev')) if e['evento'] == 'DECISAO_APLICADA'],['RECUSADA'])
+        self.assert_numbers_unchanged('empty-rev')
 
     def test_malformed_parent_manifest_fails_cleanly(self):
         self.layer('bad-parent','sugerir')

@@ -29,7 +29,7 @@ class InferencePolicyTests(unittest.TestCase):
 
     def test_repository_policy_loads_with_the_initial_modes(self):
         policy = load_inference_policy(PATH)
-        self.assertEqual(policy['prompt_version'],'2026-10-17.1')
+        self.assertEqual(policy['prompt_version'],'2026-10-17.2')
         expected = {'MOVIMENTO_SEM_REGRA':'sombra','DECISAO':'sugerir','CONDICAO_COMERCIAL':'sugerir'}
         for classe in CLASSES:
             self.assertEqual(effective_mode(policy,classe),expected.get(classe,'desligado'),classe)

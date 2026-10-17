@@ -42,12 +42,12 @@ def _cost(model, usage):
     return None if value is None else str(value)
 
 
-def _event(item, resultado, motivo, resolver, proposta=None, checks=None, usage=None, cached=False):
+def _event(item, resultado, motivo, resolver, proposta=None, checks=None, usage=None, cached=False, detalhe=None):
     usage = {**zero_usage(), **(usage or {})}
     excecao = item['excecao']
     return {'evento':'EXCECAO', 'excecao_id':excecao['excecao_id'], 'classe':excecao['classe'], 'tipo':excecao['tipo'], 'modo':item['modo'],
             'resultado':resultado, 'motivo':motivo, 'proposta':proposta, 'verificacoes':checks or [], 'tokens':usage,
-            'custo_usd':_cost(resolver.model,usage), 'cache':cached, 'aplicada':False}
+            'custo_usd':_cost(resolver.model,usage), 'cache':cached, 'detalhe':detalhe, 'aplicada':False}
 
 
 def _pending(result, excecao_id):
@@ -97,7 +97,7 @@ def run_inference(bundle, result, closing_policy, inference_policy, resolver, au
             for key in USAGE_KEYS:
                 total[key] += int(answer.usage.get(key,0) or 0)
             if isinstance(answer,Failure):
-                event = _event(item,'HUMANO',answer.reason,resolver,usage=answer.usage)
+                event = _event(item,'HUMANO',answer.reason,resolver,usage=answer.usage,detalhe=answer.detalhe or None)
             else:
                 data, cached = answer.data, answer.cached
                 shape = check_shape(data,excecao)
@@ -161,9 +161,11 @@ def _read_parent(parent_dir, bundle, period, closing_policy):
     parent = Path(parent_dir)
     if not (parent/'manifest.json').is_file():
         raise ValueError(f'Parent run has no manifest.json: {parent}')
-    if not (parent/'auditoria.jsonl').is_file():
-        raise ValueError('a execução pai não tem auditoria (auditoria.jsonl): rode-a com a camada ligada antes de decidir')
     manifest = json.loads((parent/'manifest.json').read_text(encoding='utf-8'))
+    has_audit = (parent/'auditoria.jsonl').is_file()
+    ran_without_layer = isinstance(manifest,dict) and isinstance(manifest.get('camada'),dict) and manifest['camada'].get('auditoria') is False
+    if not has_audit and not ran_without_layer:
+        raise ValueError('a execução pai não tem auditoria (auditoria.jsonl) nem o marcador camada no manifest: rode-a de novo antes de decidir')
     if not isinstance(manifest,dict) or not all(key in manifest for key in ('run_id','period','sources','output_sha256')) \
             or not isinstance(manifest['sources'],dict) or not isinstance(manifest['output_sha256'],dict):
         raise ValueError('Parent manifest.json is malformed')
@@ -173,7 +175,8 @@ def _read_parent(parent_dir, bundle, period, closing_policy):
         raise ValueError('Parent run used other source files (sources sha256 differ, fontes diferentes): the decisions were taken on different data')
     if manifest['output_sha256'].get('policy.json') != hashlib.sha256(encode_json(closing_policy).encode()).hexdigest():
         raise ValueError('decisões tomadas com outra closing-policy')
-    events = [json.loads(line) for line in (parent/'auditoria.jsonl').read_text(encoding='utf-8').splitlines() if line.strip()]
+    # A parent that ran without the layer has no proposals, nothing applied and nothing inherited.
+    events = [json.loads(line) for line in (parent/'auditoria.jsonl').read_text(encoding='utf-8').splitlines() if line.strip()] if has_audit else []
     if not all(isinstance(event,dict) for event in events):
         raise ValueError('Parent auditoria.jsonl is malformed')
     return manifest, events
@@ -230,7 +233,11 @@ def run_revision(bundle, result, closing_policy, inference_policy, parent_dir, d
         else:
             if decision['decisao'] == 'aprovar':
                 if excecao['excecao_id'] not in validated:
-                    raise ValueError(f'Exception {excecao["excecao_id"]}: the parent run has no validated proposal to approve')
+                    refusal = 'sem proposta validada na execução pai'
+                    print(f'Decision refused for {excecao["excecao_id"]}: {refusal}',file=sys.stderr)
+                    own.append({'evento':'DECISAO_APLICADA', **base, 'resultado':'RECUSADA', 'motivo_recusa':refusal, 'verificacoes':[], 'proposta':None})
+                    summary.append({**base, 'resultado':'RECUSADA'})
+                    continue
                 if validated[excecao['excecao_id']].get('modo') not in ('sugerir','automatico'):
                     raise ValueError(f'Exception {excecao["excecao_id"]}: proposta em modo sombra não pode ser aprovada')
                 proposal = validated[excecao['excecao_id']]['proposta']

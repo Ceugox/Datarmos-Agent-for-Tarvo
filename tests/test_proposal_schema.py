@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'src'))
 
 from tarvo_close.exceptions import CLASSES
+from tarvo_close.resolver import AnthropicResolver
 
 SCHEMA = json.loads((ROOT/'config/proposal.schema.json').read_text(encoding='utf-8'))
 KEYWORDS = {'type','properties','required','additionalProperties','enum','const','items','anyOf','minItems','description'}
@@ -23,6 +24,63 @@ def walk(node, path='$'):
         yield from walk(node['items'],f'{path}[]')
     for index, child in enumerate(node.get('anyOf',[])):
         yield from walk(child,f'{path}|{index}')
+
+
+STRICT_DOC_KEYWORDS = {'type','properties','required','additionalProperties','enum','const','items','anyOf','description'}  # doc: tool-use-concepts.md, strict mode
+COMBINATORS = ('anyOf','oneOf','allOf')
+
+
+def walk_all(node, path='$'):
+    """Like walk, but also over oneOf/allOf, so the strict checks cannot miss a combinator branch."""
+    yield path, node
+    for name, child in node.get('properties',{}).items():
+        yield from walk_all(child,f'{path}.{name}')
+    if isinstance(node.get('items'),dict):
+        yield from walk_all(node['items'],f'{path}[]')
+    for key in COMBINATORS:
+        for index, child in enumerate(node.get(key,[])):
+            yield from walk_all(child,f'{path}|{key}{index}')
+
+
+class StrictToolInputSchemaTests(unittest.TestCase):
+    """The real tool input_schema (the whole wrapper). The API answered 400 on `type` next to `anyOf`."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tool = AnthropicResolver(client=object())._tool()
+        cls.nodes = list(walk_all(cls.tool['input_schema']))
+
+    def test_tool_is_strict(self):
+        self.assertIs(self.tool['strict'],True)
+
+    def test_no_node_mixes_type_with_a_combinator(self):
+        for path, node in self.nodes:
+            if 'type' in node:
+                self.assertFalse(set(node) & set(COMBINATORS),path)
+
+    def test_every_object_is_closed_and_fully_required(self):
+        # The doc only requires additionalProperties: false; requiring every property is our own convention (brief da Fase 2).
+        objects = [(path,node) for path, node in self.nodes if node.get('type') == 'object']
+        self.assertGreater(len(objects),10)
+        for path, node in objects:
+            self.assertIs(node.get('additionalProperties'),False,path)
+            self.assertEqual(set(node['required']),set(node['properties']),path)
+
+    def test_only_keywords_the_strict_mode_accepts(self):
+        found = set()
+        for path, node in self.nodes:
+            self.assertLessEqual(set(node),KEYWORDS,path)
+            found |= set(node)
+        self.assertLessEqual(found,STRICT_DOC_KEYWORDS)
+        self.assertNotIn('minItems',found)
+
+    def test_file_schema_still_demands_one_evidence(self):
+        from tarvo_close.validators import check_shape
+        item = {'excecao_id':'PEN-1', 'classe':'CADASTRO', 'tipo':'X'}
+        proposal = {'excecao_id':'PEN-1', 'classe':'CADASTRO', 'acao':'ENCAMINHAR_HUMANO', 'parametros':{}, 'evidencias':[], 'justificativa':'x', 'requer_humano':True}
+        self.assertTrue(check_shape(proposal,item))
+        proposal['evidencias'] = [{'arquivo':'a', 'ref':'L1', 'trecho':'t'}]
+        self.assertEqual(check_shape(proposal,item),[])
 
 
 class ProposalSchemaTests(unittest.TestCase):

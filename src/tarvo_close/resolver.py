@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from pathlib import Path
 import json
+import logging
 import os
 
 from .llm_cache import canonical
@@ -10,7 +11,8 @@ from .privacy import mask_personal_data
 
 USAGE_KEYS = ('input_tokens','output_tokens','cache_read_input_tokens','cache_creation_input_tokens')
 TOOL_NAME = 'propor_resolucao'
-NETWORK_ERRORS = ('APIConnectionError','APITimeoutError','APIStatusError')
+TRANSIENT_ERRORS = ('APIConnectionError','APITimeoutError','RateLimitError')  # plus APIStatusError with status >= 500 (529 included)
+logger = logging.getLogger('tarvo_close.resolver')
 # Prices in USD per million tokens, checked on 2026-10-17. A model missing here has no cost (None), never zero.
 PRICES_USD_PER_MTOK = {'claude-opus-5-5': {'input':'4', 'output':'20', 'cache_read':'0.20', 'cache_write':'5'}}
 SCHEMA_PATH = Path(__file__).resolve().parents[2]/'config'/'proposal.schema.json'
@@ -43,6 +45,23 @@ class Failure:
     reason: str
     detail: str = ''
     usage: dict = field(default_factory=dict)
+    detalhe: dict = field(default_factory=dict)
+
+
+def classify_error(error):
+    """None when the exception is not an SDK error (the caller re-raises). Classes are matched by MRO name so the SDK is never imported."""
+    names = {cls.__name__ for cls in type(error).__mro__}
+    if not names & {'APIConnectionError','APITimeoutError','APIStatusError'}:
+        return None
+    status = getattr(error,'status_code',None)
+    transient = bool(names & set(TRANSIENT_ERRORS)) or (isinstance(status,int) and status >= 500)
+    reason = 'ERRO_REDE' if transient else 'ERRO_API'
+    kind, request_id = type(error).__name__, getattr(error,'request_id',None)
+    if reason == 'ERRO_API':  # our configuration (model, schema, key): visible in the service log, one line, no transaction data
+        logger.error('ERRO_API %s status=%s request_id=%s',kind,status,request_id)
+    else:
+        logger.warning('ERRO_REDE %s status=%s request_id=%s',kind,status,request_id)
+    return Failure(reason,detail=kind,detalhe={'tipo':kind, 'status':status, 'mensagem':str(error)[:500], 'request_id':request_id})
 
 
 class Resolver:
@@ -105,13 +124,21 @@ class TokenBudget:
         return self.used >= self.limit
 
 
+def _without_min_items(node):
+    if isinstance(node,dict):
+        return {key:_without_min_items(value) for key, value in node.items() if key != 'minItems'}
+    if isinstance(node,list):
+        return [_without_min_items(item) for item in node]
+    return node
+
+
 def read_usage(response):
     usage = getattr(response,'usage',None)
     return {key:int(getattr(usage,key,0) or 0) for key in USAGE_KEYS}
 
 
 class AnthropicResolver(Resolver):
-    def __init__(self, model=None, client=None, schema=None, effort='medium', max_tokens=16000, timeout=120.0, max_retries=2, prompt_version='2026-10-17.1'):
+    def __init__(self, model=None, client=None, schema=None, effort='medium', max_tokens=16000, timeout=120.0, max_retries=2, prompt_version='2026-10-17.2'):
         self.model = model or os.environ.get('ANTHROPIC_MODEL','claude-opus-5-5')
         self.client, self.effort, self.max_tokens = client, effort, max_tokens
         self.timeout, self.max_retries, self.prompt_version = timeout, max_retries, prompt_version
@@ -125,7 +152,8 @@ class AnthropicResolver(Resolver):
 
     def _tool(self):
         # The file schema has anyOf at the root; the wrapper keeps the tool input_schema a plain object.
-        wrapper = {'type':'object', 'properties':{'proposta':self.schema}, 'required':['proposta'], 'additionalProperties':False}
+        # minItems is not a strict keyword; the local check_schema reads the file and still demands >= 1 evidence.
+        wrapper = {'type':'object', 'properties':{'proposta':_without_min_items(self.schema)}, 'required':['proposta'], 'additionalProperties':False}
         return {'name':TOOL_NAME, 'description':'Registra a proposta de resolução da exceção, conforme o schema.', 'strict':True, 'input_schema':wrapper}
 
     def propose(self, excecao, context):
@@ -137,9 +165,10 @@ class AnthropicResolver(Resolver):
                 tools=[self._tool()], tool_choice={'type':'auto'}, output_config={'effort':self.effort},
                 betas=['server-side-fallback-2026-07-01'], fallbacks='default')
         except Exception as error:
-            if any(cls.__name__ in NETWORK_ERRORS for cls in type(error).__mro__):
-                return Failure('ERRO_REDE',detail=type(error).__name__)
-            raise
+            failure = classify_error(error)
+            if failure is None:
+                raise
+            return failure
         usage = read_usage(response)
         if getattr(response,'stop_reason',None) == 'refusal':
             return Failure('RECUSA',usage=usage)

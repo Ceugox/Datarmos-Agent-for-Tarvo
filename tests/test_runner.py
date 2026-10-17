@@ -44,6 +44,7 @@ class RunnerTests(unittest.TestCase):
         done = run_closing(PACK,CLOSING,None,'2026-09',self.root/'no-llm',use_llm=False)
         self.assertEqual((done['events'],done['audit'],done['aviso']),([],None,None))
         same_bytes(self,self.root/'cli',self.root/'no-llm')
+        self.assertEqual(json.loads((self.root/'no-llm'/'manifest.json').read_text(encoding='utf-8'))['camada'],{'ligada':False,'auditoria':False})
 
     def test_without_key_returns_a_warning_and_no_audit(self):
         with without_key():
@@ -61,6 +62,7 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(len(done['events']),13)
         self.assertTrue((self.root/'layer'/'auditoria.jsonl').is_file())
         same_bytes(self,self.root/'cli',self.root/'layer',VOLATILE|{'auditoria.jsonl'})
+        self.assertEqual(done['manifest']['camada'],{'ligada':True,'auditoria':True})
 
     def test_revision_applies_an_approval(self):
         self.layer()
@@ -68,6 +70,7 @@ class RunnerTests(unittest.TestCase):
         decisions = [{'excecao_id':known, 'decisao':'aprovar', 'decidido_por':'Helena', 'motivo':'ok'}]
         done = run_revision_closing(PACK,CLOSING,INFERENCE,'2026-09',self.root/'rev',self.root/'layer',decisions)
         self.assertEqual(done['revision']['numero'],1)
+        self.assertEqual(done['manifest']['camada'],{'ligada':False,'auditoria':True})
         with open(self.root/'rev'/'pendencias.csv',encoding='utf-8',newline='') as handle:
             rows = {r['id_saida']:r['status'] for r in csv.DictReader(handle,delimiter=';')}
         self.assertEqual(rows[known],'APROVADA')

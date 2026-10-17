@@ -3,6 +3,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 from unittest import mock
+import json
 import os
 import subprocess
 import sys
@@ -26,11 +27,32 @@ class APITimeoutError(Exception):
 
 
 class APIStatusError(Exception):
-    pass
+    def __init__(self, message='x', status_code=None, request_id=None):
+        super().__init__(message)
+        self.message, self.status_code, self.request_id = message, status_code, request_id
 
 
 class RateLimitError(APIStatusError):
     pass
+
+
+class InternalServerError(APIStatusError):
+    pass
+
+
+class OverloadedError(APIStatusError):
+    pass
+
+
+class BadRequestError(APIStatusError):
+    pass
+
+
+class AuthenticationError(APIStatusError):
+    pass
+
+
+FAKE_KEY = 'sk-ant-TESTE'
 
 
 class FakeClient:
@@ -121,10 +143,43 @@ class AnthropicResolverTests(unittest.TestCase):
         result = AnthropicResolver(client=FakeClient(response)).propose(exception(),CONTEXT)
         self.assertEqual(result.reason,'SEM_TOOL_CALL')
 
-    def test_network_errors(self):
-        for error_class in (APIConnectionError,APITimeoutError,APIStatusError,RateLimitError):
-            result = AnthropicResolver(client=FakeClient(error=error_class('x'))).propose(exception(),CONTEXT)
-            self.assertEqual((result.reason,result.detail),('ERRO_REDE',error_class.__name__))
+    def classify(self, error):
+        client = FakeClient(error=error)
+        client.api_key = FAKE_KEY  # like the SDK client: the key lives on the client and must never reach the failure
+        with self.assertLogs('tarvo_close.resolver') as logs:
+            result = AnthropicResolver(client=client).propose(exception(),CONTEXT)
+        self.assertIsInstance(result,Failure)
+        self.assertNotIn(FAKE_KEY,str(result))
+        self.assertNotIn(FAKE_KEY,'\n'.join(logs.output))
+        return result, logs
+
+    def test_api_errors_are_configuration_failures(self):
+        for error_class, status in ((BadRequestError,400), (AuthenticationError,401), (APIStatusError,403), (APIStatusError,404), (APIStatusError,413), (APIStatusError,422)):
+            error = error_class("tools.0.custom: For 'anyOf', 'type' is not supported "+'z'*600,status_code=status,request_id='req_123')
+            result, logs = self.classify(error)
+            self.assertEqual((result.reason,result.detail),('ERRO_API',error_class.__name__))
+            self.assertEqual(set(result.detalhe),{'tipo','status','mensagem','request_id'})
+            self.assertEqual((result.detalhe['tipo'],result.detalhe['status'],result.detalhe['request_id']),(error_class.__name__,status,'req_123'))
+            self.assertTrue(result.detalhe['mensagem'].startswith("tools.0.custom: For 'anyOf'"))
+            self.assertEqual(len(result.detalhe['mensagem']),500)
+            self.assertEqual([r.levelname for r in logs.records],['ERROR'])
+            self.assertEqual(logs.records[0].getMessage(),f'ERRO_API {error_class.__name__} status={status} request_id=req_123')
+
+    def test_transient_errors_are_network_failures(self):
+        errors = (RateLimitError('x',status_code=429,request_id='r1'), InternalServerError('x',status_code=500), OverloadedError('x',status_code=529,request_id='r3'),
+                  APIStatusError('x',status_code=503), APIConnectionError('x'), APITimeoutError('x'))
+        for error in errors:
+            result, logs = self.classify(error)
+            self.assertEqual((result.reason,result.detail),('ERRO_REDE',type(error).__name__))
+            self.assertEqual(result.detalhe['tipo'],type(error).__name__)
+            self.assertEqual(result.detalhe['status'],getattr(error,'status_code',None))
+            self.assertEqual(result.detalhe['request_id'],getattr(error,'request_id',None))
+            self.assertEqual([r.levelname for r in logs.records],['WARNING'])
+
+    def test_status_error_without_status_is_not_transient(self):
+        result, _ = self.classify(APIStatusError('x'))
+        self.assertEqual(result.reason,'ERRO_API')
+        self.assertIsNone(result.detalhe['status'])
 
     def test_other_errors_are_not_swallowed(self):
         with self.assertRaises(RuntimeError):
@@ -134,6 +189,11 @@ class AnthropicResolverTests(unittest.TestCase):
         for value in ('texto',None,[1]):
             result = AnthropicResolver(client=FakeClient(tool_response(value))).propose(exception(),CONTEXT)
             self.assertEqual(result.reason,'FORA_DO_SCHEMA')
+
+    def test_prompt_version_default_matches_the_policy(self):
+        policy = json.loads((ROOT/'config'/'inference-policy.json').read_text(encoding='utf-8'))
+        self.assertEqual(AnthropicResolver(client=FakeClient()).prompt_version,policy['prompt_version'])
+        self.assertEqual(policy['prompt_version'],'2026-10-17.2')
 
     def test_source_never_reads_the_api_key(self):
         self.assertNotIn('ANTHROPIC_API_KEY',(ROOT/'src'/'tarvo_close'/'resolver.py').read_text(encoding='utf-8'))

@@ -15,7 +15,7 @@ from api.cache import PostgresResponseCache
 from api.db import connect, migrate
 from api.settings import Settings
 from tarvo_close import runner
-from tarvo_close.inference_policy import load_inference_policy
+from tarvo_close.inference_policy import effective_mode, load_inference_policy
 from tarvo_close.resolver import TokenBudget
 
 log = logging.getLogger('api')
@@ -59,7 +59,7 @@ def _read_jsonl(path):
     return [json.loads(line) for line in path.read_text(encoding='utf-8').splitlines() if line.strip()]
 
 
-def _store(conn, fech, out, done, revision):
+def _store(conn, fech, out, done, revision, inference):
     metrics = json.loads((out/'metrics.json').read_text(encoding='utf-8'))
     checks = json.loads((out/'checks.json').read_text(encoding='utf-8'))
     status = 'PROVISORIO' if metrics.get('status') == 'PROVISORIO' else 'CONCLUIDO'
@@ -73,17 +73,28 @@ def _store(conn, fech, out, done, revision):
     with open(out/'pendencias.csv',encoding='utf-8',newline='') as handle:
         pending = {row['id_saida']:row['status'] for row in csv.DictReader(handle,delimiter=';')}
     decided = {e['excecao_id'] for e in events if e.get('evento') == 'DECISAO_APLICADA' and e.get('resultado') == 'APLICADA'}
-    seen = set()
+    # the queue always exists: one row per exception of the closing, with or without the inference layer
+    rows = {}
+    for exc in done['result'].exceptions:
+        item = exc.as_dict()
+        rows[item['excecao_id']] = {'classe':item['classe'], 'tipo':item['tipo'], 'modo':effective_mode(inference,item['classe']), 'resultado':'SEM_CAMADA', 'motivo':None,
+                                    'proposta':None, 'verificacoes':[], 'aplicada':False, 'escopo':item['escopo'],
+                                    'valor_brl':None if item['valor_brl'] is None else str(item['valor_brl']),
+                                    'motivo_pendencia':item['motivo'], 'quem_decide':item['quem_decide']}
     for event in events:
         # an original run stores its own events; a revision stores the inherited ones too, so its rows carry the new pendencia_status
-        if event.get('evento') != 'EXCECAO' or (event.get('herdado') and not revision) or event['excecao_id'] in seen:
+        if event.get('evento') != 'EXCECAO' or (event.get('herdado') and not revision):
             continue
-        seen.add(event['excecao_id'])
-        conn.execute('INSERT INTO excecoes (fechamento_id, excecao_id, classe, tipo, modo, resultado, motivo, proposta, verificacoes, aplicada, pendencia_status) '
-                     'VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',
-                     (fech['id'],event['excecao_id'],event['classe'],event['tipo'],event['modo'],event['resultado'],event.get('motivo'),
-                      Jsonb(event['proposta']) if event.get('proposta') is not None else None,Jsonb(event.get('verificacoes') or []),
-                      bool(event.get('aplicada')) or event['excecao_id'] in decided,pending.get(event['excecao_id'])))
+        row = rows.setdefault(event['excecao_id'],{'classe':event['classe'], 'tipo':event['tipo'], 'modo':event['modo'], 'escopo':None, 'valor_brl':None,
+                                                   'motivo_pendencia':None, 'quem_decide':None})
+        row.update(resultado=event['resultado'], motivo=event.get('motivo'), proposta=event.get('proposta'), verificacoes=event.get('verificacoes') or [],
+                   aplicada=bool(event.get('aplicada')))
+    for excecao_id, row in rows.items():
+        conn.execute('INSERT INTO excecoes (fechamento_id, excecao_id, classe, tipo, modo, resultado, motivo, proposta, verificacoes, aplicada, pendencia_status, escopo, valor_brl, motivo_pendencia, quem_decide) '
+                     'VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',
+                     (fech['id'],excecao_id,row['classe'],row['tipo'],row['modo'],row['resultado'],row['motivo'],
+                      Jsonb(row['proposta']) if row['proposta'] is not None else None,Jsonb(row['verificacoes']),
+                      row['aplicada'] or excecao_id in decided,pending.get(excecao_id),row['escopo'],row['valor_brl'],row['motivo_pendencia'],row['quem_decide']))
     return status
 
 
@@ -109,7 +120,7 @@ def process(job, conn, settings, resolver=None):
             done = runner.run_closing(source,closing,inference,fech['periodo'],out,resolver=resolver,cache=PostgresResponseCache(lambda: connect(settings.database_url),cliente),
                                       budget=TokenBudget(settings.llm_budget_tokens),use_llm=fech['usar_llm'])
             warning = done['aviso']
-        status = _store(conn,fech,out,done,job['tipo'] == 'REVISAO')
+        status = _store(conn,fech,out,done,job['tipo'] == 'REVISAO',inference)
         conn.execute('UPDATE fechamentos SET aviso=%s WHERE id=%s',(warning,fech['id']))
         jobs.finish(conn,job['id'])
     except Exception as error:  # the job must always end in a final state; the message never carries a traceback

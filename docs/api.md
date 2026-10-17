@@ -138,7 +138,7 @@ Os CSVs seguem sempre as mesmas quatro regras: separador `;`, ponto decimal, dat
 curl -H "Authorization: Bearer $CHAVE" http://localhost:8000/v1/fechamentos/$ID/excecoes
 ```
 
-Lista com `id` (usado na decisão), `excecao_id`, `classe`, `tipo`, `modo`, `resultado`, `motivo`, `proposta`, `verificacoes`, `aplicada`, `pendencia_status`. As linhas vêm dos eventos da auditoria da execução; sem a camada ligada (`usar_llm=false` ou sem chave) a lista é vazia e as pendências continuam em `pendencias.csv`.
+Lista a fila de exceções do fechamento, sempre, com ou sem a camada: `id` (usado na decisão), `excecao_id`, `classe`, `tipo`, `escopo`, `valor_brl` (string decimal ou `null`), `quem_decide`, `motivo_pendencia`, `modo` (modo efetivo da classe na política de inferência), `resultado`, `motivo`, `proposta`, `verificacoes`, `aplicada`, `pendencia_status` (de `pendencias.csv`). Sem a camada (`usar_llm=false` ou sem chave) `resultado` é `SEM_CAMADA`, `motivo` e `proposta` são `null` e `verificacoes` é `[]`; com a camada (e nas revisões), os eventos da auditoria preenchem `resultado`, `motivo`, `proposta`, `verificacoes` e `aplicada`.
 
 ### `POST /v1/excecoes/{id}/decisao`
 
@@ -157,8 +157,10 @@ A decisão nunca reescreve a execução: cria uma revisão nova (fechamento filh
 |---|---|
 | `202` | revisão enfileirada |
 | `404` | exceção inexistente ou de outro cliente |
-| `409` | já há revisão em andamento (job `NA_FILA` ou `PROCESSANDO`) na linhagem do fechamento, ou a execução pai não tem `auditoria.jsonl` (fechamento feito com `usar_llm=false`: não há proposta para decidir em `MOVIMENTO_SEM_REGRA`, e `DECISAO`/`CONDICAO_COMERCIAL` só fecham por aqui quando a camada rodou) |
+| `409` | já há revisão em andamento (job `NA_FILA` ou `PROCESSANDO`) na linhagem do fechamento, ou a execução pai é antiga: sem `auditoria.jsonl` e sem o marcador `camada` no `manifest.json` (refaça o fechamento) |
 | `422` | corpo fora da forma (campo ausente, `decisao` desconhecida) |
+
+Decidir sobre fechamento feito com `usar_llm=false` é permitido (o `manifest.json` do pai traz `camada.auditoria = false`): `DECISAO` e `CONDICAO_COMERCIAL` viram `APROVADA` ou `REJEITADA` sem mudar nenhum número; `aprovar` em `MOVIMENTO_SEM_REGRA` sem proposta validada vira `RECUSADA` (registrada na auditoria da revisão).
 
 Erros de regra (por exemplo aprovar proposta em modo `sombra`, ou exceção já decidida) aparecem na revisão: ela termina em `ERRO` com a mensagem em `erro`.
 
@@ -170,6 +172,8 @@ curl -H "Authorization: Bearer $CHAVE" http://localhost:8000/v1/fechamentos/$ID/
 ```
 
 Eventos em ordem (`seq`): proposta, verificações, modo, tokens e custo, decisão e quem decidiu.
+
+Os eventos `EXCECAO` com `motivo` `ERRO_API` ou `ERRO_REDE` trazem o campo `detalhe` com `tipo`, `status`, `mensagem` (até 500 caracteres) e `request_id`; nunca a chave nem o conteúdo enviado. `ERRO_REDE`: falha de conexão, timeout, `429` ou status 500 e acima (vale tentar de novo). `ERRO_API`: os demais 4xx.
 
 ## Estados
 

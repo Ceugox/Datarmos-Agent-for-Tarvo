@@ -26,7 +26,7 @@ def run_closing(input_path, closing_policy, inference_policy, period, output, re
         inner = resolver or AnthropicResolver(prompt_version=inference_policy['prompt_version'])
         budget = budget or TokenBudget(int(os.environ.get('LLM_BUDGET_TOKENS',200000)))
         events = run_inference(bundle,result,closing_policy,inference_policy,CachedResolver(inner,cache or ResponseCache('.cache/llm')),audit,budget)
-    manifest = publish_result(bundle,result,closing_policy,period,output,started_at=started_at)
+    manifest = publish_result(bundle,result,closing_policy,period,output,started_at=started_at,layer={'ligada':use_llm,'auditoria':use_llm})
     if audit:
         audit.write(Path(output)/'auditoria.jsonl')
     return {'result':result, 'manifest':manifest, 'events':events, 'audit':audit, 'aviso':warning}
@@ -40,6 +40,6 @@ def run_revision_closing(input_path, closing_policy, inference_policy, period, o
     decisions = validate_decisions(decisions,result)
     audit = AuditLog()
     revision = run_revision(bundle,result,closing_policy,inference_policy,parent_dir,decisions,audit)
-    manifest = publish_result(bundle,result,closing_policy,period,output,revision=revision,started_at=started_at)
+    manifest = publish_result(bundle,result,closing_policy,period,output,revision=revision,started_at=started_at,layer={'ligada':False,'auditoria':True})
     audit.write(Path(output)/'auditoria.jsonl')
     return {'result':result, 'manifest':manifest, 'revision':revision, 'audit':audit}

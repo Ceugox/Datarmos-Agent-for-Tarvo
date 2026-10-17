@@ -106,6 +106,14 @@ class InferenceTests(unittest.TestCase):
         _, _, events = self.run_layer(self.synthetic,{'PEN-SINT0':Failure('RECUSA')})
         self.assertEqual((events[0]['resultado'],events[0]['motivo']),('HUMANO','RECUSA'))
 
+    def test_api_error_detail_goes_to_the_audit(self):
+        detalhe = {'tipo':'BadRequestError', 'status':400, 'mensagem':'tools.0.custom: invalid', 'request_id':'req_1'}
+        _, audit, events = self.run_layer(self.synthetic,{'PEN-SINT0':Failure('ERRO_API',detail='BadRequestError',detalhe=detalhe)})
+        self.assertEqual((events[0]['resultado'],events[0]['motivo']),('HUMANO','ERRO_API'))
+        self.assertEqual(events[0]['detalhe'],detalhe)
+        self.assertEqual(audit.events[0],events[0])
+        self.assertIsNone(events[1]['detalhe'])
+
     def test_failure_usage_is_charged(self):
         usage = {'input_tokens':3000, 'output_tokens':2000}
         resolver = FakeResolver({'PEN-SINT0':Failure('RECUSA',usage=usage)},model='claude-opus-5-5')
