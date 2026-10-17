@@ -1,6 +1,6 @@
 # Momentos da preparação e construção
 
-Quatro momentos selecionados conforme as instruções do desafio. Os históricos das sessões estão nesta pasta; a seleção anterior de sete momentos foi preservada em `MOMENTOS-historico-antes-da-revisao-2026-10-17.md`. O pedido principal e a avaliação do overfit abaixo foram explicitados pelo autor na sessão Codex de auditoria e publicação.
+Quatro momentos selecionados conforme as instruções do desafio. Este é o arquivo de referência dos momentos; versões anteriores estão no histórico do Git. Os históricos das sessões estão nesta pasta. O pedido principal e a avaliação do overfit abaixo foram explicitados pelo autor na sessão Codex de auditoria e publicação.
 
 1. **O pedido principal: cálculo determinístico e inferência para apoiar pessoas.** Pedi um motor determinístico com uma camada de inferência via LLM que ajudasse a diminuir a fricção das decisões que precisam passar por intervenção humana; a IA entregou o cálculo separado das propostas, com evidência e revisão auditada. Mantive a decisão com o financeiro e o comercial: o modelo apoia a análise, não inventa valores nem substitui a aprovação necessária.
 

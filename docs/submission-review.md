@@ -24,7 +24,7 @@ As instruções não pontuam capricho visual, elegância de código, ferramenta 
 | README: instalar, rodar, chaves e limitações | `README.md`, com site destacado, exemplos local e HTTP, autenticação e limites | Atualizado nesta revisão; consultar a versão do commit que contém esta conferência |
 | HIPOTESES na raiz | `HIPOTESES.md`, com perguntas e respostas detalhadas também em `docs/slack-financeiro.md` | Presente no GitHub e no checkout |
 | Histórico de todas as sessões | Sessões existentes e exportação desta conversa em `PROMPTS/` | Exportação incluída nesta revisão; verificar que não exista outra sessão usada pelo autor fora das exportações disponíveis |
-| MOMENTOS com 2–4 momentos, incluindo um erro da IA | `PROMPTS/MOMENTOS.md` revisado para quatro momentos | Pedido principal e erro de overfit registrados conforme relato do autor; seleção anterior preservada separadamente |
+| MOMENTOS com 2–4 momentos, incluindo um erro da IA | `PROMPTS/MOMENTOS.md`, arquivo único com quatro momentos | Pedido principal e erro de overfit registrados conforme relato do autor; versões anteriores no histórico do Git |
 | Seis CSVs em `saida/` | Arquivos existem no GitHub; execução nova em `analysis/engine-runs/audit-2026-10-17/closing/` e relatório publicado | Conferidos na execução nova e na cópia isolada; `saida/` original está inacessível neste ambiente, sem ter sido sobrescrita |
 | Código, fluxos e configurações | `src/`, `api/`, `config/` e documentação | Motor real, executável; site e pitch não são apresentados como substitutos do motor |
 | Link do repositório no thread da equipe | Canal `#hackathon-entregas` | Não verificado; esta sessão não enviou mensagens ao Slack |
