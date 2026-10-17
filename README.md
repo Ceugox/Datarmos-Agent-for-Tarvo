@@ -155,6 +155,8 @@ Modelo em `.env.example`. Nenhuma é necessária para a CLI sem a camada.
 | `RATE_LIMIT_PER_MINUTE` | `60` | requisições por minuto por cliente, por processo |
 | `API_KEY_PEPPER` | vazio | segredo extra do hash das chaves; trocar invalida as chaves |
 | `WORKER_IN_PROCESS` | `1` | `0` desliga o worker no processo da API |
+| `DEMO_ATE` | vazio | fim do modo demonstração (ISO 8601 com fuso). Até lá: chave por autoatendimento em `POST /v1/demo/chave` e camada de IA ligada por padrão na API; depois, tudo volta ao normal sem deploy. Ver `docs/api.md` |
+| `DEMO_CHAVES_POR_IP_HORA` / `DEMO_FECHAMENTOS_IA_POR_IP_HORA` | `5` / `20` | limites por IP no modo demonstração |
 
 ## Limitações conhecidas
 

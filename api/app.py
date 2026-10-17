@@ -71,8 +71,19 @@ def parse_uuid(value):
         raise HTTPException(404,'não encontrado')
 
 
-def parse_bool(value):
-    text = (value or 'false').strip().lower()
+DEMO_NOTICE = ('Modo demonstração: a camada de IA vem ligada por padrão. Descrição, valor e data dos movimentos sem regra '
+               'são enviados à Anthropic (CPF e número de conta mascarados). Use só dados de teste, como o pacote de setembro do case.')
+
+
+def client_ip(request):
+    """Railway's edge fills X-Real-IP; locally there is no proxy. Only used for in-memory limits, never stored."""
+    return request.headers.get('x-real-ip') or (request.client.host if request.client else 'desconhecido')
+
+
+def parse_bool(value, default=False):
+    if value is None:
+        return default
+    text = value.strip().lower()
     if text in ('true','1','on','yes','sim'):
         return True
     if text in ('false','0','off','no','nao','não',''):
@@ -112,6 +123,8 @@ def has_layer_marker(folder):
 def create_app(settings=None):
     settings = settings or Settings.from_env()
     limiter = RateLimiter(settings.rate_limit_per_minute)
+    demo_key_limiter = RateLimiter(settings.demo_keys_per_ip_hour,window=3600.0)
+    demo_llm_limiter = RateLimiter(settings.demo_llm_closings_per_ip_hour,window=3600.0)
     max_bytes = settings.max_upload_mb*1024*1024
 
     def factory():
@@ -151,6 +164,8 @@ def create_app(settings=None):
         client = keys.find_client(conn,match.group(1),settings.api_key_pepper) if match else None
         if client is None:
             raise HTTPException(401,'chave inválida',headers={'WWW-Authenticate':'Bearer'})
+        if client.get('demo') and not settings.demo_active():
+            raise HTTPException(401,'chave de demonstração expirada',headers={'WWW-Authenticate':'Bearer'})
         wait = limiter.check(client['id'])
         if wait:
             log.info('rate limit cliente=%s',client['id'])
@@ -173,12 +188,25 @@ def create_app(settings=None):
             return JSONResponse({'status':'erro','banco':'indisponível'},status_code=503)
         return {'status':'ok','banco':'ok'}
 
+    @app.post('/v1/demo/chave',status_code=201)
+    def create_demo_key(request: Request, conn=Depends(get_conn)):
+        if not settings.demo_active():
+            raise HTTPException(410,'modo demonstração encerrado')
+        wait = demo_key_limiter.check(client_ip(request))
+        if wait:
+            raise HTTPException(429,'limite de chaves de demonstração por hora excedido',headers={'Retry-After':str(wait)})
+        client_id, key = keys.create_client(conn,f'demo-{uuid.uuid4().hex[:12]}',settings.api_key_pepper,demo=True)
+        policies.seed_tarvo(conn,client_id,demo=True)
+        log.info('chave de demonstração criada cliente=%s',client_id)
+        return {'chave':key, 'valida_ate':settings.demo_ate.isoformat(), 'usar_llm_padrao':True, 'aviso':DEMO_NOTICE,
+                'como_usar':'Authorization: Bearer <chave> em todas as rotas /v1; a chave aparece só nesta resposta.'}
+
     def save_upload(client, form):
         uploads = [item for item in form.getlist('arquivos') if hasattr(item,'filename')]
         period = form.get('periodo')
         if not isinstance(period,str) or not PERIOD.fullmatch(period):
             raise HTTPException(422,'periodo deve estar no formato AAAA-MM')
-        use_llm = parse_bool(form.get('usar_llm') if isinstance(form.get('usar_llm'),str) else None)
+        use_llm = parse_bool(form.get('usar_llm') if isinstance(form.get('usar_llm'),str) else None,default=settings.demo_active())
         validate_names(uploads)
         if sum(item.size or 0 for item in uploads) > max_bytes:
             raise HTTPException(413,f'upload acima de {settings.max_upload_mb} MB')
@@ -186,7 +214,7 @@ def create_app(settings=None):
             try:
                 closing_id, closing = policies.current(conn,client['id'],'closing')
             except ValueError:
-                policies.seed_tarvo(conn,client['id'])  # a new client starts from the Tarvo policies, versioned in its own rows
+                policies.seed_tarvo(conn,client['id'],demo=bool(client.get('demo')))  # a new client starts from the Tarvo policies, versioned in its own rows
                 closing_id, closing = policies.current(conn,client['id'],'closing')
             inference_id, _ = policies.current(conn,client['id'],'inference')
             fid = uuid.uuid4()
@@ -224,6 +252,12 @@ def create_app(settings=None):
         if not request.headers.get('content-type','').lower().startswith('multipart/form-data'):
             raise HTTPException(422,'envie multipart/form-data')
         form = await request.form(max_files=50)
+        use_llm = form.get('usar_llm')
+        if (settings.demo_active() if use_llm is None else parse_bool(use_llm if isinstance(use_llm,str) else None)):
+            wait = demo_llm_limiter.check(client_ip(request))
+            if wait:
+                await form.close()
+                raise HTTPException(429,'limite de fechamentos com IA por hora excedido',headers={'Retry-After':str(wait)})
         try:
             fid = await run_in_threadpool(save_upload,client,form)
         finally:

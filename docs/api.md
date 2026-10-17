@@ -6,7 +6,7 @@ Stack: FastAPI + uvicorn em `0.0.0.0:$PORT`, Postgres (`DATABASE_URL`), arquivos
 
 ## Autenticação
 
-Toda rota exige `Authorization: Bearer <chave>`, exceto `GET /health`. Chave ausente, malformada ou inexistente devolve `401 {"detail":"chave inválida"}`. Cada cliente só enxerga os próprios fechamentos, exceções, arquivos e auditoria; o id de outro cliente responde `404`, como se não existisse.
+Toda rota exige `Authorization: Bearer <chave>`, exceto `GET /health` e, no modo demonstração, `POST /v1/demo/chave`. Chave ausente, malformada ou inexistente devolve `401 {"detail":"chave inválida"}`. Cada cliente só enxerga os próprios fechamentos, exceções, arquivos e auditoria; o id de outro cliente responde `404`, como se não existisse.
 
 **Como a chave é guardada.** A chave tem a forma `tk_` + 256 bits aleatórios (`secrets.token_urlsafe(32)`). O banco guarda só `sha256(API_KEY_PEPPER + chave)` em hex. Por que sha256 e não bcrypt: hash lento protege contra força bruta de entradas de baixa entropia (senha escolhida por pessoa), e uma chave aleatória de 256 bits não é esse caso; sha256 ainda permite buscar o cliente por igualdade no índice, sem varrer a tabela. O `API_KEY_PEPPER` (variável de ambiente, opcional) fica fora do banco, então um dump do banco sozinho não valida nenhuma chave. Trocar o pepper invalida todas as chaves existentes.
 
@@ -32,6 +32,25 @@ A chave aparece uma única vez, na saída do comando; guarde-a na hora.
 
 O contêiner inicia como root só para o `docker-entrypoint.sh`: ele cria `$DATA_DIR`, ajusta o dono para o usuário `app` (o volume do Railway monta `/data` como root), confere que `app` consegue escrever e então troca de usuário com `runuser`. Se não conseguir escrever, aborta com mensagem em stderr. O `healthcheckTimeout` de 120 s do `railway.json` cobre o start com as migrações.
 
+### Modo demonstração
+
+Enquanto `DEMO_ATE` estiver no futuro, a API fica aberta para quem quiser testar a camada de inferência:
+
+- `POST /v1/demo/chave`, sem autenticação, cria um cliente de demonstração e devolve a chave **uma única vez**:
+
+  ```bash
+  curl -s -X POST https://<domínio da API>/v1/demo/chave
+  # 201 {"chave":"tk_...","valida_ate":"2026-10-18T23:59:00-03:00","usar_llm_padrao":true,"aviso":"...","como_usar":"..."}
+  ```
+
+- Cada chave é um cliente isolado: o que um usuário fecha, outro não vê (`404`).
+- `usar_llm` passa a ser `true` quando o campo não vem no `POST /v1/fechamentos`, para todos os clientes. `usar_llm=false` continua desligando.
+- O cliente de demonstração nasce com `MOVIMENTO_SEM_REGRA` em `sugerir`. A proposta aparece em `/excecoes` e só é aplicada se alguém aprovar por `POST /v1/excecoes/{id}/decisao`. `DECISAO` e `CONDICAO_COMERCIAL` continuam presas a `sugerir` pelo código.
+- Limites por IP (lido de `X-Real-IP`, preenchido pela borda do Railway, contado em memória e nunca gravado): `DEMO_CHAVES_POR_IP_HORA` chaves (5) e `DEMO_FECHAMENTOS_IA_POR_IP_HORA` fechamentos com IA (20). Acima disso, `429` com `Retry-After`. O orçamento por fechamento é `LLM_BUDGET_TOKENS`.
+- **Aviso de dados:** no modo demonstração, descrição, valor e data dos movimentos sem regra vão para a Anthropic, com CPF e número de conta mascarados. Use só dados de teste, como o pacote de setembro do case.
+
+Quando `DEMO_ATE` passa, sem novo deploy: `POST /v1/demo/chave` responde `410`, as chaves de demonstração respondem `401 {"detail":"chave de demonstração expirada"}` e o padrão de `usar_llm` volta a `false`. Chaves criadas por `python -m api.keys criar` continuam valendo. Sem `DEMO_ATE`, não existe modo demonstração.
+
 ## Variáveis de ambiente
 
 Ver `.env.example`.
@@ -48,6 +67,9 @@ Ver `.env.example`.
 | `ANTHROPIC_API_KEY` | vazio | só lida com `usar_llm=true`. A API sobe e funciona sem ela com `usar_llm=false`; com `usar_llm=true` e sem chave o fechamento roda sem a camada (saída igual à de `--no-llm`) e registra `aviso` no fechamento |
 | `ANTHROPIC_MODEL` | `claude-opus-5-5` | modelo do resolvedor |
 | `LLM_BUDGET_TOKENS` | `200000` | orçamento de tokens por execução; ao estourar, as exceções restantes vão para humano (`ORCAMENTO_ESGOTADO`) |
+| `DEMO_ATE` | vazio | fim do modo demonstração, ISO 8601 com fuso (`2026-10-18T23:59:00-03:00`); vazio desliga o modo |
+| `DEMO_CHAVES_POR_IP_HORA` | `5` | chaves de demonstração por IP por hora |
+| `DEMO_FECHAMENTOS_IA_POR_IP_HORA` | `20` | fechamentos com a camada ligada por IP por hora |
 
 Não há CORS aberto. Os logs registram só ids, status e duração: nunca conteúdo de transação nem chave.
 
@@ -184,6 +206,7 @@ Fechamento (e revisão, que é um fechamento filho): `NA_FILA`, `PROCESSANDO`, d
 - Upload: `MAX_UPLOAD_MB` (50), conferido por `Content-Length` e, de novo, na gravação em streaming.
 - Requisições: `RATE_LIMIT_PER_MINUTE` (60) por cliente, janela deslizante, `429` com `Retry-After`. **O contador vive na memória do processo**: com mais de uma instância, o limite efetivo é por instância (N instâncias deixam passar até N vezes o valor). Se o serviço escalar na horizontal, o limite tem de ir para o Postgres ou para a borda.
 - Tokens do LLM por execução: `LLM_BUDGET_TOKENS` (200000).
+- Modo demonstração: chaves e fechamentos com IA por IP por hora (ver acima), também em memória do processo. O gasto total fica limitado pelo teto configurado na conta da Anthropic, fora do serviço.
 
 ## LGPD: o que sai para a Anthropic, campo a campo
 

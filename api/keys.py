@@ -20,9 +20,9 @@ def hash_key(key, pepper=''):
     return hashlib.sha256((pepper+key).encode()).hexdigest()
 
 
-def create_client(conn, nome, pepper=''):
+def create_client(conn, nome, pepper='', demo=False):
     key = new_key()
-    row = conn.execute('INSERT INTO clientes (nome, chave_hash) VALUES (%s,%s) RETURNING id',(nome,hash_key(key,pepper))).fetchone()
+    row = conn.execute('INSERT INTO clientes (nome, chave_hash, demo) VALUES (%s,%s,%s) RETURNING id',(nome,hash_key(key,pepper),demo)).fetchone()
     conn.commit()
     return row['id'], key
 
