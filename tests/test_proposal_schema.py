@@ -43,12 +43,29 @@ def walk_all(node, path='$'):
 
 
 class StrictToolInputSchemaTests(unittest.TestCase):
-    """The real tool input_schema (the whole wrapper). The API answered 400 on `type` next to `anyOf`."""
+    """The real tool input_schema sent for each class. In production (17/10) the API answered 400 first on `type`
+    next to `anyOf`, then on the 8-variant anyOf as a strict grammar too large; each call now sends one class variant."""
 
     @classmethod
     def setUpClass(cls):
-        cls.tool = AnthropicResolver(client=object())._tool()
-        cls.nodes = list(walk_all(cls.tool['input_schema']))
+        resolver = AnthropicResolver(client=object())
+        cls.tools = {name:resolver._tool(name) for name in CLASSES}
+        cls.tool = cls.tools['MOVIMENTO_SEM_REGRA']
+        cls.nodes = [item for tool in cls.tools.values() for item in walk_all(tool['input_schema'])]
+
+    def test_each_call_sends_only_the_variant_of_its_class(self):
+        for name, tool in self.tools.items():
+            proposal = tool['input_schema']['properties']['proposta']
+            self.assertNotIn('anyOf',proposal,name)
+            self.assertEqual(proposal['properties']['classe'].get('const'),name)
+            self.assertLess(len(json.dumps(tool['input_schema'])),len(json.dumps(SCHEMA))/4,name)
+
+    def test_an_unknown_class_has_no_tool(self):
+        with self.assertRaisesRegex(ValueError,'no single variant'):
+            AnthropicResolver(client=object())._tool('CLASSE_NOVA')
+
+    def test_resolver_version_enters_the_cache_key_whatever_the_stored_policy(self):
+        self.assertTrue(AnthropicResolver(client=object(),prompt_version='2026-10-17.1').prompt_version.startswith('2026-10-17.1+'))
 
     def test_tool_is_strict(self):
         self.assertIs(self.tool['strict'],True)
@@ -61,7 +78,7 @@ class StrictToolInputSchemaTests(unittest.TestCase):
     def test_every_object_is_closed_and_fully_required(self):
         # The doc only requires additionalProperties: false; requiring every property is our own convention (brief da Fase 2).
         objects = [(path,node) for path, node in self.nodes if node.get('type') == 'object']
-        self.assertGreater(len(objects),10)
+        self.assertGreater(len(objects),8)
         for path, node in objects:
             self.assertIs(node.get('additionalProperties'),False,path)
             self.assertEqual(set(node['required']),set(node['properties']),path)

@@ -137,11 +137,25 @@ def read_usage(response):
     return {key:int(getattr(usage,key,0) or 0) for key in USAGE_KEYS}
 
 
+# Bump when the tool, the instructions or the request shape change: it enters the cache key even when the
+# client's stored inference policy still carries an older prompt_version.
+RESOLVER_VERSION = 'tool-por-classe-1'
+
+
+def class_variant(schema, exception_class):
+    """The proposal schema variant of one class. The API rejects the 8-variant anyOf as a strict grammar too large
+    (400, 17/10 in production), and each call resolves a single exception of a known class."""
+    variants = [v for v in schema['anyOf'] if v['properties']['classe'].get('const') == exception_class]
+    if len(variants) != 1:
+        raise ValueError(f'Proposal schema has no single variant for class {exception_class}')
+    return variants[0]
+
+
 class AnthropicResolver(Resolver):
     def __init__(self, model=None, client=None, schema=None, effort='medium', max_tokens=16000, timeout=120.0, max_retries=2, prompt_version='2026-10-17.2'):
         self.model = model or os.environ.get('ANTHROPIC_MODEL','claude-opus-5-5')
         self.client, self.effort, self.max_tokens = client, effort, max_tokens
-        self.timeout, self.max_retries, self.prompt_version = timeout, max_retries, prompt_version
+        self.timeout, self.max_retries, self.prompt_version = timeout, max_retries, f'{prompt_version}+{RESOLVER_VERSION}'
         self.schema = schema if schema is not None else json.loads(SCHEMA_PATH.read_text(encoding='utf-8'))
 
     def _client(self):
@@ -150,10 +164,11 @@ class AnthropicResolver(Resolver):
             self.client = anthropic.Anthropic(timeout=self.timeout,max_retries=self.max_retries)
         return self.client
 
-    def _tool(self):
-        # The file schema has anyOf at the root; the wrapper keeps the tool input_schema a plain object.
-        # minItems is not a strict keyword; the local check_schema reads the file and still demands >= 1 evidence.
-        wrapper = {'type':'object', 'properties':{'proposta':_without_min_items(self.schema)}, 'required':['proposta'], 'additionalProperties':False}
+    def _tool(self, exception_class):
+        # Only the variant of the exception's class goes to the API; the wrapper keeps input_schema a plain object.
+        # minItems is not a strict keyword; the local check_schema reads the whole file and still demands >= 1 evidence.
+        variant = _without_min_items(class_variant(self.schema,exception_class))
+        wrapper = {'type':'object', 'properties':{'proposta':variant}, 'required':['proposta'], 'additionalProperties':False}
         return {'name':TOOL_NAME, 'description':'Registra a proposta de resolução da exceção, conforme o schema.', 'strict':True, 'input_schema':wrapper}
 
     def propose(self, excecao, context):
@@ -162,7 +177,7 @@ class AnthropicResolver(Resolver):
         try:
             response = self._client().beta.messages.create(
                 model=self.model, max_tokens=self.max_tokens, system=system, messages=[{'role':'user', 'content':content}],
-                tools=[self._tool()], tool_choice={'type':'auto'}, output_config={'effort':self.effort},
+                tools=[self._tool(excecao['classe'])], tool_choice={'type':'auto'}, output_config={'effort':self.effort},
                 betas=['server-side-fallback-2026-07-01'], fallbacks='default')
         except Exception as error:
             failure = classify_error(error)

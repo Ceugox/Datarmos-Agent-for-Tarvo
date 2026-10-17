@@ -192,7 +192,8 @@ class AnthropicResolverTests(unittest.TestCase):
 
     def test_prompt_version_default_matches_the_policy(self):
         policy = json.loads((ROOT/'config'/'inference-policy.json').read_text(encoding='utf-8'))
-        self.assertEqual(AnthropicResolver(client=FakeClient()).prompt_version,policy['prompt_version'])
+        from tarvo_close.resolver import RESOLVER_VERSION
+        self.assertEqual(AnthropicResolver(client=FakeClient()).prompt_version,f"{policy['prompt_version']}+{RESOLVER_VERSION}")
         self.assertEqual(policy['prompt_version'],'2026-10-17.2')
 
     def test_source_never_reads_the_api_key(self):
